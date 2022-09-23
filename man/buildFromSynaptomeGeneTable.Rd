@@ -18,7 +18,8 @@ Utility function to create network from
 \code{\link[synaptome.db]{synaptome.db}} data
 }
 \examples{
+library(synaptome.db)
 cid<-match('Presynaptic',getCompartments()$Name)
 t<-getAllGenes4Compartment(cid)
-gg<-buildFromSynaptomeByEntrez(t)
+gg<-buildFromSynaptomeGeneTable(t)
 }

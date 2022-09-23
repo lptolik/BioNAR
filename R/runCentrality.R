@@ -248,7 +248,7 @@ applpMatrixToGraph<-function(gg,m){
 #'
 #' @examples
 #' data(karate,package='igraphdata')
-#' ggm<-calcCentrality(garate)
+#' ggm<-calcCentrality(karate)
 #' V(ggm)$DEG
 calcCentrality<-function(gg){
     m<-getCentralityMatrix(gg)

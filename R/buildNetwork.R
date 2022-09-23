@@ -154,10 +154,10 @@ addEdgeAtts <- function(GG, gg){
 }
 
 #' Build network from data.table
-#' 
-#' It is a wrapper for \code{\link[igraph]{graph.data.frame}} that always 
-#' return allow annotate edges largest connected component of the network 
-#' defined by \code{ff}. It is also allows annotation of edges 
+#'
+#' It is a wrapper for \code{\link[igraph]{graph.data.frame}} that always
+#' return allow annotate edges largest connected component of the network
+#' defined by \code{ff}. It is also allows annotation of edges
 #' with PubMed data, if exists.
 #'
 #' @param ff network structure data.frame with first two columns defining the
@@ -197,16 +197,17 @@ buildNetwork<-function(ff,kw=NA){
     gg <- addEdgeAtts(GG,gg)
 }
 
-#' Utility function to create network from 
+#' Utility function to create network from
 #' \code{\link[synaptome.db]{synaptome.db}} data
-#' 
+#'
 #' @param entrez vector of EntrezIDs for network vertices
 #'
-#' @return  largest connected component of network defined by the gene list 
+#' @return  largest connected component of network defined by the gene list
 #' @export
 #' @import synaptome.db
 #'
 #' @examples
+#' library(synaptome.db)
 #' cid<-match('Presynaptic',getCompartments()$Name)
 #' t<-getAllGenes4Compartment(cid)
 #' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
@@ -216,18 +217,19 @@ buildFromSynaptomeByEntrez<-function(entrez){
     return(gg)
 }
 
-#' Utility function to create network from 
+#' Utility function to create network from
 #' \code{\link[synaptome.db]{synaptome.db}} data
 #'
 #' @param t data.frame described in \code{\link[synaptome.db]{getGenesByID}}
 #'
-#' @return largest connected component of network defined by the gene table 
+#' @return largest connected component of network defined by the gene table
 #' @export
 #'
 #' @examples
+#' library(synaptome.db)
 #' cid<-match('Presynaptic',getCompartments()$Name)
 #' t<-getAllGenes4Compartment(cid)
-#' gg<-buildFromSynaptomeByEntrez(t)
+#' gg<-buildFromSynaptomeGeneTable(t)
 buildFromSynaptomeGeneTable<-function(t){
     p<-getPPIbyIDs(t$GeneID,type = 'limited')
     aidx<-match(p$A,t$GeneID)
@@ -237,7 +239,7 @@ buildFromSynaptomeGeneTable<-function(t){
 }
 
 #' Calculate sparsness of the graph.
-#' 
+#'
 #' Sparsness is defined as ratio of graph edge numbers to the edge numbers of
 #' the full graph of the same size.
 #'

@@ -21,6 +21,6 @@ attributes.
 }
 \examples{
 data(karate,package='igraphdata')
-ggm<-calcCentrality(garate)
+ggm<-calcCentrality(karate)
 V(ggm)$DEG
 }

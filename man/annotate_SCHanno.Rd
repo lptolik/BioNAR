@@ -18,6 +18,7 @@ annotated igraph object
 Add SCHanno synaptic functional groups
 }
 \examples{
+library(synaptome.db)
 cid<-match('Presynaptic',getCompartments()$Name)
 t<-getAllGenes4Compartment(cid)
 gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)

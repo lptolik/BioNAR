@@ -25,6 +25,6 @@ As a first step all attributes with provided names will be removed.
 g1 <- make_star(10, mode="undirected")
 V(g1)$name <- letters[1:10]
 m<-data.frame(ID=letters[1:10],capital=LETTERS[1:10])
-g2<-annotate_vertex(g1,vame='cap',values=m)
+g2<-annotate_vertex(g1,name='cap',values=m)
 V(g2)$cap
 }

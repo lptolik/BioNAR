@@ -217,7 +217,7 @@ getDiseases <- function() {
 #' g1 <- make_star(10, mode="undirected")
 #' V(g1)$name <- letters[1:10]
 #' m<-data.frame(ID=letters[1:10],capital=LETTERS[1:10])
-#' g2<-annotate_vertex(g1,vame='cap',values=m)
+#' g2<-annotate_vertex(g1,name='cap',values=m)
 #' V(g2)$cap
 annotate_vertex <- function(gg, name, values) {
     ggm <- removeVertexTerm(gg, name)
@@ -399,6 +399,7 @@ getAnnotationList <- function(annVec,
 #' @seealso getAnnotationVertexList
 #'
 #' @examples
+#' library(synaptome.db)
 #' cid<-match('Presynaptic',getCompartments()$Name)
 #' t<-getAllGenes4Compartment(cid)
 #' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
@@ -512,6 +513,7 @@ annotate_topOnto_ov_P140papers <- function(gg, par, dis) {
 #'
 #' @seealso getAnnotationVertexList
 #' @examples
+#' library(synaptome.db)
 #' cid<-match('Presynaptic',getCompartments()$Name)
 #' t<-getAllGenes4Compartment(cid)
 #' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)

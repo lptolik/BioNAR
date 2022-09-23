@@ -21,6 +21,7 @@ from \code{dis} matrix and put it on the vertices with attributes
 TopOnto_OVG for terms and TopOnto_OVG_HDO_ID for IDs.
 }
 \examples{
+library(synaptome.db)
 cid<-match('Presynaptic',getCompartments()$Name)
 t<-getAllGenes4Compartment(cid)
 gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)

@@ -364,7 +364,7 @@ recluster <- function( GG, ALGN, CnMAX ){
 #'
 #' @return list of Nx3 matrices
 #'
-#' @noRd
+#' @export
 #' @examples
 #' data(karate,package='igraphdata')
 #' alg<-'louvain'
