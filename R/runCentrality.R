@@ -322,6 +322,7 @@ getPA<-function(gg,...){
 #' centrality matrix from \code{\link{getCentralityMatrix}} invocation.
 #'
 #' @seealso getCentralityMatrix
+#' @export
 #' @examples
 #' library(synaptome.db)
 #' cid<-match('Presynaptic',getCompartments()$Name)
@@ -461,7 +462,7 @@ calcCentralityExternalDistances<-function(m,l,keepOrder=FALSE,dist='euclidean'){
 #' for(i in 1:10){
 #'     gnp[[i]]<-getRandomGraphCentrality(karate,type = 'gnp')
 #' }
-#' gnpIDist<-calcCentralityExternalDistances(gnp)
+#' gnpIDist<-calcCentralityInternalDistances(gnp)
 #' gnpEDist<-calcCentralityExternalDistances(m,gnp)
 #'
 #' simSig<-evalCentralitySignificance(gnpIDist,gnpEDist)

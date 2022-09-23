@@ -32,7 +32,7 @@ gnp<-list()
 for(i in 1:10){
     gnp[[i]]<-getRandomGraphCentrality(karate,type = 'gnp')
 }
-gnpIDist<-calcCentralityExternalDistances(gnp)
+gnpIDist<-calcCentralityInternalDistances(gnp)
 gnpEDist<-calcCentralityExternalDistances(m,gnp)
 
 simSig<-evalCentralitySignificance(gnpIDist,gnpEDist)

@@ -54,7 +54,7 @@ file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
 gg <- igraph::read.graph(file,format="gml")
 agg<-annotateGeneNames(gg)
 r <- runPermDisease(
-gg,
+agg,
 name = "TopOntoOVGHDOID",
 diseases = c("DOID:10652","DOID:3312","DOID:12849","DOID:1826"),
 Nperm = 10,

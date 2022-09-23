@@ -24,7 +24,8 @@ and format it for further analysis.
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
 gg <- igraph::read.graph(file,format="gml")
 agg<-annotateGeneNames(gg)
-gda<-prepareGDA(gg,'TopOntoOVGHDOID')
+gda<-prepareGDA(agg,'TopOntoOVGHDOID')
+gda<-prepareGDA(agg,'TopOntoOVGHDOID')
 head(gda)
 }
 \seealso{

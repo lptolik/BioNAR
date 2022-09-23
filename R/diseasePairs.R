@@ -129,11 +129,13 @@ diseaseOverlap <- function(GG, GDA, disA, disB, OO){
 #' @seealso getAnnotationList
 #' @seealso sample.deg.binned.GDA
 #' @examples
+#' options("show.error.messages"=TRUE)
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
 #' gg <- igraph::read.graph(file,format="gml")
 #' agg<-annotateGeneNames(gg)
-#' m<-degree.binned.GDAs(gg,gda,getAnnotationList(gda))
-#' c(dim(m),vcount(gg),length(getAnnotationList(gda)))
+#' gda<-prepareGDA(agg,'TopOntoOVGHDOID')
+#' m<-degree.binned.GDAs(agg,gda,getAnnotationList(gda))
+#' c(dim(m),vcount(agg),length(getAnnotationList(gda)))
 #' head(m)
 degree.binned.GDAs <- function(gg,GDA,dtype){
 
@@ -168,8 +170,9 @@ degree.binned.GDAs <- function(gg,GDA,dtype){
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
 #' gg <- igraph::read.graph(file,format="gml")
 #' agg<-annotateGeneNames(gg)
+#' gda<-prepareGDA(agg,'TopOntoOVGHDOID')
 #' diseases<-getAnnotationList(gda)
-#' m<-degree.binned.GDAs(gg,gda,diseases)
+#' m<-degree.binned.GDAs(agg,gda,diseases)
 #' sample.deg.binned.GDA(m,diseases[1])
 sample.deg.binned.GDA <- function(org.map,term){
 
@@ -219,7 +222,8 @@ sample.deg.binned.GDA <- function(org.map,term){
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
 #' gg <- igraph::read.graph(file,format="gml")
 #' agg<-annotateGeneNames(gg)
-#' gda<-prepareGDA(gg,'TopOntoOVGHDOID')
+#' gda<-prepareGDA(agg,'TopOntoOVGHDOID')
+#' gda<-prepareGDA(agg,'TopOntoOVGHDOID')
 #' head(gda)
 prepareGDA<-function(gg,name){
     if(!name%in%vertex_attr_names(gg)){
@@ -265,7 +269,7 @@ prepareGDA<-function(gg,name){
 #' gg <- igraph::read.graph(file,format="gml")
 #' agg<-annotateGeneNames(gg)
 #' p <- calcDiseasePairs(
-#' gg,
+#' agg,
 #' name = "TopOntoOVGHDOID",
 #' diseases = c("DOID:10652","DOID:3312","DOID:12849"),
 #' permute = "n"
@@ -405,7 +409,7 @@ toNum<-function(.x){
 #' gg <- igraph::read.graph(file,format="gml")
 #' agg<-annotateGeneNames(gg)
 #' r <- runPermDisease(
-#' gg,
+#' agg,
 #' name = "TopOntoOVGHDOID",
 #' diseases = c("DOID:10652","DOID:3312","DOID:12849","DOID:1826"),
 #' Nperm = 10,

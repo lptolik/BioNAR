@@ -22,8 +22,9 @@ Perform degree-aware shuffling of the annotation.
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
 gg <- igraph::read.graph(file,format="gml")
 agg<-annotateGeneNames(gg)
+gda<-prepareGDA(agg,'TopOntoOVGHDOID')
 diseases<-getAnnotationList(gda)
-m<-degree.binned.GDAs(gg,gda,diseases)
+m<-degree.binned.GDAs(agg,gda,diseases)
 sample.deg.binned.GDA(m,diseases[1])
 }
 \seealso{
