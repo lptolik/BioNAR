@@ -288,10 +288,10 @@ getRandomGraphCentrality<-function(gg,type=c('gnp','pa','cgnp','rw'),...){
     ne<-ecount(gg)
     prob<-(2*ne)/(nv*(nv-1))
     rg<-switch (type,
-    gnp <- getGNP(gg,...),
-    pa <- getPA(gg,...),
-    cgnp <- sample_correlated_gnp(gg,corr=0.75,...),
-    rw <- rewire(gg,keeping_degseq(niter = 0.25*ne))
+                gnp = getGNP(gg,...),
+                pa = getPA(gg,...),
+                cgnp = sample_correlated_gnp(gg,corr=0.75,...),
+                rw = rewire(gg,keeping_degseq(niter = 0.25*ne))
     )
     V(rg)$name<-V(gg)$name
     m<-getCentralityMatrix(rg)
