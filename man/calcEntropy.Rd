@@ -24,6 +24,7 @@ over- and underexpression respectively
 Calculates perturbation entropy and save it as attribute on the graph.
 }
 \examples{
+library(synaptome.db)
 cid<-match('Presynaptic',getCompartments()$Name)
 t<-getAllGenes4Compartment(cid)
 gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)

@@ -23,6 +23,7 @@ matrix with EntrexID, GeneNames, Degree, Enttropy UP and Down
 Calculates perturbation entropy
 }
 \examples{
+library(synaptome.db)
 cid<-match('Presynaptic',getCompartments()$Name)
 t<-getAllGenes4Compartment(cid)
 gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)

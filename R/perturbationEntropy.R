@@ -74,6 +74,7 @@ getEntropyRate<-function(gg){
 #' @export
 #'
 #' @examples
+#' library(synaptome.db)
 #' cid<-match('Presynaptic',getCompartments()$Name)
 #' t<-getAllGenes4Compartment(cid)
 #' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
@@ -100,6 +101,7 @@ calcEntropy<-function(gg,maxSr=NULL,exVal=NULL){
 #' @export
 #'
 #' @examples
+#' library(synaptome.db)
 #' cid<-match('Presynaptic',getCompartments()$Name)
 #' t<-getAllGenes4Compartment(cid)
 #' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
@@ -229,6 +231,7 @@ getEntropyOverExpressed<-function(SRprime,perc=1){
 #' @import ggplot2
 #'
 #' @examples
+#' library(synaptome.db)
 #' cid<-match('Presynaptic',getCompartments()$Name)
 #' t<-getAllGenes4Compartment(cid)
 #' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)

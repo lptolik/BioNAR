@@ -22,11 +22,12 @@
 #'   }
 #' @export
 #' @importFrom fgsea fora
-#' @examples 
+#' @examples
+#' options("show.error.messages"=TRUE)
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
 #' g <- igraph::read.graph(file,format="gml")
 #' anL<-getAnnotationVertexList(g,'TopOntoOVGHDOID')
-#' res<-clusterORA(gg1,alg='louvain',name='TopOntoOVGHDOID',vid='name')
+#' res<-clusterORA(g,alg='louvain',name='TopOntoOVGHDOID',vid='name')
 #' andf<-unique(data.frame(ID=get.vertex.attribute(g,'TopOntoOVGHDOID'),
 #' Term=get.vertex.attribute(g,'TopOntoOVG')))
 #' rr<-merge(andf,res,by.y='pathway',by.x='ID')

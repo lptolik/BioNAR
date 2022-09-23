@@ -249,9 +249,10 @@ buildFromSynaptomeGeneTable<-function(t){
 #' @export
 #'
 #' @examples
+#' library(synaptome.db)
 #' cid<-match('Presynaptic',getCompartments()$Name)
 #' t<-getAllGenes4Compartment(cid)
-#' gg<-buildFromSynaptomeByEntrez(t)
+#' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
 #' calcSparsness(gg)
 calcSparsness<-function(gg){
     N<-igraph::vcount(gg)

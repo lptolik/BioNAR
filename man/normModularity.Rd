@@ -39,6 +39,7 @@ Randomized networks were generated from a real-world network using the
 edge-rewiring algorithm (Maslov and Sneppen, 2002).
 }
 \examples{
+library(synaptome.db)
 cid<-match('Presynaptic',getCompartments()$Name)
 t<-getAllGenes4Compartment(cid)
 gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
