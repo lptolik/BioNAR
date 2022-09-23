@@ -32,7 +32,7 @@ Qm = (Qreal-Qrand)/(Qmax-Qrand)
 Where Qreal is the network modularity of a real-world signaling
 network and, Qrand is the average network modularity value obtained
 from 10,000 randomized networks constructed from its real-world network.
-Qmax was estimated as: 1 − 1/M, where M is the number of modules
+Qmax was estimated as: 1 - 1/M, where M is the number of modules
 in the real network.
 
 Randomized networks were generated from a real-world network using the
