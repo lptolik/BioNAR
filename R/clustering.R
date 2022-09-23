@@ -144,6 +144,7 @@ calcClustering<-function(gg,alg){
 #'
 #' @return \code{\link[igraph]{communities}} object or NULL if algorithm failed.
 #' @export
+#' @importFrom rSpectral spectral_igraph_communities
 #'
 #' @examples
 #' data(karate,package='igraphdata')
