@@ -8,7 +8,8 @@ Authors@R: c(
         email="lptolik@gmail.com", role="aut"), 
     person("Oksana", "Sorokina", 
         email="oksana.sorokina@ed.ac.uk", role="aut"),
-    person("J. Douglas", "Armstrong", role = "aut") )
+    person("J. Douglas", "Armstrong", 
+        email="Douglas.Armstrong@ed.ac.uk", role = "aut") )
 Description: the R package BioNAR, developed to step by step analysis of PPI 
             network. The aim is to quantify and rank each protein’s simultaneous 
             impact into multiple complexes based on network topology and 
