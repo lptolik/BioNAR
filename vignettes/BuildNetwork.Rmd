@@ -1,0 +1,626 @@
+---
+title: "BioNAR: Biological Network Analysis in R"
+author: "Colin Mclean, Anatoly Sorokin, J. Douglas Armstrong, Oksana Sorokina"
+output: rmarkdown::html_vignette
+vignette: >
+    %\VignetteIndexEntry{BioNAR: library for comprehensive network analysis}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    warning = FALSE,
+    message = FALSE,
+    comment = "#>"
+)
+```
+
+```{r setup}
+library(BioNAR)
+library(synaptome.db)
+library(ggplot2)
+library(synaptome.db)
+library(pander)
+library(ggrepel)
+library(randomcoloR)
+```
+
+#Introduction
+
+# Overview of capabilities
+
+# Build the network
+
+The package allows building the network from the data frame, where the rows 
+correspond to the edges of the graph, or for the list of nodes (genes), 
+for which the information will be retrieved from the SynaptomeDB.
+
+## Build the network from data frame
+The command builds the graph from provided data frame, simplifies the 
+graph (removing multiple edges and loops) and finds the MCC (maximum 
+connected component)
+```{r network_from_scratch}
+
+file <- system.file("extdata", "PPI_Presynaptic.csv", package = "BioNAR")
+tbl <- read.csv(file, sep="\t")
+head(tbl)
+gg <- buildNetwork(tbl)
+summary(gg)
+
+```
+
+## Build network for the node list extracted from SynaptomeDB
+
+```{r net_from_SynaptomeDB}
+# Let's get the ID for presynaptic compartment
+cid<-match('Presynaptic',getCompartments()$Name) 
+cid
+# Now we need to collect all the gene IDs for presinaptic  compartment
+t<-getAllGenes4Compartment(cid) 
+dim(t)
+head(t)
+# finally, build the graph using respecctive gene EntrezIDs as node IDs
+gg<-buildFromSynaptomeByEntrez(t$HumanEntrez) 
+summary(gg)
+
+```
+
+## Use the predifined network
+```{r net_predifind}
+
+file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
+gg1 <- igraph::read.graph(file,format="gml")
+summary(gg1)
+```
+
+# Annotate the nodes with node attributes
+## Gene name
+Adding gene names to nodes.
+```{r annotate_net}
+
+gg<-annotateGeneNames(gg)
+summary(gg)
+head(V(gg))
+head(V(gg)$GeneName)
+```
+
+## Diseases
+Adding diseases associations to genes linked to Human Disease Ontology 
+(HDO) terms
+```{r annotate_topOnto}
+afile<-system.file("extdata", "flatfile_human_gene2HDO.csv", package = "BioNAR")
+dis <- read.table(afile,sep="\t",skip=1,header=FALSE,strip.white=TRUE,quote="")
+gg <- annotate_topOnto_ovg(gg, dis)
+summary(gg)
+
+```
+
+##Shanno
+Adding Schizopherina related synaptic gene functional annotation from 
+(Lips et al., 2012).
+```{r annotate_Shanno}
+sfile<-system.file("extdata", "SCH_flatfile.csv", package = "BioNAR")
+shan<- read.table(sfile,sep="\t",skip=1,header=FALSE,strip.white=TRUE,quote="")
+sgg<-annotate_SCHanno(gg,shan)
+summary(sgg)
+```
+
+## Presynaptic functiion annotation
+Manually curated presynaptic genes functional annotation derived from 
+(Boyken at al., 2019).
+
+```{r annotate_Chua, eval=FALSE}
+sfile<-system.file("extdata", "PresynAn.csv", package = "BioNAR")
+pres <- read.csv(sfile,skip=1,header=FALSE,strip.white=TRUE,quote="")
+sgg <- BioNAR:::annotate_CHUA(gg, pres)
+summary(sgg)
+```
+
+## GO
+Adding functionality from GO: BP, MF,CC
+```{r annotate_go}
+sfile<-system.file("extdata", "flatfile.go.BP.csv", package = "BioNAR")
+goBP <- read.table(sfile,sep="\t",skip=1,header=FALSE,strip.white=TRUE,quote="")
+sgg <- annotate_go_bp(gg, goBP)
+summary(sgg)
+
+sfile<-system.file("extdata", "flatfile.go.MF.csv", package = "BioNAR")
+goMF <- read.table(sfile,sep="\t",skip=1,header=FALSE,strip.white=TRUE,quote="")
+sgg <- annotate_go_mf(gg, goMF)
+summary(sgg)
+
+sfile<-system.file("extdata", "flatfile.go.CC.csv", package = "BioNAR")
+goCC <- read.table(sfile,sep="\t",skip=1,header=FALSE,strip.white=TRUE,quote="")
+sgg <- annotate_go_cc(gg, goCC)
+summary(sgg)
+
+```
+
+#Esimate node centrality measures
+
+## Estimate centrality measures with values added as node attributes. 
+
+Centrality measures are as following:
+* DEG - degree, 
+* BET - betweenness, 
+* CC - clustering coefficient, 
+* SL - semilocal centrality, 
+* mnSP - mean shortest path, 
+* PR - page rank, 
+* sdSP - standard deviation of the shortest path.
+
+```{r graph_cent}
+gg <- calcCentrality(gg)
+summary(gg)
+```
+
+##Get node centralities as a matrix. 
+
+In the case you don't want save centrality values on the graph, for example 
+you going to provide different names for the attributes, the same centrality
+measures as before could be obtained in a matrix form:
+
+```{r matrix_cent}
+mc <- getCentralityMatrix(gg)
+head(mc)
+```
+
+##Get the centrality measures for random graph
+
+Sometimes one needs to compare the graph properties of the given network 
+with the ones of the randomized graph. Command below provides three ways 
+of randomization, including G(n,p) Erdos-Renyi model , Barabasi-Albert model 
+and new random graph from a given graph by randomly adding/removing edges.
+
+```
+{r}
+ggrm <- getRandomGraphCentrality(sgg, type = c("cgnp"))
+head(ggrm)
+```
+
+## Power law fit
+To examine the networks for underlying structure (i.e. not random), one can 
+test network's degree distribution for evidence of scale-free structure and 
+compare it against the randomised network model. For this we used the R 
+“PoweRlaw” package (version 0.50.0) (Gillespie, 2015).
+
+In the example below we found evidence for disassortative mixing 
+(Newman, 2002), i.e. a preference for high-degree genes to attach to 
+low-degree gene(presynaptic: -0.16).
+
+```{r powerLaw,fig.height=9,fig.width=9}
+pFit <- FitDegree( as.vector(igraph::degree(graph=sgg)),
+                    plot=TRUE,WIDTH=2480, HEIGHT=2480)
+```
+
+## Get entropy rate
+Evidence for scale-free structure can also be tested by performing a 
+perturbation analysis on each network (Teschendorff et al, 2014). In this 
+analysis each protein was perturbed through over-expression (red) and
+under-expression (green), with the global entropy rate (SR) after each 
+proteins pertubation being plotted against the log of the proteins degree, 
+as shown at the plot below. In the example network we observed a bi-modal 
+response, between gene over-expression and degree, and opposing bi-phasic 
+response relative to over/under-expression between global entropy rate and 
+degree. This type of bi-modal, bi-phasic behaviour has been observed only 
+in networks with scale-free or approximate scale-free topology (Teschendorff 
+et al, 2014)[80]. 
+
+```{r ent_rate,fig.height=8,fig.width=8}
+ent <- getEntropyRate(gg)
+ent
+SRprime <- getEntropy(gg, maxSr = NULL)
+head(SRprime)
+plotEntropy(SRprime, subTIT = "Entropy", SRo = ent$SRo, maxSr = ent$maxSr)
+```
+
+Normalised modularity allows comparison the networks with different structure.
+Qm based on the previous studies by Parter et al., 2007, Takemoto, 2012,
+Takemoto, 2013, Takemoto and Borjigin, 2011, which was defined as:
+
+$$Qm = \frac{Q_{real}-Q_{rand}}{Q_{max}-Q_{rand}}$$
+
+Where $Q_{real}$ is the network modularity of a real-world signaling network 
+and, $Q_{rand}$ is the average network modularity value obtained from 
+10,000 randomized networks constructed from its real-world network. 
+$Q_{max}$ was estimated as: $$Q_{max}=1 − \frac{1}{M}$$, where $M$ is the 
+number of modules in the real network.
+
+Randomized networks were generated from a real-world network using the
+edge-rewiring algorithm (Maslov and Sneppen, 2002).
+```{r norm_mod}
+#' cid<-match('Presynaptic',getCompartments()$Name)
+#' t<-getAllGenes4Compartment(cid)
+#' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+nm<-normModularity(gg,alg='louvain')
+nm
+```
+
+# Clustering
+Clustering, or community detection, in networks has been well studied in the 
+field of statistical physics with particular attention to methods developed 
+for social science networks. The underlying assumption(s) of what makes a 
+community in social science, translates remarkably well to what we think of 
+as a community (sub-complex, module or cluster) in PPI networks
+The possible algorithms of choice implemented in the package are:
+* "lec"('Leading-Eigenvector, Newman, 2006), 
+* "wt"(Walktrap, Pons & Latapy, 2006), 
+* "fc"(Fast-Greedy Community' algorithm, Clauset et al., 2004), 
+* "infomap" (InfoMAP, Rosvall et al., 2007; Rosvall et al., 2010), 
+* "louvain" (Louvain, Blondel et al., 2008), 
+* "sgG1", "sgG2", "sgG5"(SpinGlass, Reichardt & Bornholdt). 
+For each algorithm of interest the membership could be obtained with 
+`calcMembership` command.
+All algorithm implementations, apart from Spectral were performed using the 
+publicly available R package igraph (Csardi & Nepusz, 2006) (R version 3.4.2, 
+igraph version 1.1.2). Parameters used in the fc, lec, sg, wt and lourvain 
+algorithms were chosen as to maximise the measure Modularity 
+(Newman & Girvan, 2004); infomap seeks the optimal community structure in 
+the data by maximising the objective function called the Minimum Description 
+Length (Rissanen, 1978; Grwald et al., 2005)
+
+```{r cluster.mem}
+alg = "louvain"
+mem <- calcMembership(gg, alg)# choose one algorithm from the list
+pander(head(mem))
+```
+
+Due to internal random initialisation consequtive invocation of the same 
+algorithm could produce slightly different community structures:
+```{r cluster.mem2}
+mem2 <- calcMembership(gg, alg)# choose one algorithm from the list
+pander(head(cbind(mem,mem2)))
+```
+
+To avoid inconsistency if downstream analysis we provide two additional 
+functions `calcClustering` and `calcAllClustering` that use calcMembership to 
+calculate community memberships and store them within the graph vertices 
+attributes named after the algorithm. They also calculate modularity values 
+and store them on graph attributes named after the algorithme. The difference 
+between `calcClustering` and `calcAllClustering` is that `calcAllClustering` 
+allows to calculate memberships for all clustering algorithms simultaneously 
+(may take time), and store them on the graph vertices, while `calcClustering`  
+command will work for specific algorithm. 
+
+```{r cluster}
+gg <- calcClustering(gg, alg)
+gg
+
+```
+
+Membership data could be obtained from the graph vertex attribute:
+
+```{r get.attr}
+mem.df<-data.frame(names=V(gg)$name,membership=as.numeric(V(gg)$louvain))
+```
+
+To compare different clustering algorithms summary matrix can be calculated 
+with the follownig values:
+1. maximum Modularity obtained (mod), 
+2. number of detected communities (C), 
+3. the number of communities with size (Cn1) equal to 1, 
+4. the number of communities >= 100 (Cn100), 
+5. the fraction of edges lying between communities (mu), 
+6. the size of the smallest community (Min. C), 
+7. the size of the largest community (Max. C), 
+8. the average ( Mean C), median (Median C), 
+9. first quartile (1st Qu. C), and 
+10. third quartile (3rd Qu. C) of the community size. 
+
+```{r clusterSummary}
+ggc <- calcAllClustering(gg)
+m<-clusteringSummary(ggc,att=c('lec','wt','fc',
+                                'infomap','louvain',
+                                'sgG1','sgG2','sgG5'))
+pander(m)
+```
+
+It is often useful to be able to visualize clusters on the graph. The simples 
+way is to color each cluster in its own color and plot the graph:
+```{r plot.color.graph,fig.height=8,fig.width=8}
+palette <- distinctColorPalette(max(as.numeric(mem.df$membership)))
+plot(gg,vertex.size=3,layout=layout_nicely,
+        vertex.label=NA,
+        vertex.color=palette[as.numeric(mem.df$membership)],
+        edge.color='grey95')
+legend('topright',legend=names(table(mem.df$membership)),
+        col=palette,pch=19,ncol = 2)
+```
+
+On the plot we can see some distinctive clusters but most nodes are 
+indistinguishable within the central part of the plot. So we could layout 
+graph clusterwise:
+```{r plot.clusterwise.graph,fig.height=8,fig.width=8}
+lay<-layoutByCluster(gg,mem.df,layout = layout_nicely)
+plot(gg,vertex.size=3,layout=lay,
+        vertex.label=NA,
+        vertex.color=palette[as.numeric(mem.df$membership)],
+        edge.color='grey95')
+legend('topright',legend=names(table(mem.df$membership)),
+        col=palette,pch=19,ncol = 2)
+```
+
+It is also possible to visualize the interaction between communities:
+```{r ploc.cluster.communities,fig.height=8,fig.width=8}
+idx<-match(V(gg)$name,mem.df$names)
+cgg<-getCommunityGraph(gg,mem.df$membership[idx])
+D0 = unname(degree(cgg))
+plot(cgg, vertex.size=sqrt(V(cgg)$size), vertex.cex = 0.8,
+vertex.color=round(log(D0))+1,layout=layout_with_kk)
+```
+
+### Reclustering
+Reclustering a clustered graph using the same, or different, 
+clustering algorithm:
+```{r recluster}
+remem<-calcReclusterMatrix(gg,mem.df,alg,10)
+head(remem)
+```
+
+And we can apply second order clustering layout:
+```{r plot.recluster.layout,fig.height=8,fig.width=8}
+lay<-BioNAR:::layoutByRecluster(gg,remem,layout_nicely)
+plot(gg,vertex.size=3,layout=lay,
+        vertex.label=NA,
+        vertex.color=palette[as.numeric(mem.df$membership)],
+        edge.color='grey95')
+legend('topright',legend=names(table(mem.df$membership)),
+        col=palette,pch=19,ncol = 2)
+```
+
+
+## Consensus matrix
+For assessing the robustness of the clustering randomization study can be 
+performed, which applies the same clustering algorithm to N perturbed networks 
+and returns the consensus matrix where each pair of nodes will be assigned 
+the frequency to belong to the same cluster. 
+
+Where 'alg' gives the name of the clustering algorithm and 'type' the 
+sampling scheme (1 sample edges, and 2 sample nodes) to use, 'mask' the 
+percentage of edges or nodes to be mask, 'reclust' whether reclustering 
+should be performed on the community set found, 'Cnmin' minimum cluster 
+size and 'Cnmax' the maximum cluster size above which reclustering will be 
+preformed (if reClust=TRUE).
+```{r cons_mat}
+#Build consensus matrix for louvain clustering
+conmat <- makeConsensusMatrix(gg, N=100,
+                                alg = alg, type = 2, 
+                                mask = 10,reclust = FALSE, 
+                                Cnmax = 10)
+
+```
+
+##Consensus matrix value distribution
+Consensus matrix value distribution could be visualised in the following way:
+```{r plot.conmat.ecdf,fig.height=8,fig.width=8}
+steps <- 100
+Fn  <- ecdf(conmat[lower.tri(conmat)])
+X<-seq(0,1,length.out=steps+1)
+cdf<-Fn(X)
+dt<-data.frame(cons=X,cdf=cdf)
+ggplot(dt,aes(x=cons,y=cdf))+geom_line()+
+        theme(            
+        axis.title.x=element_text(face="bold",size=rel(2.5)),
+        axis.title.y=element_text(face="bold",size=rel(2.5)),
+        legend.title=element_text(face="bold",size=rel(1.5)),
+        legend.text=element_text(face="bold",size=rel(1.5)),
+        legend.key=element_blank())+
+    theme(panel.grid.major = element_line(colour="grey40",size=0.2),
+            panel.grid.minor = element_line(colour="grey40",size=0.1),
+            panel.background = element_rect(fill="white"),
+            panel.border = element_rect(linetype="solid",fill=NA))
+```
+
+## Cluster robustness
+Cluster robustness assess the robustness of the obtained clusters and 
+could help to evaluate the "goodness" of chosen clustering algorithm.
+```{r clcons}
+clrob<-getRobustness(gg, alg = alg, conmat)
+pander(clrob)
+```
+
+
+# Bridgeness 
+Bridging proteins are known to interact with many neighbours simultaneously,
+organise function inside communities they belong to, but also affect/influence
+other communities in the network (Nepusz et al., 2008).Bridgeness is 
+estimated from the consensus clustering estimated above and vertex degree 
+to calculate the vertex’s community membership, i.e. the probability of 
+the specific node to belong to every communities obtained by given 
+clustering algorithm.
+
+The Bridgeness measure lies between 0 - implying a vertex clearly belongs in 
+a single community, and 1 - implying a vertex forms a 'global bridge' across 
+every community with the same strength. 
+
+```{r calc.bridge}
+br<-getBridgeness(gg,alg = alg,conmat)
+pander(head(br))
+```
+
+## Bridgeness plot
+Semi-local centrality measure (Chen et al., 2011) also lies between 0 and 
+1 indicating whether protein is important globally or locally. By plotting
+Bridgeness against semi-local centrality we can categorises the influence 
+each protein found in our network has on the overall network structure:
+* Region 1, proteins having a 'global' rather than 'local' influence in the 
+network (also been called bottle-neck bridges, connector or 
+kinless hubs (0<Sl<0.5; 0.5<Br<1). 
+* Region 2, proteins having 'global' and 'local' influence 
+(0.5<Sl<1, 0.5<Br<1). 
+* Region 3, proteins centred within the community they belong to, 
+but also communicating with a few other specific communities 
+(0<Sl<0.5; 0.1<Br<0.5). 
+* Region 4, proteins with 'local' impact , primarily within one or 
+two communities (local or party hubs, 0.5<Sl<1, 0<Br<0.5).
+```{r plot.bridgeness,fig.height=8,fig.width=8}
+scale <- function(x, VALUE=NULL){
+    
+    x = as.numeric(as.vector(x))
+    
+    xmin <- min(x,na.rm=TRUE)
+    xmax <- max(x,na.rm=TRUE)
+    
+    if( is.null(VALUE) ){
+    
+    x  <- x-xmin
+    x  <- ifelse(!is.na(x), x/(xmax-xmin), NA) 
+    
+    return(x)
+    }
+    
+    value = as.numeric(as.vector(value)[1])
+    value = value-xmin
+    value = ifelse(!is.na(value), value/(xmax-xmin), NA) 
+    return(value)
+}
+VIPs=c('8495','22999','8927','8573','26059','8497','27445','8499')
+# VIPs=c('81876','10890','51552','5874','5862','11021','54734','5865','5864',
+#        '9522','192683','10067','10396','9296','527','9114','537','535',
+#        '528','51382','534','51606','523','80331','114569','127262','57084',
+#        '57030','388662','6853','6854','8224','9900','9899','9145','9143',
+#        '6855','132204','6857','127833','6861','529','526','140679','7781',
+#        '81615','6844','6843')
+indx   <- match(V(gg)$name,VIPs)
+group <- ifelse( is.na(indx), 0,1)
+MainDivSize <- 0.8
+xmin        <- 0
+xmax        <- 1
+ymin        <- 0
+ymax        <- 1
+Xlab <- "Semilocal Centrality (SL)" 
+Ylab <- "Bridgeness (B)"
+X    <- as.numeric(igraph::get.vertex.attribute(gg,"SL",V(gg)))
+X    <- scale(X)
+Y       <- as.numeric(as.vector(br[,dim(br)[2]])) 
+lbls <- ifelse(!is.na(indx),V(gg)$GeneName,"")
+dt<-data.frame(X=X,Y=Y,vips=group,entres=V(gg)$name,name=V(gg)$GeneName)
+dt_vips<-dt[dt$vips==1,]
+dt_res<-dt[dt$vips==0,]
+##--- baseColor of genes
+baseColor="royalblue2"
+
+##--- SPcolor, colour highlighting any 'specical' genes
+SPColor="royalblue2"
+
+##--- PSDColor, colour of core PSD95 interactor genes
+PSDColor="magenta"
+
+ggplot(dt,aes(x=X,y=Y,label=name))+#geom_point()+
+    geom_point(data=dt_vips,
+                aes(x=X,y=Y),colour=baseColor,size = 7,
+                shape=15,show.legend=FALSE)+
+    geom_point(data=dt_res,
+                aes(x=X,y=Y, alpha=(X*Y)), size = 3,
+                shape=16,show.legend=FALSE)+
+    geom_label_repel(aes(label=as.vector(lbls)),
+                        fontface='bold',color='black',
+                        fill='white',box.padding=0.1,
+                        point.padding=NA,label.padding=0.15,
+                        segment.color='black',
+                        force=1,size=rel(3.8),show.legend=FALSE,
+                        max.overlaps=200)+
+        labs(x=Xlab,y=Ylab,title=sprintf("%s",alg))+
+    scale_x_continuous(expand = c(0, 0), limits = c(xmin, xmax)) + 
+    scale_y_continuous(expand = c(0, 0), limits = c(ymin, ymax))+
+    theme(            
+        axis.title.x=element_text(face="bold",size=rel(2.5)),
+        axis.title.y=element_text(face="bold",size=rel(2.5)),
+        legend.title=element_text(face="bold",size=rel(1.5)),
+        legend.text=element_text(face="bold",size=rel(1.5)),
+        legend.key=element_blank())+
+    theme(panel.grid.major = element_line(colour="grey40",size=0.2),
+            panel.grid.minor = element_line(colour="grey40",size=0.1),
+            panel.background = element_rect(fill="white"),
+            panel.border = element_rect(linetype="solid",fill=NA))+
+        geom_vline(xintercept=0.5,colour="grey40",size=MainDivSize,
+                    linetype=2,show.legend=FALSE)+
+    geom_hline(yintercept=0.5,colour="grey40",size=MainDivSize,
+                linetype=2,show.legend=FALSE)
+
+```
+
+##Interactive view of bridgeness plot
+```{r plotly,fig.height=10,fig.width=10}
+library(plotly)
+p<-ggplot(dt,aes(x=X,y=Y,label=name))+#geom_point()+
+    geom_point(data=dt_vips,
+                aes(x=X,y=Y),colour=baseColor,shape=15,show.legend=FALSE)+
+    geom_point(data=dt_res,
+                aes(x=X,y=Y, alpha=(X*Y)),shape=16,show.legend=FALSE)+
+        labs(x=Xlab,y=Ylab,title=sprintf("%s",alg))+
+    scale_x_continuous(expand = c(0, 0), limits = c(xmin, xmax)) + 
+    scale_y_continuous(expand = c(0, 0), limits = c(ymin, ymax))+
+    theme(            
+        axis.title.x=element_text(face="bold",size=rel(2.5)),
+        axis.title.y=element_text(face="bold",size=rel(2.5)),
+        legend.title=element_text(face="bold",size=rel(1.5)),
+        legend.text=element_text(face="bold",size=rel(1.5)),
+        legend.key=element_blank())+
+    theme(panel.grid.major = element_line(colour="grey40",size=0.2),
+            panel.grid.minor = element_line(colour="grey40",size=0.1),
+            panel.background = element_rect(fill="white"),
+            panel.border = element_rect(linetype="solid",fill=NA))+
+        geom_vline(xintercept=0.5,colour="grey40",size=MainDivSize,
+                    linetype=2,show.legend=FALSE)+
+    geom_hline(yintercept=0.5,colour="grey40",size=MainDivSize,
+                linetype=2,show.legend=FALSE)
+ggplotly(p)
+```
+
+# Disease/annotation pairs
+Given that Disease associated genes are connected within the graph, the 
+common question is to check whether the networks for two different 
+diseases are overlapping, which may indicate the common molecular mechanisms. 
+Same is valid for any pair of annotations, e.g. one would ask if two 
+different biological functions are related.
+
+To address the question, we have utilised the algorithm from Menche et al, 
+which estimates the minimal shortest paths between two distinct annotations 
+and compare it to the randomly annotated graph.
+
+Below example shows the estimation of disease separation for the 
+following diseases: DOID:10652 (Alzheimer's_disease),  (bipolar_disorder),
+DOID:12849 (autistic_disorder), DOID:1826 (epilepsy)
+Command `calcDiseasePairs` quickly estimates the two annotation separation on 
+the graph and compares it with one randomly reannotated graph. This could be 
+used for initial guess of the relationships between the annotations.
+
+To assess the significance of the obtained separation values the command
+`runPermDisease` should be used, where the user can dfine the number of 
+permutations. The command execution will take a while, depending on this 
+number and return the table with p-value, p.adjusted, q-value and 
+Bonferroni test.
+```{r disPairs,warning=FALSE,message=FALSE}
+p <- calcDiseasePairs(
+    gg,
+    name = "TopOnto_OVG_HDO_ID",
+    diseases = c("DOID:10652","DOID:3312","DOID:12849"),
+    permute = "r"
+)
+pander(p$disease_separation)
+
+r <- runPermDisease(
+    gg,
+    name = "TopOnto_OVG_HDO_ID",
+    diseases = c("DOID:10652","DOID:3312","DOID:12849","DOID:1826"),
+    Nperm = 100,
+    alpha = c(0.05, 0.01, 0.001)
+)
+
+pander(r$Disease_overlap_sig)
+```
+
+# Session Info
+```{r sessionInfo, echo=FALSE, results='asis', class='text', warning=FALSE}
+si<-devtools::session_info()
+cat('Platform\n\n')
+pander::pander(si$platform)
+cat('Packages\n\n')
+knitr::kable(as.data.frame(si$packages)[,c('ondiskversion',
+                                            'loadedversion','date',
+                                            'source')],align = c('l','l'))
+```
+
