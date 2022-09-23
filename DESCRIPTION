@@ -3,9 +3,9 @@ Title: Biological Network Analysis in R
 Version: 0.99.001
 Authors@R: c(
     person("Colin", "Mclean", 
-        email="Colin.D.Mclean@ed.ac.uk", role=c("aut", "cre")), 
+        email="Colin.D.Mclean@ed.ac.uk", role="aut"), 
     person("Anatoly", "Sorokin", 
-        email="lptolik@gmail.com", role="aut"), 
+        email="lptolik@gmail.com", role=c("aut", "cre")), 
     person("Oksana", "Sorokina", 
         email="oksana.sorokina@ed.ac.uk", role="aut"),
     person("J. Douglas", "Armstrong", 
