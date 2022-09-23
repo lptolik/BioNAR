@@ -1,5 +1,5 @@
 ##---Semi-local Centrality (Cl)
-##   Identifying influential nodes in complex networks, 
+##   Identifying influential nodes in complex networks,
 ##   D. Chen et al., Physica A, 2012
 Semilocal <- function(gg){
     N    <- vcount(gg)
@@ -236,9 +236,9 @@ applpMatrixToGraph<-function(gg,m){
 #' Calculate centrality measures for graph nodes and save them as vertex
 #' property.
 #'
-#' Wrapper finction that calls \link{\code{getCentralityMatrix}} to calculate
+#' Wrapper finction that calls \code{\link{getCentralityMatrix}} to calculate
 #' all available centrality
-#' measires and \link{\code{applpMatrixToGraph}} to store them as a vertex
+#' measires and \code{\link{applpMatrixToGraph}} to store them as a vertex
 #' attributes.
 #'
 #' @param gg igraph object
@@ -256,18 +256,24 @@ calcCentrality<-function(gg){
     return(ggm)
 }
 #get centrality measures for random graph
+#' Centrality measures for random graphs induced by input one
+#'
 #' Generate a random graph  that mimic somehow properties of the input graph
-#' and calls \link{\code{getCentralityMatrix}} to
+#' and calls \code{\link{getCentralityMatrix}} to
 #' calculate all available centrality measires. There are four different
 #'
 #' @param gg template graph to mimic
-#' @param type:
-#' * gnp -- G(n,p) Erdos-Renyi model
-#' * pa --  Barabasi-Albert model
+#' @param type type of random graph to generate:
+#' * gnp -- G(n,p) Erdos-Renyi model (\code{\link[igraph]{sample_gnp}})
+#' * pa --  Barabasi-Albert model (\code{\link[igraph]{sample_pa}})
 #' * cgnp -- new random graph from a given graph by randomly a
-#' dding/removing edges
-#' * rw -- new random graph from a given graph by rewiring 25% of 
+#' dding/removing edges (\code{\link[igraph]{sample_correlated_gnp}})
+#' * rw -- new random graph from a given graph by rewiring 25% of
 #' edges preserving the degree distribution
+#' @param ... other parameters passed to random graph generation functions
+#' \code{\link[igraph]{sample_gnp}},
+#' \code{\link[igraph]{sample_correlated_gnp}}, and
+#' \code{\link[igraph]{sample_pa}}
 #'
 #' @return matrix of random graph vertices centrality measure.
 #' @export
@@ -301,18 +307,18 @@ getGNP<-function(gg,...){
 }
 getPA<-function(gg,...){
     nv<-vcount(gg)
-    pFit <- FitDegree( as.vector(igraph::degree(graph=gg)), 
+    pFit <- FitDegree( as.vector(igraph::degree(graph=gg)),
                         Nsim=100, plot=FALSE )
     pwr <- pFit@alpha
     g<- sample_pa(nv,power=pwr,directed = FALSE,...)
     return(g)
 }
-#' Convert centrality matrix into ECDF 
+#' Convert centrality matrix into ECDF
 #'
-#' @param m centrality matrix from \code{\link{getCentralityMatrix}} 
+#' @param m centrality matrix from \code{\link{getCentralityMatrix}}
 #' invocation.
 #'
-#' @return list of sever ecdf objects, corresponding to values in 
+#' @return list of sever ecdf objects, corresponding to values in
 #' centrality matrix from \code{\link{getCentralityMatrix}} invocation.
 #'
 #' @seealso getCentralityMatrix
@@ -332,8 +338,8 @@ getGraphCentralityECDF<-function(m){
     }
     return(l)
 }
-#' Extracts particular measure from matrix and convert for distance 
-#' calculation by \code{\linc{calcCentralityInternalDistances}} and 
+#' Extracts particular measure from matrix and convert for distance
+#' calculation by \code{\linc{calcCentralityInternalDistances}} and
 #' \code{\link{calcCentralityExternalDistances}} functions.
 #'
 #' @param m matrix of centrality measures as returned by getCentralityMatrix
@@ -354,7 +360,7 @@ getCM<-function(m,nm,keepOrder){
 }
 #' Function calculates matrix of distances between elements of list
 #'
-#' @param l list of matrices, for example centrality obtained by invocation 
+#' @param l list of matrices, for example centrality obtained by invocation
 #'         \code{\link{getRandomGraphCentrality}}
 #' @param keepOrder if FALSE valuess will be sorted
 #' @param dist methods available from \code{\link{dist}} function
@@ -391,9 +397,9 @@ calcCentralityInternalDistances<-function(l,keepOrder=FALSE,dist='euclidean'){
 #' Function calculates matrix of distances between elements of list and
 #' the reference matrix
 #'
-#' @param m reference matrix, for example centrality obtained by invocation 
+#' @param m reference matrix, for example centrality obtained by invocation
 #'         \code{\link{getCentralityMatrix}}
-#' @param l list of permuted matrix, for example centrality obtained by 
+#' @param l list of permuted matrix, for example centrality obtained by
 #'         invocation \code{\link{getRandomGraphCentrality}}
 #' @param keepOrder if FALSE valuess will be sorted
 #' @param dist methods available from dist function
@@ -431,20 +437,20 @@ calcCentralityExternalDistances<-function(m,l,keepOrder=FALSE,dist='euclidean'){
     return(resm)
 }
 #' Compare distance distributions of internal and external distances
-#' 
+#'
 #' Compare distance distributions of internal distances between random graph
-#' centralities and external distances between random and original graph 
+#' centralities and external distances between random and original graph
 #' centralities. Kolmogorov-Smirnov test is used for comparison
 #'
 #' @param dmi distribution of internal distances between random graph
-#' centralities 
-#' @param dme distribution of external distances between random and 
+#' centralities
+#' @param dme distribution of external distances between random and
 #' original graph centralities
 #'
 #' @return list of lists for each centrality value in the input matrix three
-#' element list is created where \code{ks} contains Kolmogorov-Smirnov test 
-#' result from class \code{ks.test}; \code{pval} contains Kolmogorov-Smirnov 
-#' test pvalue; 
+#' element list is created where \code{ks} contains Kolmogorov-Smirnov test
+#' result from class \code{ks.test}; \code{pval} contains Kolmogorov-Smirnov
+#' test pvalue;
 #' and \code{dt} contains input distribution.
 #' @export
 #' @seealso ks.test
@@ -457,7 +463,7 @@ calcCentralityExternalDistances<-function(m,l,keepOrder=FALSE,dist='euclidean'){
 #' }
 #' gnpIDist<-calcCentralityExternalDistances(gnp)
 #' gnpEDist<-calcCentralityExternalDistances(m,gnp)
-#' 
+#'
 #' simSig<-evalCentralitySignificance(gnpIDist,gnpEDist)
 #' sapply(simSig,function(.x).x$ks$p.value)
 evalCentralitySignificance<-function(dmi,dme){

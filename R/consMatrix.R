@@ -65,7 +65,7 @@ buildConsensusMatFromFiles <- function(Dir,file.name,skip=1,sep="\t"){
 #' Build consensus matrix from the list of clusterings
 #'
 #' @param lcc list of clustering matrices obtained from the
-#' \code{\link{sampleGraph}}
+#' \code{\link{sampleGraphClust}}
 #'
 #' @return consensus matrix
 buildConsensusMatrix<-function(lcc){
@@ -118,23 +118,23 @@ matrixDiv <- function(x,y){
 }
 
 #' Function to build consensus matrix in memory
-#' 
-#' For assessing the robustness of the clustering randomization study could  
-#' be performed, which applies the same clustering algorithm to N perturbed 
-#' networks and returns the consensus matrix where each pair of nodes will be 
-#' assigned the probability to belong to the same cluster. Network is 
-#' perturbed by deleting \code{mask} percent of edges (\code{type=1}) or 
+#'
+#' For assessing the robustness of the clustering randomization study could
+#' be performed, which applies the same clustering algorithm to N perturbed
+#' networks and returns the consensus matrix where each pair of nodes will be
+#' assigned the probability to belong to the same cluster. Network is
+#' perturbed by deleting \code{mask} percent of edges (\code{type=1}) or
 #' nodes (\code{type=2}) from network before clustering.
-#' 
+#'
 #'
 #' @param gg graph to perturb
 #' @param N number of perturbation steps
 #' @param mask percentage of elements to perturbe
 #' @param alg clustering alg.
 #' @param type edges=>1 or nodes=>2  to mask
-#' @param reclust logical to decide wether to invoke reclustering via 
+#' @param reclust logical to decide wether to invoke reclustering via
 #'        \code{\link{recluster}}
-#' @param Cnmax maximus size of the cluster in \code{mem} that will not be 
+#' @param Cnmax maximus size of the cluster in \code{mem} that will not be
 #'        processed if reclustering is invoked
 #'
 #' @return consensus matrix of Nvert X Nvert

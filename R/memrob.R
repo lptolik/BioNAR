@@ -48,7 +48,7 @@ memrob <- function(x, rm = data.frame()) {
     mem_rob_list <- list()
     for (i in seq_len(dim(mem_rob)[2])) {
         cl_mem_rob <- (mem_rob[(cmref$cm == i), i])
-        current_list <- data.frame(sort(cl_mem_rob, dec = TRUE))
+        current_list <- data.frame(sort(cl_mem_rob, decreasing = TRUE))
         names(current_list) <- 'mem_rob'
         current_mem_rob_list <- new('memroblist', mrl = current_list)
         mem_rob_list[paste('cluster', i, sep = '')] <-
@@ -67,7 +67,7 @@ memrob <- function(x, rm = data.frame()) {
 #' @param conmat consensus matrix
 #'
 #' @return data.frame that for each cluster \code{C} shows its size \code{Cn},
-#' robustness \code{Crob} and robustness scaled to range [0,1]
+#' robustness \code{Crob} and robustness scaled to range between 0 and 1.
 #' \code{CrobScaled}.
 #' @export
 #'

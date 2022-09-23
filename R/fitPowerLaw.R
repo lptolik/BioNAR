@@ -13,11 +13,11 @@ HEIGHT <- 480
 setClass("poweRlaw")
 #' Result of PawerLaw fit
 #'
-#' @slot fit \code{\link[poweRlaw]{displ-class}} result of power law fit. 
-#' @slot p numeric. 
-#' @slot alpha numeric degree of power-law. 
-#' @slot SDxmin numeric bootstrap sd of Xmin. 
-#' @slot SDalpha numeric bootstrap sd of alpha. 
+#' @slot fit \code{\link[poweRlaw]{displ-class}} result of power law fit.
+#' @slot p numeric.
+#' @slot alpha numeric degree of power-law.
+#' @slot SDxmin numeric bootstrap sd of Xmin.
+#' @slot SDalpha numeric bootstrap sd of alpha.
 #'
 #' @export
 setClass(Class="law",representation(
@@ -57,7 +57,7 @@ changeSciNot <- function(n) {
 #' @param threads number of parallel computational threads
 #' @param legpos position of the legend @seealso{legend}
 #'
-#' @return an object of class \code{\link{law}} with results of fitting
+#' @return an object of class \code{\link{law-class}} with results of fitting
 #' @export
 #' @import poweRlaw latex2exp methods grid scales
 #' @importFrom stringr str_sub

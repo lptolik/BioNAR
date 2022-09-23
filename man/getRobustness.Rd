@@ -15,7 +15,7 @@ getRobustness(gg, alg, conmat)
 }
 \value{
 data.frame that for each cluster \code{C} shows its size \code{Cn},
-robustness \code{Crob} and robustness scaled to range \link{0,1}
+robustness \code{Crob} and robustness scaled to range between 0 and 1.
 \code{CrobScaled}.
 }
 \description{

@@ -3,6 +3,7 @@
 intraEdges <- function(GG, ALG, CC, INTRA=NULL, INTER=NULL){
     intra <- NULL #edges in the community CC
     inter <- NULL #edges going out from community CC
+    .inc <- NULL #to avoid Check NOTE
     if( !is.null(igraph::get.vertex.attribute(GG,ALG)) ){
     coms <- get.vertex.attribute(GG,ALG)
     if( length(which(coms == CC)) != 0 ){
@@ -29,6 +30,7 @@ intraEdges <- function(GG, ALG, CC, INTRA=NULL, INTER=NULL){
 intraEdgesM <- function(GG, mem, CC, INTRA=NULL, INTER=NULL){
     intra <- NULL #edges in the community CC
     inter <- NULL #edges going out from community CC
+    .inc <- NULL #to avoid Check NOTE
     idx<- (mem$membership == CC)
     if( length(which(idx)) != 0 ){
         ed_cc <- E(GG)[.inc(idx)]
@@ -79,10 +81,11 @@ getClusterSubgraphByID<-function(clID,gg,mem){
 #'
 #' @param gg graph to layout
 #' @param mem membership data.frame from \code{\link{calcMembership}}
+#' @param layout algorithm to use for layout
 #'
 #' @return Layout in a form of 2D matrx.
 #' @export
-#'
+#' @seealso igraph::layout_
 #' @examples
 #' data(karate,package='igraphdata')
 #' alg<-'louvain'
@@ -106,7 +109,7 @@ layoutByCluster<-function(gg,mem,layout=layout_with_kk){
 #' @param gg graph to layout
 #' @param remem recluster result obtained by \code{\link{calcReclusterMatrix}}
 #'        invocation
-#' @param layout one of the layout algoritms from \code{\link[igrap]{layout_}}
+#' @param layout one of the layout algoritms from \code{\link[igraph]{layout_}}
 #'
 #' @return Layout in a form of 2D matrx.
 #' @export
@@ -180,6 +183,8 @@ getCommunityGraph<-function(gg,membership){
 #' @param alg algorithm to apply
 #' @param CnMAX maximus size of the cluster in \code{mem} that will not be
 #'        processed
+#' @param keepSplit logical, wether to keep previous membership in the output
+#'        matrix
 #'
 #' @return remembership matrix, that contains vertex ID membership and
 #'         result of reclustering
@@ -255,6 +260,26 @@ calcReclusterMatrix<-function(gg,mem,alg,CnMAX=10,keepSplit=FALSE){
     return(ALG3)
 }
 
+#' Hierarchial graph clustering
+#'
+#' Function takes graph \code{GG} and takes its membership from vertex
+#' attribute \code{ALGN} and apply clustering algorithm \code{ALGN}
+#' to all clusters larger than \code{CnMAX}
+#'
+#' @param GG graph to cluster
+#' @param ALGN algorithm to apply
+#' @param CnMAX maximus size of the cluster in \code{mem} that will not be
+#'        processed
+#'
+#' @return remembership matrix, that contains vertex ID membership and
+#'         result of reclustering
+#' @export
+#'
+#' @examples
+#' data(karate,package='igraphdata')
+#' alg<-'louvain'
+#' mem<-calcMembership(karate,alg = alg)
+#' remem<-calcReclusterMatrix(karate,mem,alg,10)
 recluster <- function( GG, ALGN, CnMAX ){
     if( !is.null(igraph::get.vertex.attribute(GG,ALGN)) ){
     #--- algorithm clustering 1

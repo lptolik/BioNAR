@@ -15,7 +15,7 @@ new graph object with all membership results stored as a vertex
 attribute.
 }
 \description{
-Function apply \link{\code{calcClusttering}} for each name in standard
+Function apply \code{\link{calcClustering}} for each name in standard
 list of available algorithms. In the case when clustering could not been
 calculated warning will be issued and no attributes added to the graph.
 }
@@ -26,5 +26,5 @@ g1<-calcAllClustering(g1)
 clusteringSummary(g1)
 }
 \seealso{
-calcClusttering
+calcClustering
 }

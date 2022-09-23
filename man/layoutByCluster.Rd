@@ -10,6 +10,8 @@ layoutByCluster(gg, mem, layout = layout_with_kk)
 \item{gg}{graph to layout}
 
 \item{mem}{membership data.frame from \code{\link{calcMembership}}}
+
+\item{layout}{algorithm to use for layout}
 }
 \value{
 Layout in a form of 2D matrx.
@@ -23,4 +25,7 @@ alg<-'louvain'
 mem<-calcMembership(karate,alg = alg)
 lay<-layoutByCluster(karate,mem)
 #plot(karate,layout=lay)
+}
+\seealso{
+igraph::layout_
 }

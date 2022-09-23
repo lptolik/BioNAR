@@ -26,7 +26,7 @@ Nepusz et al., 2008 \url{doi:10.1103/PhysRevE.77.016107}.
 \details{
 Algorithm assume that clustering was already calculated and its
 membership is stored in the appropriate vertex attribute. If
-\link{\code{alg}} attribute is not found error will be issued.
+\code{alg} attribute is not found error will be issued.
 }
 \examples{
 library(BioNAR)

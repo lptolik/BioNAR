@@ -253,8 +253,9 @@ plotEntropy<-function(SRprime,subTIT='Entropy',SRo=NULL,maxSr=NULL){
     DF$DEGREE<-as.numeric(DF$DEGREE)
     DF$SR<-as.numeric(DF$SR)
     DF$GROUP <- as.factor(DF$GROUP)
+    DF$lDEGREE <-log(DF$DEGREE)
 
-    gplot <- ggplot(data=DF,aes(x=log(DEGREE),y=SR, colour=GROUP) )+
+    gplot <- ggplot(data=DF,aes_string(x='lDEGREE',y='SR', colour='GROUP') )+
     geom_point()+
     labs(x="log(k)",y="SR",title=subTIT)+
     guides(color=guide_legend(override.aes=list(fill=NA,size=4)),

@@ -14,9 +14,9 @@ calcCentrality(gg)
 modified igraph object
 }
 \description{
-Wrapper finction that calls \link{\code{getCentralityMatrix}} to calculate
+Wrapper finction that calls \code{\link{getCentralityMatrix}} to calculate
 all available centrality
-measires and \link{\code{applpMatrixToGraph}} to store them as a vertex
+measires and \code{\link{applpMatrixToGraph}} to store them as a vertex
 attributes.
 }
 \examples{

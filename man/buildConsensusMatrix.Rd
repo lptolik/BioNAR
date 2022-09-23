@@ -8,7 +8,7 @@ buildConsensusMatrix(lcc)
 }
 \arguments{
 \item{lcc}{list of clustering matrices obtained from the
-\code{\link{sampleGraph}}}
+\code{\link{sampleGraphClust}}}
 }
 \value{
 consensus matrix

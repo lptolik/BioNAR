@@ -33,7 +33,7 @@ FitDegree(
 \item{legpos}{position of the legend @seealso{legend}}
 }
 \value{
-an object of class \code{\link{law}} with results of fitting
+an object of class \code{\link{law-class}} with results of fitting
 }
 \description{
 Fit Power Law to degree distribution.

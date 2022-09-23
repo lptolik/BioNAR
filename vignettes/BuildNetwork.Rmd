@@ -191,7 +191,7 @@ In the example below we found evidence for disassortative mixing
 low-degree gene(presynaptic: -0.16).
 
 ```{r powerLaw,fig.height=9,fig.width=9}
-pFit <- FitDegree( as.vector(igraph::degree(graph=sgg)),
+pFit <- FitDegree( as.vector(igraph::degree(graph=sgg)),threads=1,
                     plot=TRUE,WIDTH=2480, HEIGHT=2480)
 ```
 

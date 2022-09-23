@@ -6,7 +6,7 @@
 #'
 #' Algorithm assume that clustering was already calculated and its
 #' membership is stored in the appropriate vertex attribute. If
-#' \link{\code{alg}} attribute is not found error will be issued.
+#' \code{alg} attribute is not found error will be issued.
 #'
 #' @param gg igraph object
 #' @param alg clustering algorithm
@@ -123,17 +123,17 @@ getBridgeness <- function(gg, alg, conmat) {
 #### Code for plot ####
 scale <- function(x, VALUE = NULL) {
     x <- as.numeric(as.vector(x))
-    
+
     xmin <- min(x, na.rm = TRUE)
     xmax <- max(x, na.rm = TRUE)
-    
+
     if (is.null(VALUE)) {
         x  <- x - xmin
         x  <- ifelse(!is.na(x), x / (xmax - xmin), NA)
-        
+
         return(x)
     }
-    
+
     value <- as.numeric(as.vector(value)[1])
     value <- value - xmin
     value <- ifelse(!is.na(value), value / (xmax - xmin), NA)

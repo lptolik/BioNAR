@@ -128,6 +128,7 @@ getOO<-function(IDS,annoF){
 #' @return igraph object with new vertex attribute \code{GeneName}
 #' @export
 #' @import org.Hs.eg.db
+#' @importFrom AnnotationDbi mapIds
 #'
 #' @examples
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
