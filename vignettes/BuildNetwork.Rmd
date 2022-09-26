@@ -74,6 +74,13 @@ gg1 <- igraph::read.graph(file,format="gml")
 summary(gg1)
 ```
 
+```{r net_predifind, include=FALSE}
+
+file <- system.file("extdata", "PPI_cluster.gml", package = "BioNAR")
+ggCluster <- igraph::read.graph(file,format="gml")
+```
+
+
 # Annotate the nodes with node attributes
 ## Gene name
 Adding gene names to nodes.
@@ -190,7 +197,7 @@ In the example below we found evidence for disassortative mixing
 low-degree gene(presynaptic: -0.16).
 
 ```{r powerLaw,fig.height=9,fig.width=9}
-pFit <- FitDegree( as.vector(igraph::degree(graph=sgg)),threads=1,
+pFit <- FitDegree( as.vector(igraph::degree(graph=sgg)),threads=1,Nsim=5,
                     plot=TRUE,WIDTH=2480, HEIGHT=2480)
 ```
 
@@ -308,8 +315,13 @@ with the follownig values:
 9. first quartile (1st Qu. C), and 
 10. third quartile (3rd Qu. C) of the community size. 
 
-```{r clusterSummary}
+```{r clusterSummary,eval=FALSE}
 ggc <- calcAllClustering(gg)
+```
+```{r clusterSummary,eval=TRUE,include=FALSE}
+ggc <- ggCluster
+```
+```{r clusterSummary}
 m<-clusteringSummary(ggc,att=c('lec','wt','fc',
                                 'infomap','louvain',
                                 'sgG1','sgG2','sgG5'))
@@ -360,7 +372,7 @@ head(remem)
 
 And we can apply second order clustering layout:
 ```{r plot.recluster.layout,fig.height=8,fig.width=8}
-lay<-BioNAR:::layoutByRecluster(gg,remem,layout_nicely)
+lay<-layoutByRecluster(gg,remem,layout_nicely)
 plot(gg,vertex.size=3,layout=lay,
         vertex.label=NA,
         vertex.color=palette[as.numeric(mem.df$membership)],
