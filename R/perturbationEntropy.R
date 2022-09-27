@@ -138,12 +138,15 @@ getEntropy<-function(gg,maxSr=NULL,exVal=NULL){
         lambda<-exVal$lambda
         NORM <- rep.int(0,length(xx))
     }
-    SRprime <- cbind(V(gg)$name, V(gg)$GeneName, ki, rep("",V), rep("",V))
+    #colnames(SRprime) <- c("ENTREZ.ID","GENE.NAME","DEGREE","UP","DOWN")
+    SRprime <- data.frame(ENTREZ.ID=V(gg)$name,
+                          GENE.NAME=V(gg)$GeneName, DEGREE=ki,
+                          UP=rep(NA,V), DOWN=rep(NA,V))
     for( v in seq_len(V) ){
         GN     <- as.character(SRprime[v,2])
         GNindx <- which(V(gg)$GeneName==GN)
-        PIprime <- cbind( rep("",V), rep("",V) )
-        LSprime <- cbind( rep("",V), rep("",V) )
+        PIprime <- cbind( rep(NA,V), rep(NA,V) )
+        LSprime <- cbind( rep(NA,V), rep(NA,V) )
         NORM <- rep.int(0,length(xx))
         for( s in seq_along(lambda) ){
             X               <- rep(xx[s], V)
@@ -154,14 +157,14 @@ getEntropy<-function(gg,maxSr=NULL,exVal=NULL){
         oo <- cbind( ki, !(V(gg)$name %in% Nv) )
         for( s in seq_along(lambda) ){
             PIprime[,s] <- ifelse(oo[,2] == 1,
-                                  (1/NORM[s] * xx[s] * xx[s] * as.numeric(oo[,1])),
-                                  ".")
+                                  (1/NORM[s] * xx[s] * xx[s] * oo[,1]),
+                                  NA)
         }
         for( s in seq_along(lambda) ){
 
-            X   <- as.numeric(xx[s])
-            lam <- as.numeric(lambda[s])
-            DEG <- as.numeric(oo[GNindx[1],1])
+            X   <- (xx[s])
+            lam <- (lambda[s])
+            DEG <- (oo[GNindx[1],1])
 
             PIprime[GNindx[1],s] <- ((X + lam) * DEG * X) / NORM[s]
 
@@ -169,34 +172,34 @@ getEntropy<-function(gg,maxSr=NULL,exVal=NULL){
         for (s in seq_along(lambda)) {
             PIprime[, s] <- ifelse(oo[, 2] == 0,
                                    (1 / NORM[s] * xx[s] * (xx[s] + lambda[s] + (
-                                       as.numeric(oo[, 1]) - 1
+                                       oo[, 1] - 1
                                    ) * xx[s])), PIprime[, s])
         }
         for( s in seq_along(lambda) ){
-            X <- as.numeric(xx[s])
+            X <- (xx[s])
             LSprime[,s] <- ifelse(oo[,2] == 1,
-                                  (-log(X) + log(X*as.numeric(oo[,1]))),".")
+                                  (-log(X) + log(X*(oo[,1]))),NA)
         }
-        Ni <- grep(0,oo[,2])
+        Ni <- which(0==oo[,2])
         for( i in seq_along(Ni) ){
-            DEGi <- as.numeric(oo[Ni[i],1])
+            DEGi <- (oo[Ni[i],1])
             SUM  <- DEGi-1
             for( s in seq_along(lambda) ){
-                X   <- as.numeric(xx[s])
-                lam <- as.numeric(lambda[s])
+                X   <- (xx[s])
+                lam <- (lambda[s])
                 dem <- X + lam + (DEGi -1) * X
                 pij <- X / dem
                 pi1 <- (X + lam) / dem
                 LSi <- pij * log(pij)
                 LSi <- - SUM * LSi - pi1 * log(pi1)
-                LSprime[Ni[i],s]  <- as.character(LSi)
+                LSprime[Ni[i],s]  <- LSi
             }
         }
-        SRprime[v,4] <- sum( as.numeric(PIprime[,1]) * as.numeric(LSprime[,1]) )
-        SRprime[v,5] <- sum( as.numeric(PIprime[,2]) * as.numeric(LSprime[,2]) )
+        SRprime[v,4] <- sum( (PIprime[,1]) * (LSprime[,1]) )
+        SRprime[v,5] <- sum( (PIprime[,2]) * (LSprime[,2]) )
     }
-    SRprime[,4] <- as.numeric(SRprime[,4])/maxSr
-    SRprime[,5] <- as.numeric(SRprime[,5])/maxSr
+    SRprime[,4] <- (SRprime[,4])/maxSr
+    SRprime[,5] <- (SRprime[,5])/maxSr
     colnames(SRprime) <- c("ENTREZ.ID","GENE.NAME","DEGREE","UP","DOWN")
     return(SRprime)
 }
@@ -244,10 +247,12 @@ plotEntropy<-function(SRprime,subTIT='Entropy',SRo=NULL,maxSr=NULL){
 
     V <- dim(SRprime)[1]
     DF1 <- SRprime[,c(1,2,3,4)]
-    DF1 <- cbind(DF1,rep("SR_UP",length(SRprime[,1])))
+    names(DF1) <- c("ENTREZ.ID","GENE.NAME","DEGREE","SR")
+    DF1$GROUP <- "SR_UP"
 
     DF2 <- SRprime[,c(1,2,3,5)]
-    DF2 <- cbind(DF2,rep("SR_DOWN",length(SRprime[,1])))
+    names(DF2) <- c("ENTREZ.ID","GENE.NAME","DEGREE","SR")
+    DF2$GROUP <- "SR_DOWN"
 
     DF  <- rbind(DF1,DF2)
     colnames(DF) <- c("ENTREZ.ID","GENE.NAME","DEGREE","SR","GROUP")
