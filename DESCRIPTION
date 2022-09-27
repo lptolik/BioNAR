@@ -1,6 +1,6 @@
 Package: BioNAR
 Title: Biological Network Analysis in R
-Version: 0.99.001
+Version: 0.99.002
 Authors@R: c(
     person("Colin", "Mclean", 
         email="Colin.D.Mclean@ed.ac.uk", role="aut"), 

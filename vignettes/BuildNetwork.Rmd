@@ -19,10 +19,6 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(knitr)
-logFile<-'~/Documents/Projects/R/bionar.log'
-cat(format(Sys.time(), "%b %d %X"),'#######\nStart',
-    opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 library(BioNAR)
 library(synaptome.db)
 library(ggplot2)
@@ -46,8 +42,6 @@ The command builds the graph from provided data frame, simplifies the
 graph (removing multiple edges and loops) and finds the MCC (maximum 
 connected component)
 ```{r network_from_scratch}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 file <- system.file("extdata", "PPI_Presynaptic.csv", package = "BioNAR")
 tbl <- read.csv(file, sep="\t")
 head(tbl)
@@ -59,8 +53,6 @@ summary(gg)
 ## Build network for the node list extracted from SynaptomeDB
 
 ```{r net_from_SynaptomeDB}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 # Let's get the ID for presynaptic compartment
 cid<-match('Presynaptic',getCompartments()$Name) 
 cid
@@ -76,17 +68,12 @@ summary(gg)
 
 ## Use the predifined network
 ```{r net_predefind}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
-
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
 gg1 <- igraph::read.graph(file,format="gml")
 summary(gg1)
 ```
 
 ```{r cluster_predefind, include=FALSE}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 file <- system.file("extdata", "PPI_cluster.gml", package = "BioNAR")
 ggCluster <- igraph::read.graph(file,format="gml")
 ```
@@ -97,9 +84,6 @@ ggCluster <- igraph::read.graph(file,format="gml")
 ## Gene name
 Adding gene names to nodes.
 ```{r annotate_net}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
-
 gg<-annotateGeneNames(gg)
 summary(gg)
 head(V(gg))
@@ -110,8 +94,6 @@ head(V(gg)$GeneName)
 Adding diseases associations to genes linked to Human Disease Ontology 
 (HDO) terms
 ```{r annotate_topOnto}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 afile<-system.file("extdata", "flatfile_human_gene2HDO.csv", package = "BioNAR")
 dis <- read.table(afile,sep="\t",skip=1,header=FALSE,strip.white=TRUE,quote="")
 gg <- annotate_topOnto_ovg(gg, dis)
@@ -123,8 +105,6 @@ summary(gg)
 Adding Schizopherina related synaptic gene functional annotation from 
 (Lips et al., 2012).
 ```{r annotate_Shanno}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 sfile<-system.file("extdata", "SCH_flatfile.csv", package = "BioNAR")
 shan<- read.table(sfile,sep="\t",skip=1,header=FALSE,strip.white=TRUE,quote="")
 sgg<-annotate_SCHanno(gg,shan)
@@ -136,8 +116,6 @@ Manually curated presynaptic genes functional annotation derived from
 (Boyken at al., 2019).
 
 ```{r annotate_Chua, eval=FALSE}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 sfile<-system.file("extdata", "PresynAn.csv", package = "BioNAR")
 pres <- read.csv(sfile,skip=1,header=FALSE,strip.white=TRUE,quote="")
 sgg <- BioNAR:::annotate_CHUA(gg, pres)
@@ -147,8 +125,6 @@ summary(sgg)
 ## GO
 Adding functionality from GO: BP, MF,CC
 ```{r annotate_go}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 sfile<-system.file("extdata", "flatfile.go.BP.csv", package = "BioNAR")
 goBP <- read.table(sfile,sep="\t",skip=1,header=FALSE,strip.white=TRUE,quote="")
 sgg <- annotate_go_bp(gg, goBP)
@@ -180,8 +156,6 @@ Centrality measures are as following:
 * sdSP - standard deviation of the shortest path.
 
 ```{r graph_cent}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 gg <- calcCentrality(gg)
 summary(gg)
 ```
@@ -193,8 +167,6 @@ you going to provide different names for the attributes, the same centrality
 measures as before could be obtained in a matrix form:
 
 ```{r matrix_cent}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 mc <- getCentralityMatrix(gg)
 head(mc)
 ```
@@ -208,8 +180,6 @@ and new random graph from a given graph by randomly adding/removing edges.
 
 ```
 {r}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 ggrm <- getRandomGraphCentrality(sgg, type = c("cgnp"))
 head(ggrm)
 ```
@@ -225,8 +195,6 @@ In the example below we found evidence for disassortative mixing
 low-degree gene(presynaptic: -0.16).
 
 ```{r powerLaw,fig.height=9,fig.width=9}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 pFit <- FitDegree( as.vector(igraph::degree(graph=gg)),threads=1,Nsim=5,
                     plot=TRUE,WIDTH=2480, HEIGHT=2480)
 ```
@@ -245,8 +213,6 @@ in networks with scale-free or approximate scale-free topology (Teschendorff
 et al, 2014)[80]. 
 
 ```{r ent_rate,fig.height=8,fig.width=8}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 ent <- getEntropyRate(gg)
 ent
 SRprime <- getEntropy(gg, maxSr = NULL)
@@ -269,11 +235,6 @@ number of modules in the real network.
 Randomized networks were generated from a real-world network using the
 edge-rewiring algorithm (Maslov and Sneppen, 2002).
 ```{r norm_mod}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
-#' cid<-match('Presynaptic',getCompartments()$Name)
-#' t<-getAllGenes4Compartment(cid)
-#' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
 nm<-normModularity(gg,alg='louvain')
 nm
 ```
@@ -302,8 +263,6 @@ the data by maximising the objective function called the Minimum Description
 Length (Rissanen, 1978; Grwald et al., 2005)
 
 ```{r cluster.mem}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 alg = "louvain"
 mem <- calcMembership(gg, alg)# choose one algorithm from the list
 pander(head(mem))
@@ -312,8 +271,6 @@ pander(head(mem))
 Due to internal random initialisation consequtive invocation of the same 
 algorithm could produce slightly different community structures:
 ```{r cluster.mem2}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 mem2 <- calcMembership(gg, alg)# choose one algorithm from the list
 pander(head(cbind(mem,mem2)))
 ```
@@ -329,8 +286,6 @@ allows to calculate memberships for all clustering algorithms simultaneously
 command will work for specific algorithm. 
 
 ```{r cluster}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 gg <- calcClustering(gg, alg)
 gg
 
@@ -339,8 +294,6 @@ gg
 Membership data could be obtained from the graph vertex attribute:
 
 ```{r get.attr}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 mem.df<-data.frame(names=V(gg)$name,membership=as.numeric(V(gg)$louvain))
 ```
 
@@ -358,18 +311,12 @@ with the follownig values:
 10. third quartile (3rd Qu. C) of the community size. 
 
 ```{r calcAllClustering,eval=FALSE}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 ggc <- calcAllClustering(gg)
 ```
 ```{r calcAllClustering.hid,eval=TRUE,include=FALSE}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 ggc <- ggCluster
 ```
 ```{r clusterSummary,eval=TRUE}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 m<-clusteringSummary(ggc,att=c('lec','wt','fc',
                                 'infomap','louvain',
                                 'sgG1','sgG2','sgG5'))
@@ -379,8 +326,6 @@ pander(m)
 It is often useful to be able to visualize clusters on the graph. The simples 
 way is to color each cluster in its own color and plot the graph:
 ```{r plot.color.graph,fig.height=8,fig.width=8}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 palette <- distinctColorPalette(max(as.numeric(mem.df$membership)))
 plot(gg,vertex.size=3,layout=layout_nicely,
         vertex.label=NA,
@@ -394,8 +339,6 @@ On the plot we can see some distinctive clusters but most nodes are
 indistinguishable within the central part of the plot. So we could layout 
 graph clusterwise:
 ```{r plot.clusterwise.graph,fig.height=8,fig.width=8}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 lay<-layoutByCluster(gg,mem.df,layout = layout_nicely)
 plot(gg,vertex.size=3,layout=lay,
         vertex.label=NA,
@@ -407,8 +350,6 @@ legend('topright',legend=names(table(mem.df$membership)),
 
 It is also possible to visualize the interaction between communities:
 ```{r ploc.cluster.communities,fig.height=8,fig.width=8}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 idx<-match(V(gg)$name,mem.df$names)
 cgg<-getCommunityGraph(gg,mem.df$membership[idx])
 D0 = unname(degree(cgg))
@@ -420,16 +361,12 @@ vertex.color=round(log(D0))+1,layout=layout_with_kk)
 Reclustering a clustered graph using the same, or different, 
 clustering algorithm:
 ```{r recluster}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 remem<-calcReclusterMatrix(gg,mem.df,alg,10)
 head(remem)
 ```
 
 And we can apply second order clustering layout:
 ```{r plot.recluster.layout,fig.height=8,fig.width=8}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 lay<-BioNAR:::layoutByRecluster(gg,remem,layout_nicely)
 plot(gg,vertex.size=3,layout=lay,
         vertex.label=NA,
@@ -451,24 +388,23 @@ sampling scheme (1 sample edges, and 2 sample nodes) to use, 'mask' the
 percentage of edges or nodes to be mask, 'reclust' whether reclustering 
 should be performed on the community set found, 'Cnmin' minimum cluster 
 size and 'Cnmax' the maximum cluster size above which reclustering will be 
-preformed (if reClust=TRUE).
+preformed (if reClust=TRUE). 
 ```{r cons_mat}
 #Build consensus matrix for louvain clustering
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 conmat <- makeConsensusMatrix(gg, N=5,
                                 alg = alg, type = 2, 
                                 mask = 10,reclust = FALSE, 
                                 Cnmax = 10)
 
 ```
+For the sake of timing we use only five 
+randomisatio round (\code{N=5}), for the real analysis you should use at least
+\code{N=100}.
 
 ##Consensus matrix value distribution
 
 Consensus matrix value distribution could be visualised in the following way:
 ```{r plot.conmat.ecdf,fig.height=8,fig.width=8}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 steps <- 100
 Fn  <- ecdf(conmat[lower.tri(conmat)])
 X<-seq(0,1,length.out=steps+1)
@@ -487,18 +423,19 @@ ggplot(dt,aes(x=cons,y=cdf))+geom_line()+
             panel.border = element_rect(linetype="solid",fill=NA))
 ```
 
+
 ## Cluster robustness
+
 Cluster robustness assess the robustness of the obtained clusters and 
 could help to evaluate the "goodness" of chosen clustering algorithm.
 ```{r clcons}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 clrob<-getRobustness(gg, alg = alg, conmat)
 pander(clrob)
 ```
 
 
 # Bridgeness 
+
 Bridging proteins are known to interact with many neighbours simultaneously,
 organise function inside communities they belong to, but also affect/influence
 other communities in the network (Nepusz et al., 2008).Bridgeness is 
@@ -512,13 +449,12 @@ a single community, and 1 - implying a vertex forms a 'global bridge' across
 every community with the same strength. 
 
 ```{r calc.bridge}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 br<-getBridgeness(gg,alg = alg,conmat)
 pander(head(br))
 ```
 
 ## Bridgeness plot
+
 Semi-local centrality measure (Chen et al., 2011) also lies between 0 and 
 1 indicating whether protein is important globally or locally. By plotting
 Bridgeness against semi-local centrality we can categorises the influence 
@@ -534,8 +470,6 @@ but also communicating with a few other specific communities
 * Region 4, proteins with 'local' impact , primarily within one or 
 two communities (local or party hubs, 0.5<Sl<1, 0<Br<0.5).
 ```{r plot.bridgeness,fig.height=8,fig.width=8}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 scale <- function(x, VALUE=NULL){
     
     x = as.numeric(as.vector(x))
@@ -623,9 +557,10 @@ ggplot(dt,aes(x=X,y=Y,label=name))+#geom_point()+
 ```
 
 ##Interactive view of bridgeness plot
+
+With the help from \code{\link[plotly]{ggplotly}} function we could make the
+plot more interactive.
 ```{r plotly,fig.height=10,fig.width=10}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 library(plotly)
 p<-ggplot(dt,aes(x=X,y=Y,label=name))+#geom_point()+
     geom_point(data=dt_vips,
@@ -653,6 +588,7 @@ ggplotly(p)
 ```
 
 # Disease/annotation pairs
+
 Given that Disease associated genes are connected within the graph, the 
 common question is to check whether the networks for two different 
 diseases are overlapping, which may indicate the common molecular mechanisms. 
@@ -676,8 +612,6 @@ permutations. The command execution will take a while, depending on this
 number and return the table with p-value, p.adjusted, q-value and 
 Bonferroni test.
 ```{r disPairs,warning=FALSE,message=FALSE}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 p <- calcDiseasePairs(
     gg,
     name = "TopOnto_OVG_HDO_ID",
@@ -699,8 +633,6 @@ pander(r$Disease_overlap_sig)
 
 # Session Info
 ```{r sessionInfo, echo=FALSE, results='asis', class='text', warning=FALSE}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 library(devtools)
 si<-devtools::session_info()
 cat('Platform\n\n')
