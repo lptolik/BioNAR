@@ -391,8 +391,6 @@ size and 'Cnmax' the maximum cluster size above which reclustering will be
 preformed (if reClust=TRUE). 
 ```{r cons_mat}
 #Build consensus matrix for louvain clustering
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 conmat <- makeConsensusMatrix(gg, N=5,
                                 alg = alg, type = 2, 
                                 mask = 10,reclust = FALSE, 
@@ -407,8 +405,6 @@ randomisatio round (\code{N=5}), for the real analysis you should use at least
 
 Consensus matrix value distribution could be visualised in the following way:
 ```{r plot.conmat.ecdf,fig.height=8,fig.width=8}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 steps <- 100
 Fn  <- ecdf(conmat[lower.tri(conmat)])
 X<-seq(0,1,length.out=steps+1)
@@ -433,8 +429,6 @@ ggplot(dt,aes(x=cons,y=cdf))+geom_line()+
 Cluster robustness assess the robustness of the obtained clusters and 
 could help to evaluate the "goodness" of chosen clustering algorithm.
 ```{r clcons}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 clrob<-getRobustness(gg, alg = alg, conmat)
 pander(clrob)
 ```
@@ -455,8 +449,6 @@ a single community, and 1 - implying a vertex forms a 'global bridge' across
 every community with the same strength. 
 
 ```{r calc.bridge}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 br<-getBridgeness(gg,alg = alg,conmat)
 pander(head(br))
 ```
@@ -478,8 +470,6 @@ but also communicating with a few other specific communities
 * Region 4, proteins with 'local' impact , primarily within one or 
 two communities (local or party hubs, 0.5<Sl<1, 0<Br<0.5).
 ```{r plot.bridgeness,fig.height=8,fig.width=8}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 scale <- function(x, VALUE=NULL){
     
     x = as.numeric(as.vector(x))
@@ -571,8 +561,6 @@ ggplot(dt,aes(x=X,y=Y,label=name))+#geom_point()+
 With the help from \code{\link[plotly]{ggplotly}} function we could make the
 plot more interactive.
 ```{r plotly,fig.height=10,fig.width=10}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 library(plotly)
 p<-ggplot(dt,aes(x=X,y=Y,label=name))+#geom_point()+
     geom_point(data=dt_vips,
@@ -624,8 +612,6 @@ permutations. The command execution will take a while, depending on this
 number and return the table with p-value, p.adjusted, q-value and 
 Bonferroni test.
 ```{r disPairs,warning=FALSE,message=FALSE}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 p <- calcDiseasePairs(
     gg,
     name = "TopOnto_OVG_HDO_ID",
@@ -647,8 +633,6 @@ pander(r$Disease_overlap_sig)
 
 # Session Info
 ```{r sessionInfo, echo=FALSE, results='asis', class='text', warning=FALSE}
-cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
-    file = logFile,append = TRUE)
 library(devtools)
 si<-devtools::session_info()
 cat('Platform\n\n')
