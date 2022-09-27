@@ -215,7 +215,7 @@ low-degree gene(presynaptic: -0.16).
 ```{r powerLaw,fig.height=9,fig.width=9}
 cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
     file = logFile,append = TRUE)
-pFit <- FitDegree( as.vector(igraph::degree(graph=sgg)),threads=1,
+pFit <- FitDegree( as.vector(igraph::degree(graph=gg)),threads=1,Nsim=5,
                     plot=TRUE,WIDTH=2480, HEIGHT=2480)
 ```
 
@@ -435,7 +435,7 @@ preformed (if reClust=TRUE).
 #Build consensus matrix for louvain clustering
 cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
     file = logFile,append = TRUE)
-conmat <- makeConsensusMatrix(gg, N=100,
+conmat <- makeConsensusMatrix(gg, N=5,
                                 alg = alg, type = 2, 
                                 mask = 10,reclust = FALSE, 
                                 Cnmax = 10)
