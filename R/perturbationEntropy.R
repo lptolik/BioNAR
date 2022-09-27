@@ -109,7 +109,7 @@ calcEntropy<-function(gg,maxSr=NULL,exVal=NULL){
 #' e<- getEntropy(gg)
 getEntropy<-function(gg,maxSr=NULL,exVal=NULL){
     if(!"GeneName"%in%vertex_attr_names(gg)){
-    V(gg)$GeneName<-V(gg)$name
+        V(gg)$GeneName<-V(gg)$name
     }
     V    <- vcount(gg)
     E    <- ecount(gg)
@@ -117,83 +117,83 @@ getEntropy<-function(gg,maxSr=NULL,exVal=NULL){
     Kbar <- mean(ki)
     A    <- get.adjacency(gg)
     if(is.null(maxSr)){
-    par<-getEntropyRate(gg)
-    maxSr<-par$maxSr
+        par<-getEntropyRate(gg)
+        maxSr<-par$maxSr
     }
     if(is.null(exVal)){
-    xx    <- vector(length=2)
-    xx[1] <- 2  #active
-    xx[2] <- 16 #inactive
-    lambda    <- vector(length=2)
-    lambda[1] <- 14   #active
-    lambda[2] <- -14  #inactive
-    NORM      <- vector(length=2)
-    NORM[1]   <- 0
-    NORM[2]   <- 0
+        xx    <- vector(length=2)
+        xx[1] <- 2  #active
+        xx[2] <- 16 #inactive
+        lambda    <- vector(length=2)
+        lambda[1] <- 14   #active
+        lambda[2] <- -14  #inactive
+        NORM      <- vector(length=2)
+        NORM[1]   <- 0
+        NORM[2]   <- 0
     }else{
-    if(!('xx' %in% names(exVal) && 'lambda' %in% names(exVal))){
-        stop('exVal should contain two columns: xx and lambda')
-    }
-    xx<-exVal$xx
-    lambda<-exVal$lambda
-    NORM <- rep.int(0,length(xx))
+        if(!('xx' %in% names(exVal) && 'lambda' %in% names(exVal))){
+            stop('exVal should contain two columns: xx and lambda')
+        }
+        xx<-exVal$xx
+        lambda<-exVal$lambda
+        NORM <- rep.int(0,length(xx))
     }
     SRprime <- cbind(V(gg)$name, V(gg)$GeneName, ki, rep("",V), rep("",V))
     for( v in seq_len(V) ){
-    GN     <- as.character(SRprime[v,2])
-    GNindx <- which(V(gg)$GeneName==GN)
-    PIprime <- cbind( rep("",V), rep("",V) )
-    LSprime <- cbind( rep("",V), rep("",V) )
-    NORM <- rep.int(0,length(xx))
-    for( s in seq_along(lambda) ){
-        X               <- rep(xx[s], V)
-        X[GNindx[1]]    <- X[GNindx[1]] + lambda[s]
-        NORM[s]         <- X %*% A %*% X
-    }
-    Nv <- V(gg)$name[neighbors(gg,GNindx,mode="all")]
-    oo <- cbind( ki, !(V(gg)$name %in% Nv) )
-    for( s in seq_along(lambda) ){
-        PIprime[,s] <- ifelse(oo[,2] == 1,
-                            (1/NORM[s] * xx[s] * xx[s] * as.numeric(oo[,1])),
-                            ".")
-    }
-    for( s in seq_along(lambda) ){
-
-        X   <- as.numeric(xx[s])
-        lam <- as.numeric(lambda[s])
-        DEG <- as.numeric(oo[GNindx[1],1])
-
-        PIprime[GNindx[1],s] <- ((X + lam) * DEG * X) / NORM[s]
-
-    }
-    for (s in seq_along(lambda)) {
-        PIprime[, s] <- ifelse(oo[, 2] == 0,
-                                (1 / NORM[s] * xx[s] * (xx[s] + lambda[s] + (
-                                    as.numeric(oo[, 1]) - 1
-                                ) * xx[s])), PIprime[, s])
-    }
-    for( s in seq_along(lambda) ){
-        X <- as.numeric(xx[s])
-        LSprime[,s] <- ifelse(oo[,2] == 1,
-                            (-log(X) + log(X*as.numeric(oo[,1]))),".")
-    }
-    Ni <- grep(0,oo[,2])
-    for( i in seq_along(Ni) ){
-        DEGi <- as.numeric(oo[Ni[i],1])
-        SUM  <- DEGi-1
+        GN     <- as.character(SRprime[v,2])
+        GNindx <- which(V(gg)$GeneName==GN)
+        PIprime <- cbind( rep("",V), rep("",V) )
+        LSprime <- cbind( rep("",V), rep("",V) )
+        NORM <- rep.int(0,length(xx))
         for( s in seq_along(lambda) ){
-        X   <- as.numeric(xx[s])
-        lam <- as.numeric(lambda[s])
-        dem <- X + lam + (DEGi -1) * X
-        pij <- X / dem
-        pi1 <- (X + lam) / dem
-        LSi <- pij * log(pij)
-        LSi <- - SUM * LSi - pi1 * log(pi1)
-        LSprime[Ni[i],s]  <- as.character(LSi)
+            X               <- rep(xx[s], V)
+            X[GNindx[1]]    <- X[GNindx[1]] + lambda[s]
+            NORM[s]         <- X %*% A %*% X
         }
-    }
-    SRprime[v,4] <- sum( as.numeric(PIprime[,1]) * as.numeric(LSprime[,1]) )
-    SRprime[v,5] <- sum( as.numeric(PIprime[,2]) * as.numeric(LSprime[,2]) )
+        Nv <- V(gg)$name[neighbors(gg,GNindx,mode="all")]
+        oo <- cbind( ki, !(V(gg)$name %in% Nv) )
+        for( s in seq_along(lambda) ){
+            PIprime[,s] <- ifelse(oo[,2] == 1,
+                                  (1/NORM[s] * xx[s] * xx[s] * as.numeric(oo[,1])),
+                                  ".")
+        }
+        for( s in seq_along(lambda) ){
+
+            X   <- as.numeric(xx[s])
+            lam <- as.numeric(lambda[s])
+            DEG <- as.numeric(oo[GNindx[1],1])
+
+            PIprime[GNindx[1],s] <- ((X + lam) * DEG * X) / NORM[s]
+
+        }
+        for (s in seq_along(lambda)) {
+            PIprime[, s] <- ifelse(oo[, 2] == 0,
+                                   (1 / NORM[s] * xx[s] * (xx[s] + lambda[s] + (
+                                       as.numeric(oo[, 1]) - 1
+                                   ) * xx[s])), PIprime[, s])
+        }
+        for( s in seq_along(lambda) ){
+            X <- as.numeric(xx[s])
+            LSprime[,s] <- ifelse(oo[,2] == 1,
+                                  (-log(X) + log(X*as.numeric(oo[,1]))),".")
+        }
+        Ni <- grep(0,oo[,2])
+        for( i in seq_along(Ni) ){
+            DEGi <- as.numeric(oo[Ni[i],1])
+            SUM  <- DEGi-1
+            for( s in seq_along(lambda) ){
+                X   <- as.numeric(xx[s])
+                lam <- as.numeric(lambda[s])
+                dem <- X + lam + (DEGi -1) * X
+                pij <- X / dem
+                pi1 <- (X + lam) / dem
+                LSi <- pij * log(pij)
+                LSi <- - SUM * LSi - pi1 * log(pi1)
+                LSprime[Ni[i],s]  <- as.character(LSi)
+            }
+        }
+        SRprime[v,4] <- sum( as.numeric(PIprime[,1]) * as.numeric(LSprime[,1]) )
+        SRprime[v,5] <- sum( as.numeric(PIprime[,2]) * as.numeric(LSprime[,2]) )
     }
     SRprime[,4] <- as.numeric(SRprime[,4])/maxSr
     SRprime[,5] <- as.numeric(SRprime[,5])/maxSr

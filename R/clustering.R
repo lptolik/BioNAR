@@ -233,5 +233,5 @@ clusteringSummary<-function(gg,
     names(r1)<-c('mod','C','Cn1','Cn100','mu')
     res[[c]]<-c(r1,s)
     }
-    return(do.call(rbind,res))
+    return(makeDataFrame(do.call(rbind,res)))
 }

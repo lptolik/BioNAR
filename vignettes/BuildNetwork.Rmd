@@ -19,13 +19,16 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(knitr)
+logFile<-'~/Documents/Projects/R/bionar.log'
+cat(format(Sys.time(), "%b %d %X"),'#######\nStart',
+    opts_current$get()$label,'\n',
+    file = logFile,append = TRUE)
 library(BioNAR)
 library(synaptome.db)
 library(ggplot2)
 library(pander)
 library(ggrepel)
 library(randomcoloR)
-logFile<-'~/Documents/Projects/R/bionar.log'
 ```
 
 #Introduction
@@ -72,7 +75,7 @@ summary(gg)
 ```
 
 ## Use the predifined network
-```{r net_predifind}
+```{r net_predefind}
 cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
     file = logFile,append = TRUE)
 
@@ -81,8 +84,9 @@ gg1 <- igraph::read.graph(file,format="gml")
 summary(gg1)
 ```
 
-```{r net_predifind, include=FALSE}
-
+```{r cluster_predefind, include=FALSE}
+cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
+    file = logFile,append = TRUE)
 file <- system.file("extdata", "PPI_cluster.gml", package = "BioNAR")
 ggCluster <- igraph::read.graph(file,format="gml")
 ```
@@ -363,7 +367,7 @@ cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
     file = logFile,append = TRUE)
 ggc <- ggCluster
 ```
-```{r clusterSummary}
+```{r clusterSummary,eval=TRUE}
 cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
     file = logFile,append = TRUE)
 m<-clusteringSummary(ggc,att=c('lec','wt','fc',
@@ -460,6 +464,7 @@ conmat <- makeConsensusMatrix(gg, N=5,
 ```
 
 ##Consensus matrix value distribution
+
 Consensus matrix value distribution could be visualised in the following way:
 ```{r plot.conmat.ecdf,fig.height=8,fig.width=8}
 cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
@@ -676,7 +681,7 @@ cat(format(Sys.time(), "%b %d %X"),'Start',opts_current$get()$label,'\n',
 p <- calcDiseasePairs(
     gg,
     name = "TopOnto_OVG_HDO_ID",
-    diseases = c("DOID:10652","DOID:3312","DOID:12849"),
+    diseases = c("DOID:10652","DOID:3312"),
     permute = "r"
 )
 pander(p$disease_separation)
@@ -684,7 +689,7 @@ pander(p$disease_separation)
 r <- runPermDisease(
     gg,
     name = "TopOnto_OVG_HDO_ID",
-    diseases = c("DOID:10652","DOID:3312","DOID:12849","DOID:1826"),
+    diseases = c("DOID:10652","DOID:3312"),
     Nperm = 100,
     alpha = c(0.05, 0.01, 0.001)
 )

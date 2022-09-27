@@ -173,6 +173,11 @@ MAD <- function( X ){
 #' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
 #' m<-getCentralityMatrix(gg)
 getCentralityMatrix<-function(gg){
+    tmp <- makeDataFrame(makeCentralityMatrix(gg))
+    return(tmp)
+}
+
+makeCentralityMatrix<-function(gg){
     ID <- V(gg)$name
     N  <- length(ID)
     CN  <- c("ID","DEG","BET","CC","SL","mnSP","PR","sdSP")
@@ -187,12 +192,33 @@ getCentralityMatrix<-function(gg){
     res <- calShorestPaths(gg)
     tmp[,6]  <- as.character(res[,2])
     tmp[,7]  <- as.character(round(
-    as.vector(page.rank(graph=gg,vids=V(gg),
-                        directed=FALSE,
-                        options=igraph.arpack.default)$vector),6))
+        as.vector(page.rank(graph=gg,vids=V(gg),
+                            directed=FALSE,
+                            options=igraph.arpack.default)$vector),6))
     tmp[,8]  <- as.character(res[,3])
     return(tmp)
 }
+
+#' Convert character matrix to data.frame
+#'
+#' All columns that names are not in \code{keep} list will be converted
+#' to numbers by \code{\link{as.numeric}}.
+#'
+#' @param m input matrix, for example from \code{\link{vertex_attr_names}}
+#' @param keep vector of column names to keep as characters
+#'
+#' @return data.frame with numerical columns when needed
+#' @noRd
+makeDataFrame<-function(m,keep=c('ID')){
+    keep.idx<-which(colnames(m)%in%keep)
+    numcol<-dim(m)[2]
+    df<-as.data.frame(m)
+    for(i in seq_len(numcol)[-keep.idx]){
+        df[,i]<-as.numeric(df[,i])
+    }
+    return(df)
+}
+
 #' Add annotation to the vertex in the case of unique annotation per node.
 #'
 #' @param gg igraph object
@@ -251,7 +277,7 @@ applpMatrixToGraph<-function(gg,m){
 #' ggm<-calcCentrality(karate)
 #' V(ggm)$DEG
 calcCentrality<-function(gg){
-    m<-getCentralityMatrix(gg)
+    m<-makeCentralityMatrix(gg)
     ggm<-applpMatrixToGraph(gg,m)
     return(ggm)
 }
@@ -294,7 +320,7 @@ getRandomGraphCentrality<-function(gg,type=c('gnp','pa','cgnp','rw'),...){
                 rw = rewire(gg,keeping_degseq(niter = 0.25*ne))
     )
     V(rg)$name<-V(gg)$name
-    m<-getCentralityMatrix(rg)
+    m<-makeCentralityMatrix(rg)
     options(op)
     return(m)
 }
@@ -335,10 +361,11 @@ getGraphCentralityECDF<-function(m){
     l<-list()
     for(i in 2:8){
     n<-colnames(m)[i]
-    l[[n]]<-stats::ecdf(as.numeric(m[,i]))
+    l[[n]]<-stats::ecdf(m[,i])
     }
     return(l)
 }
+
 #' Extracts particular measure from matrix and convert for distance
 #' calculation by \code{\linc{calcCentralityInternalDistances}} and
 #' \code{\link{calcCentralityExternalDistances}} functions.
