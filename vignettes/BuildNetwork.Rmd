@@ -194,7 +194,7 @@ In the example below we found evidence for disassortative mixing
 (Newman, 2002), i.e. a preference for high-degree genes to attach to 
 low-degree gene(presynaptic: -0.16).
 
-```{r powerLaw,fig.height=9,fig.width=9}
+```{r powerLaw,fig.height=8,fig.width=8,dpi=56}
 pFit <- FitDegree( as.vector(igraph::degree(graph=gg)),threads=1,Nsim=5,
                     plot=TRUE,WIDTH=2480, HEIGHT=2480)
 ```
@@ -212,7 +212,8 @@ degree. This type of bi-modal, bi-phasic behaviour has been observed only
 in networks with scale-free or approximate scale-free topology (Teschendorff 
 et al, 2014)[80]. 
 
-```{r ent_rate,fig.height=8,fig.width=8}
+```{r ent_rate,fig.height=8,fig.width=8,dpi=56}
+options("show.error.messages"=TRUE)
 ent <- getEntropyRate(gg)
 ent
 SRprime <- getEntropy(gg, maxSr = NULL)
@@ -325,7 +326,7 @@ pander(m)
 
 It is often useful to be able to visualize clusters on the graph. The simples 
 way is to color each cluster in its own color and plot the graph:
-```{r plot.color.graph,fig.height=8,fig.width=8}
+```{r plot.color.graph,fig.height=8,fig.width=8,dpi=56}
 palette <- distinctColorPalette(max(as.numeric(mem.df$membership)))
 plot(gg,vertex.size=3,layout=layout_nicely,
         vertex.label=NA,
@@ -338,7 +339,7 @@ legend('topright',legend=names(table(mem.df$membership)),
 On the plot we can see some distinctive clusters but most nodes are 
 indistinguishable within the central part of the plot. So we could layout 
 graph clusterwise:
-```{r plot.clusterwise.graph,fig.height=8,fig.width=8}
+```{r plot.clusterwise.graph,fig.height=8,fig.width=8,dpi=56}
 lay<-layoutByCluster(gg,mem.df,layout = layout_nicely)
 plot(gg,vertex.size=3,layout=lay,
         vertex.label=NA,
@@ -349,12 +350,12 @@ legend('topright',legend=names(table(mem.df$membership)),
 ```
 
 It is also possible to visualize the interaction between communities:
-```{r ploc.cluster.communities,fig.height=8,fig.width=8}
+```{r ploc.cluster.communities,fig.height=8,fig.width=8,dpi=56}
 idx<-match(V(gg)$name,mem.df$names)
 cgg<-getCommunityGraph(gg,mem.df$membership[idx])
 D0 = unname(degree(cgg))
 plot(cgg, vertex.size=sqrt(V(cgg)$size), vertex.cex = 0.8,
-vertex.color=round(log(D0))+1,layout=layout_with_kk)
+vertex.color=round(log(D0))+1,layout=layout_with_kk,margin=0)
 ```
 
 ### Reclustering
@@ -366,7 +367,7 @@ head(remem)
 ```
 
 And we can apply second order clustering layout:
-```{r plot.recluster.layout,fig.height=8,fig.width=8}
+```{r plot.recluster.layout,fig.height=8,fig.width=8,dpi=56}
 lay<-BioNAR:::layoutByRecluster(gg,remem,layout_nicely)
 plot(gg,vertex.size=3,layout=lay,
         vertex.label=NA,
@@ -404,7 +405,7 @@ randomisatio round (\code{N=5}), for the real analysis you should use at least
 ##Consensus matrix value distribution
 
 Consensus matrix value distribution could be visualised in the following way:
-```{r plot.conmat.ecdf,fig.height=8,fig.width=8}
+```{r plot.conmat.ecdf,fig.height=8,fig.width=8,dpi=56}
 steps <- 100
 Fn  <- ecdf(conmat[lower.tri(conmat)])
 X<-seq(0,1,length.out=steps+1)
@@ -469,7 +470,7 @@ but also communicating with a few other specific communities
 (0<Sl<0.5; 0.1<Br<0.5). 
 * Region 4, proteins with 'local' impact , primarily within one or 
 two communities (local or party hubs, 0.5<Sl<1, 0<Br<0.5).
-```{r plot.bridgeness,fig.height=8,fig.width=8}
+```{r plot.bridgeness,fig.height=8,fig.width=8,dpi=56}
 scale <- function(x, VALUE=NULL){
     
     x = as.numeric(as.vector(x))
@@ -560,7 +561,7 @@ ggplot(dt,aes(x=X,y=Y,label=name))+#geom_point()+
 
 With the help from \code{\link[plotly]{ggplotly}} function we could make the
 plot more interactive.
-```{r plotly,fig.height=10,fig.width=10}
+```{r plotly,fig.height=6,fig.width=6}
 library(plotly)
 p<-ggplot(dt,aes(x=X,y=Y,label=name))+#geom_point()+
     geom_point(data=dt_vips,
