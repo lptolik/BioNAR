@@ -197,7 +197,7 @@ In the example below we found evidence for disassortative mixing
 low-degree gene(presynaptic: -0.16).
 
 ```{r powerLaw,fig.height=9,fig.width=9}
-pFit <- FitDegree( as.vector(igraph::degree(graph=sgg)),threads=1,Nsim=5,
+pFit <- FitDegree( as.vector(igraph::degree(graph=gg)),threads=1,Nsim=5,
                     plot=TRUE,WIDTH=2480, HEIGHT=2480)
 ```
 
@@ -396,7 +396,7 @@ size and 'Cnmax' the maximum cluster size above which reclustering will be
 preformed (if reClust=TRUE).
 ```{r cons_mat}
 #Build consensus matrix for louvain clustering
-conmat <- makeConsensusMatrix(gg, N=100,
+conmat <- makeConsensusMatrix(gg, N=5,
                                 alg = alg, type = 2, 
                                 mask = 10,reclust = FALSE, 
                                 Cnmax = 10)
