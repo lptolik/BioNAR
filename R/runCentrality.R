@@ -315,7 +315,7 @@ getRandomGraphCentrality<-function(gg,type=c('gnp','pa','cgnp','rw'),...){
     prob<-(2*ne)/(nv*(nv-1))
     rg<-switch (type,
                 gnp = getGNP(gg,...),
-                pa = getPA(gg,...),
+                pa = getPA(gg,pwr=power,...),
                 cgnp = sample_correlated_gnp(gg,corr=0.75,...),
                 rw = rewire(gg,keeping_degseq(niter = 0.25*ne))
     )
@@ -331,12 +331,17 @@ getGNP<-function(gg,...){
     g<-sample_gnp(nv,p=prob,...)
     return(g)
 }
-getPA<-function(gg,...){
+getPA<-function(gg,pwr,...){
     nv<-vcount(gg)
-    pFit <- FitDegree( as.vector(igraph::degree(graph=gg)),
-                        Nsim=100, plot=FALSE )
-    pwr <- pFit@alpha
-    g<- sample_pa(nv,power=pwr,directed = FALSE,...)
+    args <- list(...)
+    if(is.null(pwr)){
+        pFit <- do.call(function(...){
+            FitDegree(as.vector(igraph::degree(graph=gg)),
+                      Nsim=100, plot=FALSE, ...)}
+            ,args[names(args)%in%formalArgs(FitDegree)])
+        pwr <- pFit@alpha
+    }
+    g<- sample_pa(nv,power=pwr, directed = FALSE,...)
     return(g)
 }
 #' Convert centrality matrix into ECDF
