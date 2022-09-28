@@ -300,48 +300,67 @@ calcCentrality<-function(gg){
 #' \code{\link[igraph]{sample_gnp}},
 #' \code{\link[igraph]{sample_correlated_gnp}}, and
 #' \code{\link[igraph]{sample_pa}}
+#' @param power optional argument of the power of the preferential attachment
+#' to be passed to \code{\link[igraph]{sample_pa}}. If \code{power} is
+#' \code{NULL} the power of the preferential attachment will be estimated
+#' from \code{\link{fitDegree}} function.
 #'
 #' @return matrix of random graph vertices centrality measure.
 #' @export
 #'
 #' @examples
 #' data(karate,package='igraphdata')
-#' m<-getRandomGraphCentrality(karate,'pa')
-getRandomGraphCentrality<-function(gg,type=c('gnp','pa','cgnp','rw'),...){
-    op<-options(warn= -1)
+#' m<-getRandomGraphCentrality(karate,'pa',threads=1)
+#' # to avoid repetitive costy computation of PowerLaw fit
+#' # power parameter could be send explicitly:
+#' pFit <- fitDegree( as.vector(igraph::degree(graph=karate)),
+#' Nsim=100, plot=FALSE,threads=1)
+#' pwr <- slot(pFit,'alpha')
+#' m<-getRandomGraphCentrality(karate,'pa',power=pwr)
+getRandomGraphCentrality <- function(gg,
+                                     type = c('gnp', 'pa', 'cgnp', 'rw'),
+                                     power = NULL,
+                                     ...) {
+    op <- options(warn = -1)
     type <- match.arg(type)
-    nv<-vcount(gg)
-    ne<-ecount(gg)
-    prob<-(2*ne)/(nv*(nv-1))
-    rg<-switch (type,
-                gnp = getGNP(gg,...),
-                pa = getPA(gg,pwr=power,...),
-                cgnp = sample_correlated_gnp(gg,corr=0.75,...),
-                rw = rewire(gg,keeping_degseq(niter = 0.25*ne))
+    nv <- vcount(gg)
+    ne <- ecount(gg)
+    prob <- (2 * ne) / (nv * (nv - 1))
+    rg <- switch (
+        type,
+        gnp = getGNP(gg, ...),
+        pa = getPA(gg, pwr = power, ...),
+        cgnp = sample_correlated_gnp(gg, corr = 0.75, ...),
+        rw = rewire(gg, keeping_degseq(niter = 0.25 * ne))
     )
-    V(rg)$name<-V(gg)$name
-    m<-makeCentralityMatrix(rg)
+    V(rg)$name <- V(gg)$name
+    m <- makeCentralityMatrix(rg)
     options(op)
     return(m)
 }
-getGNP<-function(gg,...){
-    nv<-vcount(gg)
-    ne<-ecount(gg)
-    prob<-(2*ne)/(nv*(nv-1))
-    g<-sample_gnp(nv,p=prob,...)
+getGNP <- function(gg, ...) {
+    nv <- vcount(gg)
+    ne <- ecount(gg)
+    prob <- (2 * ne) / (nv * (nv - 1))
+    g <- sample_gnp(nv, p = prob, ...)
     return(g)
 }
-getPA<-function(gg,pwr,...){
-    nv<-vcount(gg)
+getPA <- function(gg, pwr, ...) {
+    nv <- vcount(gg)
     args <- list(...)
-    if(is.null(pwr)){
-        pFit <- do.call(function(...){
-            FitDegree(as.vector(igraph::degree(graph=gg)),
-                      Nsim=100, plot=FALSE, ...)}
-            ,args[names(args)%in%formalArgs(FitDegree)])
+    if (is.null(pwr)) {
+        pFit <- do.call(function(...) {
+            fitDegree(as.vector(igraph::degree(graph = gg)),
+                      Nsim = 100,
+                      plot = FALSE,
+                      ...)
+        }
+        , args[names(args) %in% formalArgs(fitDegree)])
         pwr <- pFit@alpha
     }
-    g<- sample_pa(nv,power=pwr, directed = FALSE,...)
+    g <- do.call(function(...) {
+        sample_pa(nv, power = pwr, directed = FALSE, ...)
+    }, args[names(args) %in% formalArgs(sample_pa)])
     return(g)
 }
 #' Convert centrality matrix into ECDF

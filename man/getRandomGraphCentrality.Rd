@@ -34,5 +34,11 @@ calculate all available centrality measires. There are four different
 }
 \examples{
 data(karate,package='igraphdata')
-m<-getRandomGraphCentrality(karate,'pa')
+m<-getRandomGraphCentrality(karate,'pa',threads=1)
+# to avoid repetitive costy computation of PowerLaw fit
+# power parameter could be send explicitly:
+pFit <- fitDegree( as.vector(igraph::degree(graph=karate)),
+Nsim=100, plot=FALSE,threads=1)
+pwr <- slot(pFit,'alpha')
+m<-getRandomGraphCentrality(karate,'pa',power=pwr)
 }
