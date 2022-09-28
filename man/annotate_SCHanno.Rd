@@ -19,13 +19,13 @@ Add SCHanno synaptic functional groups
 }
 \examples{
 library(synaptome.db)
-cid<-match('Presynaptic',getCompartments()$Name)
+cid<-match('Presynaptic', getCompartments()$Name)
 t<-getAllGenes4Compartment(cid)
 gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
 afile<-system.file("extdata", "SCH_flatfile.csv", package = "BioNAR")
-dis    <- read.table(afile,sep="\t",skip=1,header=FALSE,
-strip.white=TRUE,quote="")
-agg<-annotate_SCHanno(gg,dis)
+dis    <- read.table(afile, sep="\t", skip=1, header=FALSE,
+strip.white=TRUE, quote="")
+agg<-annotate_SCHanno(gg, dis)
 }
 \seealso{
 getAnnotationVertexList

@@ -19,8 +19,8 @@ Copy edge attributes from one graph to another
 }
 \examples{
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-GG <- igraph::read.graph(file,format="gml")
+GG <- igraph::read.graph(file, format="gml")
 gg<-findLCC(GG)
-gg <- addEdgeAtts(GG,gg)
+gg <- addEdgeAtts(GG, gg)
 edge_attr_names(gg)
 }

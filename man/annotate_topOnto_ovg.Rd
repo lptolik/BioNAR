@@ -22,15 +22,15 @@ TopOnto_OVG for terms and TopOnto_OVG_HDO_ID for IDs.
 }
 \examples{
 library(synaptome.db)
-cid<-match('Presynaptic',getCompartments()$Name)
+cid<-match('Presynaptic', getCompartments()$Name)
 t<-getAllGenes4Compartment(cid)
 gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
 # read HDO data extracted from hxin/topOnto.HDO.db for synaptic network
 afile<-system.file("extdata", "flatfile_human_gene2HDO.csv",
 package = "BioNAR")
-dis    <- read.table(afile,sep="\t",skip=1,header=FALSE,
-strip.white=TRUE,quote="")
-agg<-annotate_topOnto_ovg(gg,dis)
+dis    <- read.table(afile, sep="\t", skip=1, header=FALSE,
+strip.white=TRUE, quote="")
+agg<-annotate_topOnto_ovg(gg, dis)
 }
 \seealso{
 getAnnotationVertexList

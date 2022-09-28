@@ -40,12 +40,12 @@ Menche et al. 2005
 }
 \examples{
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-gg <- igraph::read.graph(file,format="gml")
+gg <- igraph::read.graph(file, format="gml")
 agg<-annotateGeneNames(gg)
 p <- calcDiseasePairs(
 agg,
 name = "TopOntoOVGHDOID",
-diseases = c("DOID:10652","DOID:3312","DOID:12849"),
+diseases = c("DOID:10652", "DOID:3312", "DOID:12849"),
 permute = "n"
 )
 p$disease_separation

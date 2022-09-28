@@ -1,57 +1,68 @@
 ##---Semi-local Centrality (Cl)
 ##   Identifying influential nodes in complex networks,
 ##   D. Chen et al., Physica A, 2012
-Semilocal <- function(gg){
+Semilocal <- function(gg) {
     N    <- vcount(gg)
-    meas <- matrix(0, nrow=N, ncol=3)
-    for( i in seq_len(N) ){
-    ids <- as.character(V(gg)[i]$name)
-    neig <- igraph::neighbors(gg,v=ids,mode="all")
-    if( length(neig) > 0 ){
-        for( w in seq_along(neig) ){
-        neig <- c(neig,igraph::neighbors(gg,
-                                            v=as.character(V(gg)$name[neig[w]]),
-                                            mode="all"))
+    meas <- matrix(0, nrow = N, ncol = 3)
+    for (i in seq_len(N)) {
+        ids <- as.character(V(gg)[i]$name)
+        neig <- igraph::neighbors(gg, v = ids, mode = "all")
+        if (length(neig) > 0) {
+            for (w in seq_along(neig)) {
+                neig <- c(neig,
+                          igraph::neighbors(gg,
+                                            v = as.character(V(gg)$name[neig[w]]),
+                                            mode = "all"))
+            }
+            neig <- unique(neig)
+            meas[i, 1] <- length(neig) - 1
         }
-        neig <- unique(neig)
-        meas[i,1] <- length(neig)-1
     }
+    for (i in seq_len(N)) {
+        ids <- as.character(V(gg)[i]$name)
+        neig <- igraph::neighbors(gg, v = ids, mode = "all")
+        meas[i, 2] <- sum(as.numeric(meas[neig, 1]))
     }
-    for( i in seq_len(N) ){
-    ids <- as.character(V(gg)[i]$name)
-    neig <- igraph::neighbors(gg,v=ids,mode="all")
-    meas[i,2] <- sum(as.numeric(meas[neig,1]))
+    for (i in seq_len(N)) {
+        ids <- as.character(V(gg)[i]$name)
+        neig <- igraph::neighbors(gg, v = ids, mode = "all")
+        meas[i, 3] <- sum(as.numeric(meas[neig, 2]))
     }
-    for( i in seq_len(N) ){
-    ids <- as.character(V(gg)[i]$name)
-    neig <- igraph::neighbors(gg,v=ids,mode="all")
-    meas[i,3] <- sum(as.numeric(meas[neig,2]))
-    }
-    return(as.numeric(meas[,3]))
+    return(as.numeric(meas[, 3]))
 }
-fSemilocal<-function(gg){
+fSemilocal <- function(gg) {
     N    <- vcount(gg)
-    meas <- matrix(0, nrow=N, ncol=3)
-    meas[,1]<-ego_size(gg,order = 2,mode='all')-1
-    neigSum<-function(i,graph,vec){
-    neig <- igraph::neighbors(graph,v=i,mode="all")
-    return(sum(vec[neig]))
+    meas <- matrix(0, nrow = N, ncol = 3)
+    meas[, 1] <- ego_size(gg, order = 2, mode = 'all') - 1
+    neigSum <- function(i, graph, vec) {
+        neig <- igraph::neighbors(graph, v = i, mode = "all")
+        return(sum(vec[neig]))
     }
-    meas[,2]<-vapply(seq_len(N),neigSum,c(sum=0),graph=gg,vec=meas[,1])
-    meas[,3]<-vapply(seq_len(N),neigSum,c(sum=0),graph=gg,vec=meas[,2])
-    return(as.numeric(meas[,3]))
+    meas[, 2] <-
+        vapply(seq_len(N),
+               neigSum,
+               c(sum = 0),
+               graph = gg,
+               vec = meas[, 1])
+    meas[, 3] <-
+        vapply(seq_len(N),
+               neigSum,
+               c(sum = 0),
+               graph = gg,
+               vec = meas[, 2])
+    return(as.numeric(meas[, 3]))
 }
 ##calculate the mean and sd of the shortest paths for each gene
-calShorestPaths <- function(gg){
+calShorestPaths <- function(gg) {
     N    <- vcount(gg)
-    meas <- matrix(0, nrow=N, ncol=3)
-    for( i in seq_len(N) ){
-    sp <- as.numeric(igraph::shortest.paths(gg,i))
-    sp <- sp[-i]
-    sp <- sp[!sp == Inf]
-    meas[i,1] <- min(sp)
-    meas[i,2] <- round(mean(sp),3)
-    meas[i,3] <- round(stats::sd(sp),3)
+    meas <- matrix(0, nrow = N, ncol = 3)
+    for (i in seq_len(N)) {
+        sp <- as.numeric(igraph::shortest.paths(gg, i))
+        sp <- sp[-i]
+        sp <- sp[!sp == Inf]
+        meas[i, 1] <- min(sp)
+        meas[i, 2] <- round(mean(sp), 3)
+        meas[i, 3] <- round(stats::sd(sp), 3)
     }
     return(meas)
 }
@@ -125,30 +136,32 @@ calShorestPaths <- function(gg){
 # }
 #
 #
-formatLogLogPlot <- function( X, GROUP ){
+formatLogLogPlot <- function(X, GROUP) {
     X <- as.vector(X)
     mm <- stats::ecdf(X)
-    df <- data.frame(x=sort(X),y=1-mm(sort(X)),group=GROUP)
+    df <- data.frame(x = sort(X),
+                     y = 1 - mm(sort(X)),
+                     group = GROUP)
     return(df)
 }
-filterLogLog <- function( df, xMAX, yMIN ){
-    if( !is.null(xMAX) ){
-    df <- df[ df$x <= xMAX, ]
+filterLogLog <- function(df, xMAX, yMIN) {
+    if (!is.null(xMAX)) {
+        df <- df[df$x <= xMAX,]
     }
-    if( !is.null(yMIN) ){
-    df <- df[ df$y >= yMIN, ]
+    if (!is.null(yMIN)) {
+        df <- df[df$y >= yMIN,]
     }
-    indx <- which(df$y==0)
-    if( length(indx) != 0 ){
-    df <- df[-indx,]
+    indx <- which(df$y == 0)
+    if (length(indx) != 0) {
+        df <- df[-indx, ]
     }
     return(df)
 }
 ##Calculate the Median absolute difference
-MAD <- function( X ){
+MAD <- function(X) {
     X <- as.numeric(X)
     Xmd <- stats::median(X)
-    MAD <- stats::median(abs(X-Xmd))
+    MAD <- stats::median(abs(X - Xmd))
     return(MAD)
 }
 #' Calculate centrality measures for graph nodes.
@@ -172,30 +185,34 @@ MAD <- function( X ){
 #' t<-getAllGenes4Compartment(cid)
 #' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
 #' m<-getCentralityMatrix(gg)
-getCentralityMatrix<-function(gg){
+getCentralityMatrix <- function(gg) {
     tmp <- makeDataFrame(makeCentralityMatrix(gg))
     return(tmp)
 }
 
-makeCentralityMatrix<-function(gg){
+makeCentralityMatrix <- function(gg) {
     ID <- V(gg)$name
     N  <- length(ID)
-    CN  <- c("ID","DEG","BET","CC","SL","mnSP","PR","sdSP")
-    tmp <- matrix(0,nrow=N,ncol=length(CN))
+    CN  <- c("ID", "DEG", "BET", "CC", "SL", "mnSP", "PR", "sdSP")
+    tmp <- matrix(0, nrow = N, ncol = length(CN))
     colnames(tmp) <- CN
-    tmp[,1] <- ID
-    tmp[,2] <- as.vector(igraph::degree(graph=gg))
-    tmp[,3] <- as.character(round(betweenness(gg),3))
-    tmp[,4] <- as.character(round(transitivity(gg,"local"),3))
-    sl<- fSemilocal(gg)
-    tmp[,5] <- as.character(round(sl,3))
+    tmp[, 1] <- ID
+    tmp[, 2] <- as.vector(igraph::degree(graph = gg))
+    tmp[, 3] <- as.character(round(betweenness(gg), 3))
+    tmp[, 4] <- as.character(round(transitivity(gg, "local"), 3))
+    sl <- fSemilocal(gg)
+    tmp[, 5] <- as.character(round(sl, 3))
     res <- calShorestPaths(gg)
-    tmp[,6]  <- as.character(res[,2])
-    tmp[,7]  <- as.character(round(
-        as.vector(page.rank(graph=gg,vids=V(gg),
-                            directed=FALSE,
-                            options=igraph.arpack.default)$vector),6))
-    tmp[,8]  <- as.character(res[,3])
+    tmp[, 6]  <- as.character(res[, 2])
+    tmp[, 7]  <- as.character(round(as.vector(
+        page.rank(
+            graph = gg,
+            vids = V(gg),
+            directed = FALSE,
+            options = igraph.arpack.default
+        )$vector
+    ), 6))
+    tmp[, 8]  <- as.character(res[, 3])
     return(tmp)
 }
 
@@ -209,12 +226,12 @@ makeCentralityMatrix<-function(gg){
 #'
 #' @return data.frame with numerical columns when needed
 #' @noRd
-makeDataFrame<-function(m,keep=c('ID')){
-    keep.idx<-which(colnames(m)%in%keep)
-    numcol<-dim(m)[2]
-    df<-as.data.frame(m)
-    for(i in seq_len(numcol)[-keep.idx]){
-        df[,i]<-as.numeric(df[,i])
+makeDataFrame <- function(m, keep = c('ID')) {
+    keep.idx <- which(colnames(m) %in% keep)
+    numcol <- dim(m)[2]
+    df <- as.data.frame(m)
+    for (i in seq_len(numcol)[-keep.idx]) {
+        df[, i] <- as.numeric(df[, i])
     }
     return(df)
 }
@@ -233,29 +250,33 @@ makeDataFrame<-function(m,keep=c('ID')){
 #' m<-cbind(ID=letters[1:10],capital=LETTERS[1:10])
 #' g1<-BioNAR::applpMatrixToGraph(g1,m)
 #' V(g1)$capital
-applpMatrixToGraph<-function(gg,m){
-    ggm<-gg
-    measures<-colnames(m)
-    id.col<-which(measures=='ID')
-    meas.col<-which(measures!='ID')
-    for(i in meas.col){
-    #remove previous annotation of that name
-    #check does it really needed
-    ggm<-removeVertexTerm(ggm,measures[i])
-    idx<-match(V(gg)$name,m[,id.col])
-    naid<-which(is.na(idx))
-    if(length(naid)==0){
-        ggm<-set.vertex.attribute(graph=ggm,
-                                name=measures[i],
-                                index = V(ggm),
-                                value = m[idx,i])
-    }else{
-        gindex<-which(is.na(idx))
-        ggm<-set.vertex.attribute(graph=ggm,
-                                name=measures[i],
-                                index = gindex,
-                                value = m[idx[gindex],i])
-    }
+applpMatrixToGraph <- function(gg, m) {
+    ggm <- gg
+    measures <- colnames(m)
+    id.col <- which(measures == 'ID')
+    meas.col <- which(measures != 'ID')
+    for (i in meas.col) {
+        #remove previous annotation of that name
+        #check does it really needed
+        ggm <- removeVertexTerm(ggm, measures[i])
+        idx <- match(V(gg)$name, m[, id.col])
+        naid <- which(is.na(idx))
+        if (length(naid) == 0) {
+            ggm <- set.vertex.attribute(
+                graph = ggm,
+                name = measures[i],
+                index = V(ggm),
+                value = m[idx, i]
+            )
+        } else{
+            gindex <- which(is.na(idx))
+            ggm <- set.vertex.attribute(
+                graph = ggm,
+                name = measures[i],
+                index = gindex,
+                value = m[idx[gindex], i]
+            )
+        }
     }
     return(ggm)
 }
@@ -276,9 +297,9 @@ applpMatrixToGraph<-function(gg,m){
 #' data(karate,package='igraphdata')
 #' ggm<-calcCentrality(karate)
 #' V(ggm)$DEG
-calcCentrality<-function(gg){
-    m<-makeCentralityMatrix(gg)
-    ggm<-applpMatrixToGraph(gg,m)
+calcCentrality <- function(gg) {
+    m <- makeCentralityMatrix(gg)
+    ggm <- applpMatrixToGraph(gg, m)
     return(ggm)
 }
 #get centrality measures for random graph
@@ -380,12 +401,12 @@ getPA <- function(gg, pwr, ...) {
 #' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
 #' m<-getCentralityMatrix(gg)
 #' ecdfL<-getGraphCentralityECDF(m)
-getGraphCentralityECDF<-function(m){
-    idx<-which(colnames(m)!='ID')
-    l<-list()
-    for(i in 2:8){
-    n<-colnames(m)[i]
-    l[[n]]<-stats::ecdf(m[,i])
+getGraphCentralityECDF <- function(m) {
+    idx <- which(colnames(m) != 'ID')
+    l <- list()
+    for (i in 2:8) {
+        n <- colnames(m)[i]
+        l[[n]] <- stats::ecdf(m[, i])
     }
     return(l)
 }
@@ -402,12 +423,12 @@ getGraphCentralityECDF<-function(m){
 #' @seealso calcCentralityInternalDistances
 #' @seealso calcCentralityExternalDistances
 #' @noRd
-getCM<-function(m,nm,keepOrder){
-    v<-as.numeric(m[,which(colnames(m)==nm)])
-    if(keepOrder){
-    return(v)
-    }else{
-    return(sort(v,decreasing = FALSE,na.last=TRUE))
+getCM <- function(m, nm, keepOrder) {
+    v <- as.numeric(m[, which(colnames(m) == nm)])
+    if (keepOrder) {
+        return(v)
+    } else{
+        return(sort(v, decreasing = FALSE, na.last = TRUE))
     }
 }
 #' Function calculates matrix of distances between elements of list
@@ -433,19 +454,21 @@ getCM<-function(m,nm,keepOrder){
 #' }
 #' gnpIDist<-calcCentralityInternalDistances(gnp)
 #' summary(gnpIDist)
-calcCentralityInternalDistances<-function(l,keepOrder=FALSE,dist='euclidean'){
-    CN  <- c("ID","DEG","BET","CC","SL","mnSP","PR","sdSP")
-    resl<-list()
-    for(i in 2:length(CN)){
-    nm<-CN[i]
-    res<-do.call(cbind,lapply(l,getCM,nm=nm,keepOrder=keepOrder))
-    if(is.matrix(res)){
-    resl[[nm]]<-as.vector(dist(t(res),method=dist))
+calcCentralityInternalDistances <-
+    function(l, keepOrder = FALSE, dist = 'euclidean') {
+        CN  <- c("ID", "DEG", "BET", "CC", "SL", "mnSP", "PR", "sdSP")
+        resl <- list()
+        for (i in 2:length(CN)) {
+            nm <- CN[i]
+            res <- do.call(cbind, lapply(l, getCM, nm = nm,
+                                         keepOrder = keepOrder))
+            if (is.matrix(res)) {
+                resl[[nm]] <- as.vector(dist(t(res), method = dist))
+            }
+        }
+        resm <- do.call(cbind, resl)
+        return(resm)
     }
-    }
-    resm<-do.call(cbind,resl)
-    return(resm)
-}
 #' Function calculates matrix of distances between elements of list and
 #' the reference matrix
 #'
@@ -472,22 +495,27 @@ calcCentralityInternalDistances<-function(l,keepOrder=FALSE,dist='euclidean'){
 #' }
 #' gnpEDist<-calcCentralityExternalDistances(m,gnp)
 #' summary(gnpEDist)
-calcCentralityExternalDistances<-function(m,l,keepOrder=FALSE,dist='euclidean'){
-    CN  <- c("ID","DEG","BET","CC","SL","mnSP","PR","sdSP")
-    resl<-list()
-    for(i in 2:length(CN)){
-    nm<-CN[i]
-    rm<-getCM(m,nm=nm,keepOrder=keepOrder)
-    res<-do.call(cbind,lapply(l,getCM,nm=nm,keepOrder=keepOrder))
-    if(is.matrix(res)){
-    cmm<-cbind(rm,res)
-    cmd<-as.matrix(dist(t(cmm),method=dist))
-    resl[[nm]]<-as.vector(cmd[-1,1])
+calcCentralityExternalDistances <-
+    function(m,
+             l,
+             keepOrder = FALSE,
+             dist = 'euclidean') {
+        CN  <- c("ID", "DEG", "BET", "CC", "SL", "mnSP", "PR", "sdSP")
+        resl <- list()
+        for (i in 2:length(CN)) {
+            nm <- CN[i]
+            rm <- getCM(m, nm = nm, keepOrder = keepOrder)
+            res <- do.call(cbind, lapply(l, getCM, nm = nm,
+                                         keepOrder = keepOrder))
+            if (is.matrix(res)) {
+                cmm <- cbind(rm, res)
+                cmd <- as.matrix(dist(t(cmm), method = dist))
+                resl[[nm]] <- as.vector(cmd[-1, 1])
+            }
+        }
+        resm <- do.call(cbind, resl)
+        return(resm)
     }
-    }
-    resm<-do.call(cbind,resl)
-    return(resm)
-}
 #' Compare distance distributions of internal and external distances
 #'
 #' Compare distance distributions of internal distances between random graph
@@ -518,19 +546,24 @@ calcCentralityExternalDistances<-function(m,l,keepOrder=FALSE,dist='euclidean'){
 #'
 #' simSig<-evalCentralitySignificance(gnpIDist,gnpEDist)
 #' sapply(simSig,function(.x).x$ks$p.value)
-evalCentralitySignificance<-function(dmi,dme){
-    nmi<-colnames(dmi)
-    nme<-colnames(dme)
-    nms<-intersect(nmi,nme)
-    l<-list()
-    for(nm in nms){
-    mi<-dmi[,colnames(dmi)==nm]
-    me<-dme[,colnames(dme)==nm]
-    ks<-stats::ks.test(mi,me)
-    l[[nm]]<-list(pval=ks$p.value,ks=ks,
-                    dt=data.frame(val=c(mi,me),
-                                cl=factor(c(rep('perm',length(mi)),
-                                        rep('graph',length(me))))))
+evalCentralitySignificance <- function(dmi, dme) {
+    nmi <- colnames(dmi)
+    nme <- colnames(dme)
+    nms <- intersect(nmi, nme)
+    l <- list()
+    for (nm in nms) {
+        mi <- dmi[, colnames(dmi) == nm]
+        me <- dme[, colnames(dme) == nm]
+        ks <- stats::ks.test(mi, me)
+        l[[nm]] <- list(
+            pval = ks$p.value,
+            ks = ks,
+            dt = data.frame(val = c(mi, me),
+                            cl = factor(c(
+                                rep('perm', length(mi)),
+                                rep('graph', length(me))
+                            )))
+        )
     }
     return(l)
 }

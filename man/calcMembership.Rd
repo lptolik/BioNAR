@@ -22,8 +22,8 @@ Calculate clustering membership for ten algoritms defined in
 \code{\link{getClustering}}
 }
 \examples{
-data(karate,package='igraphdata')
-m<-calcMembership(karate,'lec')
+data(karate, package='igraphdata')
+m<-calcMembership(karate, 'lec')
 head(m)
 }
 \seealso{

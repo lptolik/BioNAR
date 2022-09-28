@@ -36,7 +36,7 @@ and convert it to Annotation Vertices form.
 }
 \examples{
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-gg <- igraph::read.graph(file,format="gml")
-avl<-getAnnotationVertexList(gg,'TopOntoOVGHDOID')
+gg <- igraph::read.graph(file, format="gml")
+avl<-getAnnotationVertexList(gg, 'TopOntoOVGHDOID')
 head(avl)
 }

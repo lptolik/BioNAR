@@ -23,11 +23,11 @@ Prepare mapping for degree-aware annotation shuffling.
 \examples{
 options("show.error.messages"=TRUE)
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-gg <- igraph::read.graph(file,format="gml")
+gg <- igraph::read.graph(file, format="gml")
 agg<-annotateGeneNames(gg)
-gda<-prepareGDA(agg,'TopOntoOVGHDOID')
-m<-degree.binned.GDAs(agg,gda,getAnnotationList(gda))
-c(dim(m),vcount(agg),length(getAnnotationList(gda)))
+gda<-prepareGDA(agg, 'TopOntoOVGHDOID')
+m<-degree.binned.GDAs(agg, gda, getAnnotationList(gda))
+c(dim(m), vcount(agg), length(getAnnotationList(gda)))
 head(m)
 }
 \seealso{

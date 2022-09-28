@@ -22,10 +22,10 @@ and format it for further analysis.
 }
 \examples{
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-gg <- igraph::read.graph(file,format="gml")
+gg <- igraph::read.graph(file, format="gml")
 agg<-annotateGeneNames(gg)
-gda<-prepareGDA(agg,'TopOntoOVGHDOID')
-gda<-prepareGDA(agg,'TopOntoOVGHDOID')
+gda<-prepareGDA(agg, 'TopOntoOVGHDOID')
+gda<-prepareGDA(agg, 'TopOntoOVGHDOID')
 head(gda)
 }
 \seealso{

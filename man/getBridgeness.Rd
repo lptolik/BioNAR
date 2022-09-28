@@ -30,8 +30,8 @@ membership is stored in the appropriate vertex attribute. If
 }
 \examples{
 library(BioNAR)
-data(karate,package='igraphdata')
+data(karate, package='igraphdata')
 gg <- calcClustering(karate, 'louvain')
-conmat <- makeConsensusMatrix(gg, N=10,alg = 'louvain', type = 2, mask = 10)
-br<-getBridgeness(gg,alg = 'louvain',conmat)
+cnmat <- makeConsensusMatrix(gg, N=10, alg = 'louvain', type = 2, mask = 10)
+br<-getBridgeness(gg, alg = 'louvain', cnmat)
 }

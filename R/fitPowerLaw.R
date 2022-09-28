@@ -20,7 +20,7 @@ setClass("poweRlaw")
 #' @slot SDalpha numeric bootstrap sd of alpha.
 #'
 #' @export
-setClass(Class="law",representation(
+setClass(Class="law", representation(
     fit="displ",
     p="numeric",
     alpha="numeric",
@@ -28,24 +28,30 @@ setClass(Class="law",representation(
     SDalpha="numeric")
 )
 ##log sequence of numbers
-lseqBy <- function(from=1, to=100000, by=1, length.out=log10(to/from)+1) {
-    tmp <- exp(seq(log(from), log(to), length.out = length.out))
-    tmp[seq(1, length(tmp), by)]
+lseqBy <-
+    function(from = 1,
+             to = 100000,
+             by = 1,
+             length.out = log10(to / from) + 1) {
+        tmp <- exp(seq(log(from), log(to), length.out = length.out))
+        tmp[seq(1, length(tmp), by)]
 }
+
 changeSciNot <- function(n) {
     n <- format(n, scientific = TRUE)
-    oo <- strsplit(as.character(n),"e")
-    out <- vector(length=length(oo))
-    out[1] <- TeX(sprintf("10^{%s}",sub("-0?","-",oo[[1]][2])))
-    for( i in 2:length(oo) ){
-    if(grepl("-",oo[[i]][2])){
-        out[i] <- TeX(sprintf("10^{%s}",sub("-0?","-",oo[[i]][2])))
-    } else {
-        out[i] <- TeX(sprintf("10^{%s}",sub("\\+0?","",oo[[i]][2])))
-    }
+    oo <- strsplit(as.character(n), "e")
+    out <- vector(length = length(oo))
+    out[1] <- TeX(sprintf("10^{%s}", sub("-0?", "-", oo[[1]][2])))
+    for (i in 2:length(oo)) {
+        if (grepl("-", oo[[i]][2])) {
+            out[i] <- TeX(sprintf("10^{%s}", sub("-0?", "-", oo[[i]][2])))
+        } else {
+            out[i] <- TeX(sprintf("10^{%s}", sub("\\+0?", "", oo[[i]][2])))
+        }
     }
     return(out)
 }
+
 #' Fit Power Law to degree distribution.
 #'
 #' @param DEG degree distribution

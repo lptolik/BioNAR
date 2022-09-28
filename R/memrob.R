@@ -72,10 +72,10 @@ memrob <- function(x, rm = data.frame()) {
 #' @export
 #'
 #' @examples
-#' data(karate,package='igraphdata')
+#' data(karate, package='igraphdata')
 #' alg<-'louvain'
-#' gg<-calcClustering(karate,alg = alg)
-#' conmat<-makeConsensusMatrix(gg,N=100,mask = 10,alg = alg,type = 2)
+#' gg<-calcClustering(karate, alg = alg)
+#' conmat<-makeConsensusMatrix(gg, N=100, mask = 10, alg = alg, type = 2)
 #' clrob<-getRobustness(gg, alg = alg, conmat)
 #' clrob
 getRobustness <- function(gg, alg, conmat) {
@@ -117,7 +117,8 @@ getRobustness <- function(gg, alg, conmat) {
 
     ##--- the scaled cluster robustness values
     crScales <- cr$rob
-    crScales <- (crScales - min(crScales)) / (max(crScales) - min(crScales))
+    crScales <-
+        (crScales - min(crScales)) / (max(crScales) - min(crScales))
     oo <- data.frame(
         alg = as.character(rep(alg, length(rownames(
             cr

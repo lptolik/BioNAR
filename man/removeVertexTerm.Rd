@@ -18,8 +18,8 @@ igraph object with attribute removed
 Remove vertex property.
 }
 \examples{
-data(karate,package='igraphdata')
+data(karate, package='igraphdata')
 vertex_attr_names(karate)
-m<-removeVertexTerm(karate,'color')
+m<-removeVertexTerm(karate, 'color')
 vertex_attr_names(m)
 }

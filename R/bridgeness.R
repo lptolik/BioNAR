@@ -20,10 +20,10 @@
 #' @importFrom igraph get.edgelist get.vertex.attribute
 #' @examples
 #' library(BioNAR)
-#' data(karate,package='igraphdata')
+#' data(karate, package='igraphdata')
 #' gg <- calcClustering(karate, 'louvain')
-#' conmat <- makeConsensusMatrix(gg, N=10,alg = 'louvain', type = 2, mask = 10)
-#' br<-getBridgeness(gg,alg = 'louvain',conmat)
+#' cnmat <- makeConsensusMatrix(gg, N=10, alg = 'louvain', type = 2, mask = 10)
+#' br<-getBridgeness(gg, alg = 'louvain', cnmat)
 getBridgeness <- function(gg, alg, conmat) {
     #---number of vertices/genes
     N    <- length(V(gg))
@@ -87,7 +87,7 @@ getBridgeness <- function(gg, alg, conmat) {
             which(ed[, 1] == V(gg)$name[i] | ed[, 2] == V(gg)$name[i])
         ##get community belonging to the i'th vertex
         c <- igraph::get.vertex.attribute(gg, alg, V(gg))[i]
-        ##reorder edge communities, so ed[,3] equals current community no: 'c'
+        ##reorder edge communities, so ed[, 3] equals current community no: 'c'
         for (k in seq_along(ind)) {
             if (ed[ind[k], 6] != 0 && ed[ind[k], 4] == c) {
                 ed[ind[k], 4] <- ed[ind[k], 3]

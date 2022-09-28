@@ -43,9 +43,9 @@ perturbed by deleting \code{mask} percent of edges (\code{type=1}) or
 nodes (\code{type=2}) from network before clustering.
 }
 \examples{
-data(karate,package='igraphdata')
+data(karate, package='igraphdata')
 alg<-'louvain'
-gg<-calcClustering(karate,alg = alg)
-conmat<-makeConsensusMatrix(gg,N=100,mask = 10,alg = alg,type = 2)
+gg<-calcClustering(karate, alg = alg)
+conmat<-makeConsensusMatrix(gg, N=100, mask = 10, alg = alg, type = 2)
 dim(conmat)
 }

@@ -57,7 +57,7 @@ findTERM <- function(eatt, TERMS){
 #   if( !is.null(TERMS ) && length(TERMS) != 0 ){
 #
 #     pmids <- read.delim("/afs/inf.ed.ac.uk/user/c/cmclean5/ownCloud/
-#Synaptic_proteome/anaysis_17_05_2019/mined_PPIs/pmid_keywords.csv",sep="\t",
+#Synaptic_proteome/anaysis_17_05_2019/mined_PPIs/pmid_keywords.csv", sep="\t",
 #header=TRUE)
 #
 #     indX <- list()
@@ -96,9 +96,9 @@ findTERM <- function(eatt, TERMS){
 #'
 #' @examples
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-#' GG <- igraph::read.graph(file,format="gml")
+#' GG <- igraph::read.graph(file, format="gml")
 #' gg<-findLCC(GG)
-#' gg <- addEdgeAtts(GG,gg)
+#' gg <- addEdgeAtts(GG, gg)
 #' edge_attr_names(gg)
 addEdgeAtts <- function(GG, gg){
 
@@ -113,18 +113,18 @@ addEdgeAtts <- function(GG, gg){
     VALUES <- list()
 
     for( a in seq_along(ATTS) ){
-        VALUES[[a]] <- get.edge.attribute(GG,ATTS[a],E(GG))
+        VALUES[[a]] <- get.edge.attribute(GG, ATTS[a], E(GG))
         names(VALUES)[a] <- ATTS[a]
     }
 
     # cat("\n")
     # cat("scanning edges...")
-    RES <-  matrix("",nrow=M, ncol=length(ATTS))
+    RES <-  matrix("", nrow=M, ncol=length(ATTS))
 
     for( e in seq_len(M) ){
 
-        indx  <-  (ed[e,1] == ED[,1] & ed[e,2] == ED[,2]) |
-        (ed[e,1] == ED[,2] & ed[e,2] == ED[,1])
+        indx  <-  (ed[e, 1] == ED[, 1] & ed[e, 2] == ED[, 2]) |
+        (ed[e, 1] == ED[, 2] & ed[e, 2] == ED[, 1])
 
         for( a in seq_along(ATTS) ){
 
@@ -133,9 +133,9 @@ addEdgeAtts <- function(GG, gg){
         if( res != "" ){
             res <- unique(res)
             if( length(res) == 1 ){
-            RES[e,a] <- res
+            RES[e, a] <- res
             } else {
-            RES[e,a] <- paste(as.character(res),collapse=';')
+            RES[e, a] <- paste(as.character(res), collapse=';')
             }
         }
         }
@@ -144,7 +144,7 @@ addEdgeAtts <- function(GG, gg){
     # cat("done.\n")
 
     for( a in seq_along(ATTS) ){
-        gg <- set.edge.attribute(gg,ATTS[a],E(gg),as.character(RES[,a]))
+        gg <- set.edge.attribute(gg, ATTS[a], E(gg), as.character(RES[, a]))
     }
 
     }
@@ -170,31 +170,31 @@ addEdgeAtts <- function(GG, gg){
 #' @import igraph
 #'
 #' @examples
-#' f<-data.frame(A=c('A','A','B','D'),B=c('B','C','C','E'))
+#' f<-data.frame(A=c('A', 'A', 'B', 'D'), B=c('B', 'C', 'C', 'E'))
 #' gg<-buildNetwork(f)
 #' V(gg)$name
-buildNetwork<-function(ff,kw=NA){
+buildNetwork<-function(ff, kw=NA){
     #--- build raw graph
-    GG <- graph.data.frame(ff[,seq_len(2)],directed=FALSE)
+    GG <- graph.data.frame(ff[, seq_len(2)], directed=FALSE)
     if( !is.na(kw) ){
-    GG <- set.edge.attribute(GG,"METHOD",E(GG), as.character(ff[,3]))
-    GG <- set.edge.attribute(GG,"TYPE",E(GG), as.character(ff[,7]))
+    GG <- set.edge.attribute(GG, "METHOD", E(GG), as.character(ff[, 3]))
+    GG <- set.edge.attribute(GG, "TYPE", E(GG), as.character(ff[, 7]))
 
-    PMIDS <- ifelse(!grepl("unassigned",ff[,4]),
-                    sprintf("PMID:%s",ff[,4]), ff[,4])
-    GG <- set.edge.attribute(GG,"PUBMED",E(GG), PMIDS)
+    PMIDS <- ifelse(!grepl("unassigned", ff[, 4]),
+                    sprintf("PMID:%s", ff[, 4]), ff[, 4])
+    GG <- set.edge.attribute(GG, "PUBMED", E(GG), PMIDS)
 
-    YEARS <- kw[match(gsub("PMID:","",E(GG)$PUBMED),kw[,1]),3]
-    YEARS <- ifelse(is.na(YEARS),"na",YEARS)
-    GG <- set.edge.attribute(GG,"YEAR",E(GG), YEARS)
+    YEARS <- kw[match(gsub("PMID:", "", E(GG)$PUBMED), kw[, 1]), 3]
+    YEARS <- ifelse(is.na(YEARS), "na", YEARS)
+    GG <- set.edge.attribute(GG, "YEAR", E(GG), YEARS)
     #---
 
     }
     #--- build igraph, removing multiple edges and loops
-    gg <- simplify(GG,remove.multiple=TRUE,remove.loops=TRUE)
+    gg <- simplify(GG, remove.multiple=TRUE, remove.loops=TRUE)
     #---Find Largest CC
     gg  <- findLCC(gg)
-    gg <- addEdgeAtts(GG,gg)
+    gg <- addEdgeAtts(GG, gg)
 }
 
 #' Utility function to create network from
@@ -208,7 +208,7 @@ buildNetwork<-function(ff,kw=NA){
 #'
 #' @examples
 #' library(synaptome.db)
-#' cid<-match('Presynaptic',getCompartments()$Name)
+#' cid<-match('Presynaptic', getCompartments()$Name)
 #' t<-getAllGenes4Compartment(cid)
 #' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
 buildFromSynaptomeByEntrez<-function(entrez){
@@ -227,14 +227,14 @@ buildFromSynaptomeByEntrez<-function(entrez){
 #'
 #' @examples
 #' library(synaptome.db)
-#' cid<-match('Presynaptic',getCompartments()$Name)
+#' cid<-match('Presynaptic', getCompartments()$Name)
 #' t<-getAllGenes4Compartment(cid)
 #' gg<-buildFromSynaptomeGeneTable(t)
 buildFromSynaptomeGeneTable<-function(t){
-    p<-getPPIbyIDs(t$GeneID,type = 'limited')
-    aidx<-match(p$A,t$GeneID)
-    bidx<-match(p$B,t$GeneID)
-    gg<-buildNetwork(data.frame(A=t$HumanEntrez[aidx],B=t$HumanEntrez[bidx]))
+    p<-getPPIbyIDs(t$GeneID, type = 'limited')
+    aidx<-match(p$A, t$GeneID)
+    bidx<-match(p$B, t$GeneID)
+    gg<-buildNetwork(data.frame(A=t$HumanEntrez[aidx], B=t$HumanEntrez[bidx]))
     return(gg)
 }
 
@@ -250,7 +250,7 @@ buildFromSynaptomeGeneTable<-function(t){
 #'
 #' @examples
 #' library(synaptome.db)
-#' cid<-match('Presynaptic',getCompartments()$Name)
+#' cid<-match('Presynaptic', getCompartments()$Name)
 #' t<-getAllGenes4Compartment(cid)
 #' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
 #' calcSparsness(gg)

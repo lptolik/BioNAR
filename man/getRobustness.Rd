@@ -22,10 +22,10 @@ robustness \code{Crob} and robustness scaled to range between 0 and 1.
 Calculate cluster robustness from consensus matrix
 }
 \examples{
-data(karate,package='igraphdata')
+data(karate, package='igraphdata')
 alg<-'louvain'
-gg<-calcClustering(karate,alg = alg)
-conmat<-makeConsensusMatrix(gg,N=100,mask = 10,alg = alg,type = 2)
+gg<-calcClustering(karate, alg = alg)
+conmat<-makeConsensusMatrix(gg, N=100, mask = 10, alg = alg, type = 2)
 clrob<-getRobustness(gg, alg = alg, conmat)
 clrob
 }

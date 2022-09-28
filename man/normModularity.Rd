@@ -40,11 +40,11 @@ edge-rewiring algorithm (Maslov and Sneppen, 2002).
 }
 \examples{
 library(synaptome.db)
-cid<-match('Presynaptic',getCompartments()$Name)
+cid<-match('Presynaptic', getCompartments()$Name)
 t<-getAllGenes4Compartment(cid)
 gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
 
-nm<-normModularity(gg,alg='louvain')
+nm<-normModularity(gg, alg='louvain')
 }
 \references{
 Takemoto, K. & Kihara, K. Modular organization of cancer

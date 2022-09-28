@@ -4,7 +4,12 @@
 \alias{getRandomGraphCentrality}
 \title{Centrality measures for random graphs induced by input one}
 \usage{
-getRandomGraphCentrality(gg, type = c("gnp", "pa", "cgnp", "rw"), ...)
+getRandomGraphCentrality(
+  gg,
+  type = c("gnp", "pa", "cgnp", "rw"),
+  power = NULL,
+  ...
+)
 }
 \arguments{
 \item{gg}{template graph to mimic}
@@ -18,6 +23,11 @@ dding/removing edges (\code{\link[igraph]{sample_correlated_gnp}})
 \item rw -- new random graph from a given graph by rewiring 25\% of
 edges preserving the degree distribution
 }}
+
+\item{power}{optional argument of the power of the preferential attachment
+to be passed to \code{\link[igraph]{sample_pa}}. If \code{power} is
+\code{NULL} the power of the preferential attachment will be estimated
+from \code{\link{fitDegree}} function.}
 
 \item{...}{other parameters passed to random graph generation functions
 \code{\link[igraph]{sample_gnp}},

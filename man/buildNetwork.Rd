@@ -23,7 +23,7 @@ defined by \code{ff}. It is also allows annotation of edges
 with PubMed data, if exists.
 }
 \examples{
-f<-data.frame(A=c('A','A','B','D'),B=c('B','C','C','E'))
+f<-data.frame(A=c('A', 'A', 'B', 'D'), B=c('B', 'C', 'C', 'E'))
 gg<-buildNetwork(f)
 V(gg)$name
 }

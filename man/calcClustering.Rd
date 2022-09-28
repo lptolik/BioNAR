@@ -32,10 +32,10 @@ that vertex attribute name won't exactly match name of the algorithm from
 \code{link{getClustering}}.
 }
 \examples{
-data(karate,package='igraphdata')
-g<-calcClustering(karate,'louvain')
+data(karate, package='igraphdata')
+g<-calcClustering(karate, 'louvain')
 vertex_attr_names(g)
-graph_attr(g,'louvain')
+graph_attr(g, 'louvain')
 }
 \seealso{
 getClustering

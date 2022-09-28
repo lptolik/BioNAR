@@ -28,8 +28,8 @@ NOTE: spaces are treated as regular
 characters, no trimming is applied before or after escaping.
 }
 \examples{
-annVec<-apply(matrix(letters,ncol=13),2,paste,collapse=';')
-cbind(annVec,escapeAnnotation(annVec,';','|'))
+annVec<-apply(matrix(letters, ncol=13), 2, paste, collapse=';')
+cbind(annVec, escapeAnnotation(annVec, ';', '|'))
 }
 \seealso{
 unescapeAnnotation

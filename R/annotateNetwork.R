@@ -9,9 +9,9 @@
 #' @export
 #'
 #' @examples
-#' data(karate,package='igraphdata')
+#' data(karate, package='igraphdata')
 #' vertex_attr_names(karate)
-#' m<-removeVertexTerm(karate,'color')
+#' m<-removeVertexTerm(karate, 'color')
 #' vertex_attr_names(m)
 removeVertexTerm <- function(GG, NAME) {
     if (!is.null(get.vertex.attribute(GG, NAME))) {
@@ -57,7 +57,7 @@ loopOverFiles <- function(GG, FILES, NAME, IDS, addIDS) {
                     strip.white = TRUE,
                     quote = ""
                 )
-            oo<-getOO(IDS,annoF)
+            oo<-getOO(IDS, annoF)
             GG <-
                 set.vertex.attribute(GG, NAME[f], V(GG), as.character(oo[, 2]))
             if (addIDS) {
@@ -71,7 +71,7 @@ loopOverFiles <- function(GG, FILES, NAME, IDS, addIDS) {
     return(GG)
 }
 
-getOO<-function(IDS,annoF){
+getOO<-function(IDS, annoF){
     annoFIDS <- as.character(annoF[, 3])
     typeF  <-unique(unlist(strsplit(as.character(unique(annoF[, 2])), ",")))
     oo     <- matrix("", ncol = 3, nrow = length(IDS))
@@ -90,20 +90,20 @@ getOO<-function(IDS,annoF){
             if (length(ind1) == 1) {
                 Str2 <- as.character(annoF[ind1[1], 1])
             }else {
-                Str2 <- paste(as.character(annoF[ind1, 1]),collapse = COLLAPSE)
+                Str2 <- paste(as.character(annoF[ind1, 1]), collapse = COLLAPSE)
             }
             if (grepl(COLLAPSE, Str1)) {
                 Str1 <- strsplit(Str1, COLLAPSE)[[1]]
                 Str1 <- unique(Str1)
                 if (length(Str1) > 1) {
-                    Str1 <- paste(as.character(Str1),collapse = COLLAPSE)
+                    Str1 <- paste(as.character(Str1), collapse = COLLAPSE)
                 }
             }
             if (grepl(COLLAPSE, Str2)) {
                 Str2 <- strsplit(Str2, COLLAPSE)[[1]]
                 Str2 <- unique(Str2)
                 if (length(Str2) > 1) {
-                    Str2 <- paste(as.character(Str2),collapse = COLLAPSE)
+                    Str2 <- paste(as.character(Str2), collapse = COLLAPSE)
                 }
             }
             oo[i, 2] <- Str1
@@ -132,7 +132,7 @@ getOO<-function(IDS,annoF){
 #'
 #' @examples
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-#' gg <- igraph::read.graph(file,format="gml")
+#' gg <- igraph::read.graph(file, format="gml")
 #' agg<-annotateGeneNames(gg)
 annotateGeneNames <- function(gg) {
     ids <- V(gg)$name
@@ -216,8 +216,8 @@ getDiseases <- function() {
 #' @examples
 #' g1 <- make_star(10, mode="undirected")
 #' V(g1)$name <- letters[1:10]
-#' m<-data.frame(ID=letters[1:10],capital=LETTERS[1:10])
-#' g2<-annotate_vertex(g1,name='cap',values=m)
+#' m<-data.frame(ID=letters[1:10], capital=LETTERS[1:10])
+#' g2<-annotate_vertex(g1, name='cap', values=m)
 #' V(g2)$cap
 annotate_vertex <- function(gg, name, values) {
     ggm <- removeVertexTerm(gg, name)
@@ -265,8 +265,8 @@ annotate_vertex <- function(gg, name, values) {
 #'
 #' @seealso unescapeAnnotation
 #' @examples
-#' annVec<-apply(matrix(letters,ncol=13),2,paste,collapse=';')
-#' cbind(annVec,escapeAnnotation(annVec,';','|'))
+#' annVec<-apply(matrix(letters, ncol=13), 2, paste, collapse=';')
+#' cbind(annVec, escapeAnnotation(annVec, ';', '|'))
 escapeAnnotation <- function(annVec, col = COLLAPSE, esc = ESC) {
     if (any(grepl(esc, annVec, fixed = TRUE))) {
         stop("Either already escaped or escape charecter found in annotation\n")
@@ -300,9 +300,9 @@ escapeAnnotation <- function(annVec, col = COLLAPSE, esc = ESC) {
 #'
 #' @seealso escapeAnnotation
 #' @examples
-#' annVec<-apply(matrix(letters,ncol=13),2,paste,collapse=';')
-#' escVec<-escapeAnnotation(annVec,';','|')
-#' cbind(annVec,escVec,unescapeAnnotation(escVec,';','|'))
+#' annVec<-apply(matrix(letters, ncol=13), 2, paste, collapse=';')
+#' escVec<-escapeAnnotation(annVec, ';', '|')
+#' cbind(annVec, escVec, unescapeAnnotation(escVec, ';', '|'))
 unescapeAnnotation <- function(annVec, col = COLLAPSE, esc = ESC) {
     res <- gsub(esc, '', annVec, fixed = TRUE)
     return(res)
@@ -333,8 +333,8 @@ unescapeAnnotation <- function(annVec, col = COLLAPSE, esc = ESC) {
 #'
 #' @examples
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-#' gg <- igraph::read.graph(file,format="gml")
-#' avl<-getAnnotationVertexList(gg,'TopOntoOVGHDOID')
+#' gg <- igraph::read.graph(file, format="gml")
+#' avl<-getAnnotationVertexList(gg, 'TopOntoOVGHDOID')
 #' head(avl)
 getAnnotationVertexList <-
     function(g, name, vid = 'name', col = COLLAPSE) {
@@ -362,7 +362,7 @@ getAnnotationVertexList <-
 #' @seealso getAnnotationVertexList
 #' @examples
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-#' gg <- igraph::read.graph(file,format="gml")
+#' gg <- igraph::read.graph(file, format="gml")
 #' annVec<-V(gg)$TopOntoOVG
 #' al<-getAnnotationList(annVec)
 #' al
@@ -400,15 +400,15 @@ getAnnotationList <- function(annVec,
 #'
 #' @examples
 #' library(synaptome.db)
-#' cid<-match('Presynaptic',getCompartments()$Name)
+#' cid<-match('Presynaptic', getCompartments()$Name)
 #' t<-getAllGenes4Compartment(cid)
 #' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
 #' # read HDO data extracted from hxin/topOnto.HDO.db for synaptic network
 #' afile<-system.file("extdata", "flatfile_human_gene2HDO.csv",
 #' package = "BioNAR")
-#' dis    <- read.table(afile,sep="\t",skip=1,header=FALSE,
-#' strip.white=TRUE,quote="")
-#' agg<-annotate_topOnto_ovg(gg,dis)
+#' dis    <- read.table(afile, sep="\t", skip=1, header=FALSE,
+#' strip.white=TRUE, quote="")
+#' agg<-annotate_topOnto_ovg(gg, dis)
 annotate_topOnto_ovg <- function(gg, dis) {
     ids <- V(gg)$name
     gg <- removeVertexTerm(gg, "TopOnto_OVG")
@@ -514,13 +514,13 @@ annotate_topOnto_ov_P140papers <- function(gg, par, dis) {
 #' @seealso getAnnotationVertexList
 #' @examples
 #' library(synaptome.db)
-#' cid<-match('Presynaptic',getCompartments()$Name)
+#' cid<-match('Presynaptic', getCompartments()$Name)
 #' t<-getAllGenes4Compartment(cid)
 #' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
 #' afile<-system.file("extdata", "SCH_flatfile.csv", package = "BioNAR")
-#' dis    <- read.table(afile,sep="\t",skip=1,header=FALSE,
-#' strip.white=TRUE,quote="")
-#' agg<-annotate_SCHanno(gg,dis)
+#' dis    <- read.table(afile, sep="\t", skip=1, header=FALSE,
+#' strip.white=TRUE, quote="")
+#' agg<-annotate_SCHanno(gg, dis)
 annotate_SCHanno <- function(gg, anno) {
     ids <- V(gg)$name
     gg <- removeVertexTerm(gg, "SCHanno")
@@ -645,12 +645,6 @@ annotate_compartments <- function(gg, preSet, psd95Set) {
     ids <- V(gg)$name
     gg <- removeVertexTerm(gg, "COREPRE")
     gg <- removeVertexTerm(gg, "CORESPD")
-    #---ADD VIP gene lists
-    # VIP <- vector(length=2)
-    # VIP[1] <- "SynsysBaits.csv"
-    # VIP[2] <- "CorePSD95Complex.csv"
-    # set1 <- read.table(sprintf("%s/%s",OUT[4],VIP[1]),sep="\t",header=F)[[1]]
-    # set2 <- read.table(sprintf("%s/%s",OUT[4],VIP[2]),sep="\t",header=F)[[1]]
     set1 <- preSet
     set2 <- psd95Set
     set.vertex.attribute(gg, "COREPRE", V(gg), "")
@@ -676,12 +670,10 @@ annotate_compartments <- function(gg, preSet, psd95Set) {
 #Add Bridgeness Regions for each algorithm
 annotate_bridgeness_regions <- function(gg, str) {
     ids <- V(gg)$name
-    #str <- sprintf("%s/%s/REGIONS/",OUT[4],subDIR[S])
     files <- list.files(str)
     fn <- gsub(".csv", "", files)
     for (i in seq_along(files)) {
         gg <- removeVertexTerm(gg, fn[i])
-        #gg <- removeVertexTerm(gg,gsub("_","",fn[i]))
         if (file.exists(sprintf("%s/%s", str, files[i]))) {
             ff <- utils::read.table(sprintf("%s/%s", str, files[i]),
                                     sep = "\t",
@@ -709,10 +701,10 @@ annotate_bridgeness_regions <- function(gg, str) {
 #'
 #' @examples
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-#' gg <- igraph::read.graph(file,format="gml")
+#' gg <- igraph::read.graph(file, format="gml")
 #' sfile<-system.file("extdata", "flatfile.go.MF.csv", package = "BioNAR")
-#' goMF <- read.table(sfile,sep="\t",skip=1,header=FALSE,
-#' strip.white=TRUE,quote="")
+#' goMF <- read.table(sfile, sep="\t", skip=1, header=FALSE,
+#' strip.white=TRUE, quote="")
 #' sgg <- annotate_go_mf(gg, goMF)
 annotate_go_mf <- function(gg, annoF) {
     ids <- V(gg)$name
@@ -767,10 +759,10 @@ annotate_go_mf <- function(gg, annoF) {
 #'
 #' @examples
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-#' gg <- igraph::read.graph(file,format="gml")
+#' gg <- igraph::read.graph(file, format="gml")
 #' sfile<-system.file("extdata", "flatfile.go.BP.csv", package = "BioNAR")
-#' goBP <- read.table(sfile,sep="\t",skip=1,header=FALSE,
-#' strip.white=TRUE,quote="")
+#' goBP <- read.table(sfile, sep="\t", skip=1, header=FALSE,
+#' strip.white=TRUE, quote="")
 #' sgg <- annotate_go_bp(gg, goBP)
 annotate_go_bp <- function(gg, annoF) {
     ids <- V(gg)$name
@@ -825,10 +817,10 @@ annotate_go_bp <- function(gg, annoF) {
 #'
 #' @examples
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-#' gg <- igraph::read.graph(file,format="gml")
+#' gg <- igraph::read.graph(file, format="gml")
 #' sfile<-system.file("extdata", "flatfile.go.CC.csv", package = "BioNAR")
-#' goCC <- read.table(sfile,sep="\t",skip=1,header=FALSE,
-#' strip.white=TRUE,quote="")
+#' goCC <- read.table(sfile, sep="\t", skip=1, header=FALSE,
+#' strip.white=TRUE, quote="")
 #' sgg <- annotate_go_cc(gg, goCC)
 annotate_go_cc <- function(gg, annoF) {
     ids <- V(gg)$name
@@ -837,8 +829,6 @@ annotate_go_cc <- function(gg, annoF) {
     #--- Set Disease (geneRIF db) attributes in .gml graph
     set.vertex.attribute(gg, "GO_CC", V(gg), "")
     set.vertex.attribute(gg, "GO_CC_ID", V(gg), "")
-    #annoF    <- read.table("flatfile.go.CC.csv",sep="\t",skip=1,
-    #strip.white=T,quote="")
     annoFIDS <- as.character(annoF[, 3])
     typeF <-
         unique(unlist(strsplit(as.character(unique(

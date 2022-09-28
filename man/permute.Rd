@@ -19,5 +19,5 @@ This function is a convinience wrapper to \code{\link[base]{sample}} with
 \code{replace= FALSE}
 }
 \examples{
-permute(LETTERS,15)
+permute(LETTERS, 15)
 }
