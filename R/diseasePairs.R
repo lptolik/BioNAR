@@ -460,7 +460,7 @@ runPermDisease <- function(gg,
           "Ran_mean_ds",
           "Ran_SD_ds",
           "Utest.pvalue")
-    disease_location_sig[, 1]       <- disn
+    disease_location_sig[, 1] <- disn
     disease_location_sig[, 2] <-
         loc[match(disease_location_sig[, 1], loc[, 1]), 2]
     for (i in seq_along(disn)) {
@@ -474,9 +474,9 @@ runPermDisease <- function(gg,
         disease_location_sig[i, 5] <- as.numeric(mean0(RDS))
         disease_location_sig[i, 6] <- as.numeric(sd0(RDS))
         disease_location_sig[i, 7] <- 1.0
-        if (!is.infinite(DS) && !is.nan(DS) &&
-            !is.na(DS) &&  !is.infinite(RDS) &&
-            !is.nan(RDS) && !is.na(RDS)) {
+        if (!any(is.infinite(DS)) && !any(is.nan(DS)) &&
+            !any(is.na(DS)) &&  !any(is.infinite(RDS)) &&
+            !any(is.nan(RDS)) && !any(is.na(RDS))) {
             if (length(DS) != 0 && length(RDS) != 0) {
                 wt       <- stats::wilcox.test(DS, RDS)
                 disease_location_sig[i, 7] <- as.numeric(wt$p.value)
