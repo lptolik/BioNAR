@@ -27,6 +27,7 @@ setClass(Class="law", representation(
     SDxmin="numeric",
     SDalpha="numeric")
 )
+
 ##log sequence of numbers
 lseqBy <-
     function(from = 1,
@@ -37,7 +38,7 @@ lseqBy <-
         tmp[seq(1, length(tmp), by)]
 }
 
-changeSciNot <- function(n) {
+changeSciNotation <- function(n) {
     n <- format(n, scientific = TRUE)
     oo <- strsplit(as.character(n), "e")
     out <- vector(length = length(oo))
@@ -69,8 +70,8 @@ changeSciNot <- function(n) {
 #' @importFrom stringr str_sub
 #'
 #' @examples
-#' ##No: of bootstrap iterations
-#' nsim <- 100
+#' ##No: of bootstrap iterations use nsim > 100 for reliable result
+#' nsim <- 10
 #'
 #' ##Legend Titles
 #' Legend <- "Presynaptic PPI"
@@ -105,7 +106,7 @@ fitDegree <- function(DEG,
         d <- plot(m_pl, draw = FALSE)
         Xmax <- max(d$x) - max(d$x) * 0.5
         yTICKS <- round(lseqBy(min(d$y), 1, 0.5), 4)
-        yLABELS <- changeSciNot(yTICKS)
+        yLABELS <- changeSciNotation(yTICKS)
         poweRlaw::plot(
             m_pl,
             xlab = sprintf("%s", x_lab),

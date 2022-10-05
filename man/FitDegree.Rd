@@ -40,7 +40,7 @@ Fit Power Law to degree distribution.
 }
 \examples{
 ##No: of bootstrap iterations
-nsim <- 100
+nsim <- 10
 
 ##Legend Titles
 Legend <- "Presynaptic PPI"

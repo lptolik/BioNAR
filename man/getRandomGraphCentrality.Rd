@@ -48,7 +48,7 @@ m<-getRandomGraphCentrality(karate,'pa',threads=1)
 # to avoid repetitive costy computation of PowerLaw fit
 # power parameter could be send explicitly:
 pFit <- fitDegree( as.vector(igraph::degree(graph=karate)),
-Nsim=100, plot=FALSE,threads=1)
+Nsim=10, plot=FALSE,threads=1)
 pwr <- slot(pFit,'alpha')
 m<-getRandomGraphCentrality(karate,'pa',power=pwr)
 }
