@@ -2,7 +2,7 @@
 % Please edit documentation in R/runCentrality.R
 \name{applpMatrixToGraph}
 \alias{applpMatrixToGraph}
-\title{Add annotation to the vertex in the case of unique annotation per node.}
+\title{Add attributes to the vertex.}
 \usage{
 applpMatrixToGraph(gg, m)
 }
@@ -16,7 +16,13 @@ matrix should contains column "ID" to map value to the vertex.}
 modified igraph object
 }
 \description{
-Add annotation to the vertex in the case of unique annotation per node.
+This function suits more for updating calculated vertex properties rathe
+than node annotation. For the later case use \code{\link{annotateVertex}}.
+}
+\details{
+Unlike \code{\link{annotateVertex}}, which is able to collapse multiple
+annotation terms, this function assume that vertex ID values are unique
+in the \code{m} matrix.
 }
 \examples{
 g1 <- make_star(10, mode="undirected")
@@ -24,4 +30,7 @@ V(g1)$name <- letters[1:10]
 m<-cbind(ID=letters[1:10],capital=LETTERS[1:10])
 g1<-BioNAR::applpMatrixToGraph(g1,m)
 V(g1)$capital
+}
+\seealso{
+annotateVertex
 }

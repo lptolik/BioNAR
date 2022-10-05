@@ -26,7 +26,7 @@ runPermDisease(
 \item{permute}{type of permutations.
 \code{random} -- annotation is randomly shuffled,
 \code{binned} -- annotation is shuffled in a way to preserve node
-degree-annotation relationship by \code{\link{degree.binned.GDAs}}.}
+degree-annotation relationship by \code{\link{degreeBinnedGDAs}}.}
 
 \item{alpha}{statistical significance levels}
 }

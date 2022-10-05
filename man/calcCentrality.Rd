@@ -15,9 +15,8 @@ modified igraph object
 }
 \description{
 Wrapper finction that calls \code{\link{getCentralityMatrix}} to calculate
-all available centrality
-measires and \code{\link{applpMatrixToGraph}} to store them as a vertex
-attributes.
+all available centrality measires and apply \code{\link{applpMatrixToGraph}}
+to store them as a vertex attributes.
 }
 \examples{
 data(karate,package='igraphdata')

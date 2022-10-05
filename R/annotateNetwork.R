@@ -24,10 +24,11 @@ removeVertexTerm <- function(GG, NAME) {
 }
 COLLAPSE <- ";"
 ESC      <- "|"
+
 #' Annotate graph from list of files
 #'
 #' This function is a syntactic sugar wrapper for the
-#' \code{\link{annotate_vertex}} function. It could be used to quickly load
+#' \code{\link{annotateVertex}} function. It could be used to quickly load
 #' annotation from the set of files, for example all three branches of GO in
 #' one run. Each file suppose to be TSV file (use TAB as a column separator)
 #' and contains annotation ID in the first column, annotation term in the
@@ -38,6 +39,8 @@ ESC      <- "|"
 #' @param NAME vector of names of the vertex property
 #' @param IDS vertex IDs
 #' @param addIDS if TRUE NAME_ID property will be added
+#'
+#' @seealso annotateVertex
 #'
 #' @return igraph object with vertex attributes from NAME contain annotations
 loopOverFiles <- function(GG, FILES, NAME, IDS, addIDS) {
@@ -202,24 +205,30 @@ getDiseases <- function() {
 }
 #' Generic annotation function
 #'
-#' It takes name of the attribute, and two column
-#' data.frame with vertex ID in the first column and annotation in the second.
+#' It takes name of the attribute, and two column Pair form annotation
+#' data.frame with vertex ID in the first column and annotation term in the
+#' second. All terms annotating the same vertex ID will be collapsed with
+#' semicolon as term separator.
+#'
 #' As a first step all attributes with provided names will be removed.
 #'
 #' @param gg igraph object to annotate
 #' @param name name of the attribute
 #' @param values annotation data.frame
 #'
-#' @return igraph object where vertex attribute \code{name} contains annotation
+#' @return igraph object where vertex attribute \code{name} contains
+#' annotation terms separated by semicolon.
 #' @export
 #'
+#' @seealso getAnnotationVertexList
 #' @examples
 #' g1 <- make_star(10, mode="undirected")
 #' V(g1)$name <- letters[1:10]
-#' m<-data.frame(ID=letters[1:10], capital=LETTERS[1:10])
-#' g2<-annotate_vertex(g1, name='cap', values=m)
+#' m<-rbind(data.frame(ID=letters[1:10], terms=letters[1:10]),
+#' data.frame(ID=letters[1:10], terms=LETTERS[1:10]))
+#' g2<-annotateVertex(g1, name='cap', values=m)
 #' V(g2)$cap
-annotate_vertex <- function(gg, name, values) {
+annotateVertex <- function(gg, name, values) {
     ggm <- removeVertexTerm(gg, name)
     ggm <- set.vertex.attribute(graph = ggm,
                                 name = name,
@@ -234,7 +243,7 @@ annotate_vertex <- function(gg, name, values) {
     gidx <- match(uids, ids)
     annL <- vapply(uids,
                     function(.x)
-                        paste(unique(val[vids == .x]), collapse = ';'),
+                        paste(unique(val[vids == .x]), collapse = COLLAPSE),
                     c(ann = ''))
     ggm <- set.vertex.attribute(
         graph = ggm,
@@ -389,7 +398,7 @@ getAnnotationList <- function(annVec,
 #' For the protein-protein interaction (PPI) or disease gene interaction (DGN)
 #' graphs that have EntrezID as a vertex name this function takes annotation
 #' from \code{dis} matrix and put it on the vertices with attributes
-#' TopOnto_OVG for terms and TopOnto_OVG_HDO_ID for IDs.
+#' \code{TopOnto_OVG} for terms and \code{TopOnto_OVG_HDO_ID} for IDs.
 #'
 #' @param gg igraph object to annotate
 #' @param dis annotation matrix in Pairs form
@@ -408,8 +417,8 @@ getAnnotationList <- function(annVec,
 #' package = "BioNAR")
 #' dis    <- read.table(afile, sep="\t", skip=1, header=FALSE,
 #' strip.white=TRUE, quote="")
-#' agg<-annotate_topOnto_ovg(gg, dis)
-annotate_topOnto_ovg <- function(gg, dis) {
+#' agg<-annotateTopOntoOVG(gg, dis)
+annotateTopOntoOVG <- function(gg, dis) {
     ids <- V(gg)$name
     gg <- removeVertexTerm(gg, "TopOnto_OVG")
     gg <- removeVertexTerm(gg, "TopOnto_OVG_HDO_ID")
@@ -455,55 +464,12 @@ annotate_topOnto_ovg <- function(gg, dis) {
     }
     return(gg)
 }
-#Add topOnto_ov_P140papers
-annotate_topOnto_ov_P140papers <- function(gg, par, dis) {
-    ids <- V(gg)$name
-    gg <- removeVertexTerm(gg, "TopOnto_OV_PAPERS")
-    gg <- removeVertexTerm(gg, "TopOnto_OV_PAPERS_HDO_ID")
-    #--- Set Disease (geneRIF db) attributes in .gml graph
-    set.vertex.attribute(gg, "TopOnto_OV_PAPERS", V(gg), "")
-    set.vertex.attribute(gg, "TopOnto_OVG_PAPERS_HDO_ID", V(gg), "")
-    dis    <- rbind(dis, par)
-    disIDS <- dis[, 3]
-    disn <- getDiseases()
-    dtype <- getDType()
-    for (i in seq_along(ids)) {
-        ind1 <- which(disIDS == ids[i])
-        Str1 <- ""
-        Str2 <- ""
-        if (length(ind1) != 0) {
-            disv <- as.vector(dis[ind1, 1])
-            indx <- match(disv, disn)
-            for (j in seq_along(disv)) {
-                if (!is.na(indx[j])) {
-                    if (Str1 == "") {
-                        Str1 <- as.character(dtype[indx[j]])
-                    }
-                    else {
-                        Str1 <- paste(c(Str1, as.character(dtype[indx[j]])),
-                                        collapse = COLLAPSE)
-                    }
-                    if (Str2 == "") {
-                        Str2 <- as.character(disn[indx[j]])
-                    }
-                    else {
-                        Str2 <- paste(c(Str2, as.character(disn[indx[j]])),
-                                        collapse = COLLAPSE)
-                    }
-                }
-            }
-        }
-        Str1 <-
-            paste(unique(strsplit(Str1, COLLAPSE)[[1]]), collapse = COLLAPSE)
-        Str2 <-
-            paste(unique(strsplit(Str2, COLLAPSE)[[1]]), collapse = COLLAPSE)
-        V(gg)[i]$TopOnto_OV_PAPERS <- as.character(Str1)
-        V(gg)[i]$TopOnto_OV_PAPERS_HDO_ID <- as.character(Str2)
-    }
-    return(gg)
-}
+
 #' Add SCHanno synaptic functional groups
 #'
+#' Function adds Schizopherina related synaptic gene functional annotation
+#' from Lips et al., (2012) <doi:10.1038/mp.2011.117> into \code{SCHanno}
+#' vertex attribute.
 #'
 #' @param gg igraph object to annotate
 #' @param anno annotation matrix in Pairs form
@@ -520,8 +486,8 @@ annotate_topOnto_ov_P140papers <- function(gg, par, dis) {
 #' afile<-system.file("extdata", "SCH_flatfile.csv", package = "BioNAR")
 #' dis    <- read.table(afile, sep="\t", skip=1, header=FALSE,
 #' strip.white=TRUE, quote="")
-#' agg<-annotate_SCHanno(gg, dis)
-annotate_SCHanno <- function(gg, anno) {
+#' agg<-annotateSCHanno(gg, dis)
+annotateSCHanno <- function(gg, anno) {
     ids <- V(gg)$name
     gg <- removeVertexTerm(gg, "SCHanno")
     #--- Set Family attributes in .gml graph
@@ -546,12 +512,33 @@ annotate_SCHanno <- function(gg, anno) {
     }
     return(gg)
 }
-#Add CHUA synaptic functional groups
-annotate_CHUA <- function(gg, anno) {
+#
+#' Add presynaptic functional groups
+#'
+#' Function takes from \code{anno} matrix manually curated presynaptic genes
+#' functional annotation derived from
+#' Boyken at al. (2013) <doi:10.1016/j.neuron.2013.02.027>
+#' and add them to attributes \code{PRESYNAPTIC}.
+#'
+#' @param gg graph to update
+#' @param anno annotation matrix in Pair form
+#'
+#'
+#' @return annotated igraph object
+#' @export
+#' @seealso getAnnotationVertexList
+#'
+#' @examples
+#' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
+#' gg <- igraph::read.graph(file, format="gml")
+#' sfile<-system.file("extdata", "PresynAn.csv", package = "BioNAR")
+#' pres <- read.csv(sfile,skip=1,header=FALSE,strip.white=TRUE,quote="")
+#' gg <- annotatePresynaptic(gg, pres)
+annotatePresynaptic <- function(gg, anno) {
     ids <- V(gg)$name
-    gg <- removeVertexTerm(gg, "chua")
+    gg <- removeVertexTerm(gg, "PRESYNAPTIC")
     #--- Set Family attributes in .gml graph
-    set.vertex.attribute(gg, "chua", V(gg), "")
+    set.vertex.attribute(gg, "PRESYNAPTIC", V(gg), "")
     annoIDS <- as.character(anno[, 3])
     type <-
         unique(unlist(strsplit(as.character(unique(
@@ -568,32 +555,41 @@ annotate_CHUA <- function(gg, anno) {
                 Str <- paste(as.character(anno[ind1, 2]), collapse = COLLAPSE)
             }
         }
-        V(gg)[i]$chua <- as.character(Str)
+        V(gg)[i]$PRESYNAPTIC <- as.character(Str)
     }
     return(gg)
 }
-#Add InterPro Family and Domain synaptic functional groups
-annotate_Interpro <- function(gg, annoF, annoD) {
+#
+#' Add InterPro Family and Domain annotation to the graph vertices
+#'
+#' Function takes data from \code{annoF} matrix and add them to attributes
+#'  \code{InterPro_Family} for term and \code{InterPro_Family_ID} for IDs.
+#'
+#' Function takes data from \code{annoD} matrix and add them to attributes
+#'  \code{InterPro_Domain} for term and \code{InterPro_Domain_ID} for IDs.
+#'
+#'
+#' @param gg graph to update
+#' @param annoF family annotation matrix in Pair form
+#' @param annoD domain  annotation matrix in Pair form
+#'
+#' @return annotated igraph object
+#' @export
+#'
+#' @seealso getAnnotationVertexList
+annotateInterpro <- function(gg, annoF, annoD) {
     ids <- V(gg)$name
-    gg <- removeVertexTerm(gg, "InterProFamilyID")
-    gg <- removeVertexTerm(gg, "InterProFamily")
-    gg <- removeVertexTerm(gg, "InterProDomainID")
-    gg <- removeVertexTerm(gg, "InterProDomain")
-    #--- Set interproFamily attributes in .gml graph
-    set.vertex.attribute(gg, "InterProFamilyID", V(gg), "")
-    set.vertex.attribute(gg, "InterProFamily", V(gg), "")
-    set.vertex.attribute(gg, "InterProDomainID", V(gg), "")
-    set.vertex.attribute(gg, "InterProDomain", V(gg), "")
+    gg <- removeVertexTerm(gg, "InterPro_Family_ID")
+    gg <- removeVertexTerm(gg, "InterPro_Family")
+    gg <- removeVertexTerm(gg, "InterPro_Domain_ID")
+    gg <- removeVertexTerm(gg, "InterPro_Domain")
+    #--- Set InterPro_Family attributes in .gml graph
+    set.vertex.attribute(gg, "InterPro_Family_ID", V(gg), "")
+    set.vertex.attribute(gg, "InterPro_Family", V(gg), "")
+    set.vertex.attribute(gg, "InterPro_Domain_ID", V(gg), "")
+    set.vertex.attribute(gg, "InterPro_Domain", V(gg), "")
     annoFIDS <- as.character(annoF[, 3])
-    typeF <-
-        unique(unlist(strsplit(as.character(unique(
-            annoF[, 2]
-        )), ",")))
     annoDIDS <- as.character(annoD[, 3])
-    typeD <-
-        unique(unlist(strsplit(as.character(unique(
-            annoD[, 2]
-        )), ",")))
     for (i in seq_along(ids)) {
         ind1 <- which(annoFIDS == ids[i])
         Str1 <- ""
@@ -614,8 +610,8 @@ annotate_Interpro <- function(gg, annoF, annoD) {
                                 collapse = COLLAPSE)
             }
         }
-        V(gg)[i]$InterProFamilyID <- as.character(Str2)
-        V(gg)[i]$InterProFamily   <- as.character(Str1)
+        V(gg)[i]$InterPro_Family_ID <- as.character(Str2)
+        V(gg)[i]$InterPro_Family   <- as.character(Str1)
         ind1 <- which(annoDIDS == ids[i])
         Str1 <- ""
         Str2 <- ""
@@ -635,53 +631,8 @@ annotate_Interpro <- function(gg, annoF, annoD) {
                                 collapse = COLLAPSE)
             }
         }
-        V(gg)[i]$InterProDomainID <- as.character(Str2)
-        V(gg)[i]$InterProDomain   <- as.character(Str1)
-    }
-    return(gg)
-}
-#Add Core PSD and Pre-synpatic compartmental genes
-annotate_compartments <- function(gg, preSet, psd95Set) {
-    ids <- V(gg)$name
-    gg <- removeVertexTerm(gg, "COREPRE")
-    gg <- removeVertexTerm(gg, "CORESPD")
-    set1 <- preSet
-    set2 <- psd95Set
-    set.vertex.attribute(gg, "COREPRE", V(gg), "")
-    for (i in seq_along(ids)) {
-        ind1 <- which(set1 == ids[i])
-        Str <- ""
-        if (length(ind1) != 0) {
-            Str <- "YES"
-        }
-        V(gg)[i]$COREPRE <- as.character(Str)
-    }
-    set.vertex.attribute(gg, "CORESPD", V(gg), "")
-    for (i in seq_along(ids)) {
-        ind1 <- which(set2 == ids[i])
-        Str <- ""
-        if (length(ind1) != 0) {
-            Str <- "YES"
-        }
-        V(gg)[i]$COREPSD <- as.character(Str)
-    }
-    return(gg)
-}
-#Add Bridgeness Regions for each algorithm
-annotate_bridgeness_regions <- function(gg, str) {
-    ids <- V(gg)$name
-    files <- list.files(str)
-    fn <- gsub(".csv", "", files)
-    for (i in seq_along(files)) {
-        gg <- removeVertexTerm(gg, fn[i])
-        if (file.exists(sprintf("%s/%s", str, files[i]))) {
-            ff <- utils::read.table(sprintf("%s/%s", str, files[i]),
-                                    sep = "\t",
-                                    header = FALSE)
-            gg <-
-                set.vertex.attribute(gg, fn[i], V(gg),
-                                        ff[match(ff[, 1], ids), 2])
-        }
+        V(gg)[i]$InterPro_Domain_ID <- as.character(Str2)
+        V(gg)[i]$InterPro_Domain   <- as.character(Str1)
     }
     return(gg)
 }
@@ -705,8 +656,8 @@ annotate_bridgeness_regions <- function(gg, str) {
 #' sfile<-system.file("extdata", "flatfile.go.MF.csv", package = "BioNAR")
 #' goMF <- read.table(sfile, sep="\t", skip=1, header=FALSE,
 #' strip.white=TRUE, quote="")
-#' sgg <- annotate_go_mf(gg, goMF)
-annotate_go_mf <- function(gg, annoF) {
+#' sgg <- annotateGoMF(gg, goMF)
+annotateGoMF <- function(gg, annoF) {
     ids <- V(gg)$name
     gg <- removeVertexTerm(gg, "GO_MF")
     gg <- removeVertexTerm(gg, "GO_MF_ID")
@@ -763,8 +714,8 @@ annotate_go_mf <- function(gg, annoF) {
 #' sfile<-system.file("extdata", "flatfile.go.BP.csv", package = "BioNAR")
 #' goBP <- read.table(sfile, sep="\t", skip=1, header=FALSE,
 #' strip.white=TRUE, quote="")
-#' sgg <- annotate_go_bp(gg, goBP)
-annotate_go_bp <- function(gg, annoF) {
+#' sgg <- annotateGoBP(gg, goBP)
+annotateGoBP <- function(gg, annoF) {
     ids <- V(gg)$name
     gg <- removeVertexTerm(gg, "GO_BP")
     gg <- removeVertexTerm(gg, "GO_BP_ID")
@@ -821,8 +772,8 @@ annotate_go_bp <- function(gg, annoF) {
 #' sfile<-system.file("extdata", "flatfile.go.CC.csv", package = "BioNAR")
 #' goCC <- read.table(sfile, sep="\t", skip=1, header=FALSE,
 #' strip.white=TRUE, quote="")
-#' sgg <- annotate_go_cc(gg, goCC)
-annotate_go_cc <- function(gg, annoF) {
+#' sgg <- annotateGoCC(gg, goCC)
+annotateGoCC <- function(gg, annoF) {
     ids <- V(gg)$name
     gg <- removeVertexTerm(gg, "GO_CC")
     gg <- removeVertexTerm(gg, "GO_CC_ID")
@@ -857,27 +808,5 @@ annotate_go_cc <- function(gg, annoF) {
         V(gg)[i]$GO_CC_ID <- as.character(Str2)
         V(gg)[i]$GO_CC    <- as.character(Str1)
     }
-    return(gg)
-}
-#Add celltypes
-annotate_celltypes <- function(gg, files) {
-    ids <- V(gg)$name
-    #files <- list.files("./")
-    files <- files[grepl("celltypes_", files)]
-    fn <- gsub(".csv", "", files)
-    fn <- gsub("celltypes_", "", fn)
-    fn <- sprintf("CellTypes_%s", fn)
-    gg <- loopOverFiles(gg, files, fn, ids, FALSE)
-    return(gg)
-}
-#Add pathways
-annotate_pathways <- function(gg, files) {
-    ids <- V(gg)$name
-    #files <- list.files("./")
-    files <- files[grepl("Pathways_", files)]
-    fn <- gsub(".csv", "", files)
-    fn <- gsub("Pathways_", "", fn)
-    fn <- sprintf("PathWays_%s", fn)
-    gg <- loopOverFiles(gg, files, fn, ids, TRUE)
     return(gg)
 }

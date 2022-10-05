@@ -57,7 +57,7 @@
 #' t<-getAllGenes4Compartment(cid)
 #' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
 #'
-#' nm<-normModularity(gg, alg='louvain')
+#' nm<-normModularity(gg, alg='louvain',Nint=10)
 normModularity <- function(gg,
                            alg = c('lec', 'wt', 'fc', 'infomap',
                                    'louvain', 'sgG1', 'sgG2', 'sgG5'),
@@ -78,12 +78,12 @@ normModularity <- function(gg,
     Qrnd <- 0
 
     for (i in seq_len(Nint)) {
-        gg.rnd <- igraph::rewire(graph = gg,
+        ggRnd <- igraph::rewire(graph = gg,
                                  with = keeping_degseq(loops = FALSE,
                                                        niter = 100))
-        cl.rnd <- getClustering(gg.rnd, alg)
-        Qrnd <- Qrnd + max(as.numeric(cl.rnd$modularity))
-        rm(gg.rnd, cl.rnd)
+        clusteRnd <- getClustering(ggRnd, alg)
+        Qrnd <- Qrnd + max(as.numeric(clusteRnd$modularity))
+        rm(ggRnd, clusteRnd)
     }
 
     ##--- random modularity for graph given cl clustering

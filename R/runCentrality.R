@@ -236,13 +236,22 @@ makeDataFrame <- function(m, keep = c('ID')) {
     return(df)
 }
 
-#' Add annotation to the vertex in the case of unique annotation per node.
+#' Add attributes to the vertex.
+#'
+#' This function suits more for updating calculated vertex properties rathe
+#' than node annotation. For the later case use \code{\link{annotateVertex}}.
+#'
+#' Unlike \code{\link{annotateVertex}}, which is able to collapse multiple
+#' annotation terms, this function assume that vertex ID values are unique
+#' in the \code{m} matrix.
 #'
 #' @param gg igraph object
 #' @param m matrix of values to be applied as vertex attributes.
 #'     matrix should contains column "ID" to map value to the vertex.
 #'
 #' @return modified igraph object
+#'
+#' @seealso annotateVertex
 #' @export
 #' @examples
 #' g1 <- make_star(10, mode="undirected")
@@ -254,6 +263,9 @@ applpMatrixToGraph <- function(gg, m) {
     ggm <- gg
     measures <- colnames(m)
     id.col <- which(measures == 'ID')
+    if(any(table(m[,id.col])>1)){
+        stop("Vertex IDs suppose to be unique.")
+    }
     meas.col <- which(measures != 'ID')
     for (i in meas.col) {
         #remove previous annotation of that name
@@ -284,9 +296,8 @@ applpMatrixToGraph <- function(gg, m) {
 #' property.
 #'
 #' Wrapper finction that calls \code{\link{getCentralityMatrix}} to calculate
-#' all available centrality
-#' measires and \code{\link{applpMatrixToGraph}} to store them as a vertex
-#' attributes.
+#' all available centrality measires and apply \code{\link{applpMatrixToGraph}}
+#' to store them as a vertex attributes.
 #'
 #' @param gg igraph object
 #'

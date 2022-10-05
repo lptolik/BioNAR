@@ -21,7 +21,7 @@ calcDiseasePairs(
 \item{permute}{type of permutations. \code{none} -- no permutation is
 applied, \code{random} -- annotation is randomly shuffled,
 \code{binned} -- annotation is shuffled in a way to preserve node
-degree-annotation relationship by \code{\link{degree.binned.GDAs}}.}
+degree-annotation relationship by \code{\link{degreeBinnedGDAs}}.}
 }
 \value{
 list with three matrices:
@@ -56,7 +56,7 @@ through the incomplete interactome.
 Science, 347, (6224):1257601 (2015).
 }
 \seealso{
-degree.binned.GDAs
+degreeBinnedGDAs
 
-sample.deg.binned.GDA
+sampleDegBinnedGDA
 }

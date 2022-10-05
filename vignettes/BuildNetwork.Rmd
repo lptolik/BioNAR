@@ -92,33 +92,34 @@ head(V(gg)$GeneName)
 
 ## Diseases
 Adding diseases associations to genes linked to Human Disease Ontology 
-(HDO) terms
+(HDO) terms extracted from the package
+(topOnto.HDO.db)[https://github.com/hxin/topOnto.HDO.db].
 ```{r annotate_topOnto}
 afile<-system.file("extdata", "flatfile_human_gene2HDO.csv", package = "BioNAR")
 dis <- read.table(afile,sep="\t",skip=1,header=FALSE,strip.white=TRUE,quote="")
-gg <- annotate_topOnto_ovg(gg, dis)
+gg <- annotateTopOntoOVG(gg, dis)
 summary(gg)
 
 ```
 
 ##Shanno
 Adding Schizopherina related synaptic gene functional annotation from 
-(Lips et al., 2012).
+Lips et al., (2012) <doi:10.1038/mp.2011.117>.
 ```{r annotate_Shanno}
 sfile<-system.file("extdata", "SCH_flatfile.csv", package = "BioNAR")
 shan<- read.table(sfile,sep="\t",skip=1,header=FALSE,strip.white=TRUE,quote="")
-sgg<-annotate_SCHanno(gg,shan)
+sgg<-annotateSCHanno(gg,shan)
 summary(sgg)
 ```
 
 ## Presynaptic functiion annotation
 Manually curated presynaptic genes functional annotation derived from 
-(Boyken at al., 2019).
+Boyken at al. (2013) <doi:10.1016/j.neuron.2013.02.027>.
 
 ```{r annotate_Chua, eval=FALSE}
 sfile<-system.file("extdata", "PresynAn.csv", package = "BioNAR")
 pres <- read.csv(sfile,skip=1,header=FALSE,strip.white=TRUE,quote="")
-sgg <- BioNAR:::annotate_CHUA(gg, pres)
+sgg <- annotatePresynaptic(gg, pres)
 summary(sgg)
 ```
 
@@ -127,17 +128,17 @@ Adding functionality from GO: BP, MF,CC
 ```{r annotate_go}
 sfile<-system.file("extdata", "flatfile.go.BP.csv", package = "BioNAR")
 goBP <- read.table(sfile,sep="\t",skip=1,header=FALSE,strip.white=TRUE,quote="")
-sgg <- annotate_go_bp(gg, goBP)
+sgg <- annotateGoBP(gg, goBP)
 summary(sgg)
 
 sfile<-system.file("extdata", "flatfile.go.MF.csv", package = "BioNAR")
 goMF <- read.table(sfile,sep="\t",skip=1,header=FALSE,strip.white=TRUE,quote="")
-sgg <- annotate_go_mf(gg, goMF)
+sgg <- annotateGoMF(gg, goMF)
 summary(sgg)
 
 sfile<-system.file("extdata", "flatfile.go.CC.csv", package = "BioNAR")
 goCC <- read.table(sfile,sep="\t",skip=1,header=FALSE,strip.white=TRUE,quote="")
-sgg <- annotate_go_cc(gg, goCC)
+sgg <- annotateGoCC(gg, goCC)
 summary(sgg)
 
 ```

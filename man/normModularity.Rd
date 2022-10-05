@@ -44,7 +44,7 @@ cid<-match('Presynaptic', getCompartments()$Name)
 t<-getAllGenes4Compartment(cid)
 gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
 
-nm<-normModularity(gg, alg='louvain')
+nm<-normModularity(gg, alg='louvain',Nint=10)
 }
 \references{
 Takemoto, K. & Kihara, K. Modular organization of cancer

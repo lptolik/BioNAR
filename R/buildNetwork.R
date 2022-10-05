@@ -209,11 +209,11 @@ buildNetwork<-function(ff, kw=NA){
 #' @examples
 #' library(synaptome.db)
 #' cid<-match('Presynaptic', getCompartments()$Name)
-#' t<-getAllGenes4Compartment(cid)
-#' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+#' geneTable<-getAllGenes4Compartment(cid)
+#' gg<-buildFromSynaptomeByEntrez(geneTable$HumanEntrez)
 buildFromSynaptomeByEntrez<-function(entrez){
-    t<-findGenesByEntrez(entrez)
-    gg<-buildFromSynaptomeGeneTable(t)
+    geneTable<-findGenesByEntrez(entrez)
+    gg<-buildFromSynaptomeGeneTable(geneTable)
     return(gg)
 }
 

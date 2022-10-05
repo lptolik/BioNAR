@@ -22,9 +22,12 @@ igraph object with vertex attributes from NAME contain annotations
 }
 \description{
 This function is a syntactic sugar wrapper for the
-\code{\link{annotate_vertex}} function. It could be used to quickly load
+\code{\link{annotateVertex}} function. It could be used to quickly load
 annotation from the set of files, for example all three branches of GO in
 one run. Each file suppose to be TSV file (use TAB as a column separator)
 and contains annotation ID in the first column, annotation term in the
 second and vertex ID in the third. Names of the columns are ignored.
+}
+\seealso{
+annotateVertex
 }

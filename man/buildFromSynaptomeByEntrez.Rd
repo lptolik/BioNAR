@@ -20,6 +20,6 @@ Utility function to create network from
 \examples{
 library(synaptome.db)
 cid<-match('Presynaptic', getCompartments()$Name)
-t<-getAllGenes4Compartment(cid)
-gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+geneTable<-getAllGenes4Compartment(cid)
+gg<-buildFromSynaptomeByEntrez(geneTable$HumanEntrez)
 }

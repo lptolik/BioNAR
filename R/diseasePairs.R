@@ -55,7 +55,7 @@ zeroNA<-function(x){
 #'
 #' @return double version of x, or NA
 #' @noRd
-dot_numeric<-function(x){
+dotNumeric<-function(x){
     ifelse('.'==x, NA, as.numeric(x))
 }
 
@@ -127,17 +127,17 @@ diseaseOverlap <- function(GG, GDA, disA, disB, OO){
 #' @export
 #' @seealso prepareGDA
 #' @seealso getAnnotationList
-#' @seealso sample.deg.binned.GDA
+#' @seealso sampleDegBinnedGDA
 #' @examples
 #' options("show.error.messages"=TRUE)
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
 #' gg <- igraph::read.graph(file, format="gml")
 #' agg<-annotateGeneNames(gg)
 #' gda<-prepareGDA(agg, 'TopOntoOVGHDOID')
-#' m<-degree.binned.GDAs(agg, gda, getAnnotationList(gda))
+#' m<-degreeBinnedGDAs(agg, gda, getAnnotationList(gda))
 #' c(dim(m), vcount(agg), length(getAnnotationList(gda)))
 #' head(m)
-degree.binned.GDAs <- function(gg, GDA, dtype) {
+degreeBinnedGDAs <- function(gg, GDA, dtype) {
     deg <- degree(gg)
     bins <- table(deg)
     map <- cbind(names(deg), as.vector(deg))
@@ -158,22 +158,22 @@ degree.binned.GDAs <- function(gg, GDA, dtype) {
 #' Perform degree-aware shuffling of the annotation.
 #'
 #' @param org.map degree-annotation mapping returned by
-#'        \code{\link{degree.binned.GDAs}}
+#'        \code{\link{degreeBinnedGDAs}}
 #' @param term annotation term to shuffle
 #'
 #' @return vertex IDs to assign \code{term} in shuffled annotation
 #'
 #' @export
-#' @seealso degree.binned.GDAs
+#' @seealso degreeBinnedGDAs
 #' @examples
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
 #' gg <- igraph::read.graph(file, format="gml")
 #' agg<-annotateGeneNames(gg)
 #' gda<-prepareGDA(agg, 'TopOntoOVGHDOID')
 #' diseases<-getAnnotationList(gda)
-#' m<-degree.binned.GDAs(agg, gda, diseases)
-#' sample.deg.binned.GDA(m, diseases[1])
-sample.deg.binned.GDA <- function(org.map, term) {
+#' m<-degreeBinnedGDAs(agg, gda, diseases)
+#' sampleDegBinnedGDA(m, diseases[1])
+sampleDegBinnedGDA <- function(org.map, term) {
     gda.indx <- match(term, colnames(org.map))
 
     rnd.gene.set <- NULL
@@ -248,7 +248,7 @@ prepareGDA <- function(gg, name) {
 #' @param permute type of permutations. \code{none} -- no permutation is
 #'        applied, \code{random} -- annotation is randomly shuffled,
 #'        \code{binned} -- annotation is shuffled in a way to preserve node
-#'        degree-annotation relationship by \code{\link{degree.binned.GDAs}}.
+#'        degree-annotation relationship by \code{\link{degreeBinnedGDAs}}.
 #'
 #' @return list with three matrices:
 #' * disease_separation -- Ndisease X Ndisease matrix of separations
@@ -258,8 +258,8 @@ prepareGDA <- function(gg, name) {
 #' (N), average and standard deviation of gene-disease separation in columns
 #' @export
 #'
-#' @seealso degree.binned.GDAs
-#' @seealso sample.deg.binned.GDA
+#' @seealso degreeBinnedGDAs
+#' @seealso sampleDegBinnedGDA
 #' @md
 #' @examples
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
@@ -298,7 +298,7 @@ calcDiseasePairs <- function(gg,
         rgda <- matrix(NA, nrow = vcount(gg), ncol = (nDiseases))
         colnames(rgda) <- c(diseases)
         if (permute == 'binned') {
-            map <- degree.binned.GDAs(gg, gda, diseases)
+            map <- degreeBinnedGDAs(gg, gda, diseases)
         }
         for (d in seq_along(diseases)) {
             IDS <- V(gg)$name[grepl(diseases[d], gda, fixed = TRUE)]
@@ -306,7 +306,7 @@ calcDiseasePairs <- function(gg,
             if (permute == 'random') {
                 IDS <- BioNAR::permute(V(gg)$name, N) #case
             } else if (permute == 'binned') {
-                IDS <- sample.deg.binned.GDA(map, diseases[d])
+                IDS <- sampleDegBinnedGDA(map, diseases[d])
             }
             rgda[match(IDS, V(gg)$name), d] <- 1
         }
@@ -375,7 +375,7 @@ sd0 <- function(x) {
 }
 toNum <- function(.x) {
     Nc <- dim(.x$gene_disease_separation)[2]
-    apply(.x$gene_disease_separation[, seq(3, Nc)], c(1, 2), dot_numeric)
+    apply(.x$gene_disease_separation[, seq(3, Nc)], c(1, 2), dotNumeric)
 }
 
 #' Calculate disease-disease pair overlaps on permuted network to estimate
@@ -401,7 +401,7 @@ toNum <- function(.x) {
 #' @param permute type of permutations.
 #'        \code{random} -- annotation is randomly shuffled,
 #'        \code{binned} -- annotation is shuffled in a way to preserve node
-#'        degree-annotation relationship by \code{\link{degree.binned.GDAs}}.
+#'        degree-annotation relationship by \code{\link{degreeBinnedGDAs}}.
 #' @param alpha statistical significance levels
 #'
 #' @return list of two matrices: \code{Disease_overlap_sig} gives s
