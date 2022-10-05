@@ -1,6 +1,6 @@
 Package: BioNAR
 Title: Biological Network Analysis in R
-Version: 0.99.007
+Version: 0.99.008
 Authors@R: c(
     person("Colin", "Mclean", 
         email="Colin.D.Mclean@ed.ac.uk", role="aut"), 
@@ -9,7 +9,9 @@ Authors@R: c(
     person("Oksana", "Sorokina", 
         email="oksana.sorokina@ed.ac.uk", role="aut"),
     person("J. Douglas", "Armstrong", 
-        email="Douglas.Armstrong@ed.ac.uk", role = "aut") )
+        email="Douglas.Armstrong@ed.ac.uk", role = c("aut","fnd")),
+    person("T. Ian", "Simpson", 
+        email="Ian.Simpson@ed.ac.uk", role = c("ctb","fnd")) )
 Description: the R package BioNAR, developed to step by step analysis of PPI 
             network. The aim is to quantify and rank each protein’s simultaneous 
             impact into multiple complexes based on network topology and 
