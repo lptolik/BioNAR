@@ -9,10 +9,10 @@ Semilocal <- function(gg) {
         neig <- igraph::neighbors(gg, v = ids, mode = "all")
         if (length(neig) > 0) {
             for (w in seq_along(neig)) {
-                neig <- c(neig,
-                          igraph::neighbors(gg,
-                                            v = as.character(V(gg)$name[neig[w]]),
-                                            mode = "all"))
+                vnames <- as.character(V(gg)$name[neig[w]])
+                neig <- c(neig,igraph::neighbors(gg,
+                                                 v = vnames,
+                                                 mode = "all"))
             }
             neig <- unique(neig)
             meas[i, 1] <- length(neig) - 1

@@ -39,7 +39,7 @@ an object of class \code{\link{law-class}} with results of fitting
 Fit Power Law to degree distribution.
 }
 \examples{
-##No: of bootstrap iterations
+##No: of bootstrap iterations use nsim > 100 for reliable result
 nsim <- 10
 
 ##Legend Titles

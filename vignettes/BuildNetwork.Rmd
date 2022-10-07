@@ -1,9 +1,9 @@
 ---
 title: "BioNAR: Biological Network Analysis in R"
-author: "Colin Mclean, Anatoly Sorokin, J. Douglas Armstrong, Oksana Sorokina"
+author: "Colin Mclean, Anatoly Sorokin, T. I. Simpson, J. Douglas Armstrong, Oksana Sorokina"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{BuildNetwork}
+  %\VignetteIndexEntry{BioNAR: Biological Network Analysis in R}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+```{r setup, echo=FALSE}
 library(knitr)
 library(BioNAR)
 library(synaptome.db)
@@ -26,42 +26,113 @@ library(pander)
 library(ggrepel)
 library(randomcoloR)
 ```
-# Title   AnNet: library for comprehensive network analysis
-##  Authors: Colin Mclean, Anatoly Sorokin, T. I. Simpson, J. Douglas Armstrong and Oksana Sorokina    
 
-#Introduction
+# Introduction
 
-Most of proteomic studies usually result with a massive list of proteins being identified within a specific tissue, compartment or cell type, occasionally  accompanied by some qualitative or quantitative information. To obtain meaningful biological insight from this data, one usually needs to process the data in several stages to identify possible structural and/or functional dependencies.
+Most of proteomic studies usually result with a massive list of proteins being
+identified within a specific tissue, compartment or cell type, occasionally 
+accompanied by some qualitative or quantitative information. To obtain m
+eaningful biological insight from this data, one usually needs to process the 
+data in several stages to identify possible structural and/or functional dependencies.
 
-One of the most popular ways of analysing the proteomic data is the building of the protein-protein interaction networks, to study how its topology influences functional annotation mapped onto it. 
+One of the most popular ways of analysing the proteomic data is the building 
+of the protein-protein interaction networks, to study how its topology 
+influences functional annotation mapped onto it. 
 
-Many existing packages support different steps of the network building and analysis process, but there are few packages that combine network building and analysis methodology into a single pipeline. 
+Many existing packages support different steps of the network building and 
+analysis process, but there are few packages that combine network building 
+and analysis methodology into a single pipeline. 
 
-We designed the BioNAR to combine the necessary network building and analysis functionality, complementing existing R packages and filling the methodological gaps necessary to interrogate biomedical networks with respect to functional and disease domains. For that purpose, we didn’t not implement the network reconstruction (unless it is synaptic network), given that other tools like Cytoscape and Network Analyst can do this already. Instead, we implemented a detailed topologically-based network analysis package, enabling the researcher to load networks generated from the lab’s own meta-data, thus making the tool as widely applicable and flexible as possible.
+We designed the BioNAR to combine the necessary network building and analysis
+functionality, complementing existing R packages and filling the methodological
+gaps necessary to interrogate biomedical networks with respect to functional 
+and disease domains. For that purpose, we didn’t not implement the network
+reconstruction (unless it is synaptic network), given that other tools like
+Cytoscape and Network Analyst can do this already. Instead, we implemented a
+detailed topologically-based network analysis package, enabling the researcher 
+to load networks generated from the lab’s own meta-data, thus making the tool 
+as widely applicable and flexible as possible.
 
 # Overview of capabilities
-The package’s pipeline starts with loading/building the graph of interest and annotating its vertices with available metadata [annotate_vertex]. 
-It follows with the analysis of general network properties, such as estimating a network’s “scale-free” property. For this we used the R “PoweRlaw” package (version 0.50.0) (Gillespie, 2015) [FitDegree] and a network entropy analysis (Teschendorff et al, 2014) [getEntopy].
-Package allows estimating of the main network vertex centrality measures, such as degree, betweenness, clustering coefficient, semilocal centrality, mean shortest path, page rank, and standard deviation of the shortest path. The values for centrality values measures can be added as vertex node attributes [calcCentrality] or returned as a R matrix [getCentralityMatrix], depending on the user’s choice. Any other numerical characteristics, calculated for nodes and represented in a matrix form could be stored as node attributes as well.
-To compare an observed networks vertex centrality values to those of an equivalently sized  randomised graph, we provide three varying randomisation models including G(n,p) Erdos-Renyi model , Barabasi-Albert model, and new random graph from a given graph by randomly adding/removing edges [getRandomGraphCentrality].
-Additionally, to allow comparison of network with different structure, we implemented normalised modularity measure (Parter et al., 2007, Takemoto, 2012, Takemoto, 2013, Takemoto and Borjigin, 2011)[normModularity].
+The package’s pipeline starts with loading/building the graph of interest and
+annotating its vertices with available metadata [annotate_vertex]. 
 
-The pipeline then proceeds with uncovering the network’s community structure, which can be performed via nine different clustering algorithms, simultaneously [calcAllClustering] or with a chosen algorithm  [calcClustering], community membership being stored as a vertex attribute. In the situation when the network is dense and clusters are large and barely tractable, the reclustering can be applied [calcReclusterMatrix]. The obtained community structure can be visualized with [layoutByCluster] and further tested for robustness [getRobustness] by comparing with randomised networks. As a result, consensus matrix can be estimated [makeConsensusMatrix], which is needed for the next step -identifying the "influential" or "bridging" proteins (Nepusz et al., 2008).
+It follows with the analysis of general network properties, such as estimating 
+a network’s “scale-free” property. For this we used the R “PoweRlaw” package
+(version 0.50.0) (Gillespie, 2015) [FitDegree] and a network entropy analysis
+(Teschendorff et al, 2014) [getEntopy].
 
-For this, we enabled a function for estimating "bridgeness" [getBridgeness] metric, which takes into account the probability of the vertex to belong to different communities [getBridgeness], so that the vertices can be ranked under assumption that more communities the vertex can belong more influence it has to the network topology and signaling (Han et al., 2004). "Bridgeness" can be plot against any other centrality measure, e.g. semi-local centrality (plot is implemented), to enable additional view of vertex (protein) importance within the network topology.
+Package allows estimating of the main network vertex centrality measures, 
+such as degree, betweenness, clustering coefficient, semilocal centrality, 
+mean shortest path, page rank, and standard deviation of the shortest path. 
+The values for centrality values measures can be added as vertex node 
+attributes [calcCentrality] or returned as a R matrix [getCentralityMatrix],
+depending on the user’s choice. Any other numerical characteristics, calculated 
+for nodes and represented in a matrix form could be stored as node attributes 
+as well.
 
-To get a glance of the molecular signature of a disease or function on the network, we implemented the disease-disease overlap analysis by measuring the mean shortest distance for each disease (⟨d⟩), using the shortest distance between each gene-disease association (GDA) to its next nearest GDA neighbor (Menche et al., 2015) [calcDiseasePairs], [runPermDisease] to be used for obtaining signiificance values. In the presented example of the presynaptic network we found a few neurological disorders to overlap with a high significance, e.g. AD-PD, SCH-BP, ASD-ID, and, indeed, their comorbidity was confirmed by the literature. Same analysis can be performed with any in-house annotation.
+To compare an observed networks vertex centrality values to those of an
+equivalently sized  randomised graph, we provide three varying randomisation 
+models including G(n,p) Erdos-Renyi model , Barabasi-Albert model, and new 
+random graph from a given graph by randomly adding/removing edges
+[getRandomGraphCentrality].
 
-To allow the distribution of the specific annotation(s) over clustered graph, we enabled overrepresentation analysis, which allows identify the network community enriched wit specific function or disease, or any other annotation.
+Additionally, to allow comparison of network with different structure, we
+implemented normalised modularity measure (Parter et al., 2007, 
+Takemoto, 2012, Takemoto, 2013, Takemoto and Borjigin, 2011)[normModularity].
 
-The example illustrates the package functionality for the protein-protein interaction network for the presynaptic compartment of the synapse generated from Synaptic proteome database (Sorokina et al., 2021) with Synaptome.db package. The network has 1073 vertices and 3346 edges, the step by step analysis shown below.
+The pipeline then proceeds with uncovering the network’s community structure, 
+which can be performed via nine different clustering algorithms, simultaneously
+[calcAllClustering] or with a chosen algorithm  [calcClustering], community
+membership being stored as a vertex attribute. In the situation when the 
+network is dense and clusters are large and barely tractable, the reclustering 
+can be applied [calcReclusterMatrix]. The obtained community structure can be
+visualized with [layoutByCluster] and further tested for robustness 
+[getRobustness] by comparing with randomised networks. As a result, consensus
+matrix can be estimated [makeConsensusMatrix], which is needed for the next 
+step -identifying the "influential" or "bridging" proteins 
+(Nepusz et al., 2008).
+
+For this, we enabled a function for estimating "bridgeness" [getBridgeness] 
+metric, which takes into account the probability of the vertex to belong to
+different communities [getBridgeness], so that the vertices can be ranked under
+assumption that more communities the vertex can belong more influence it has 
+to the network topology and signaling (Han et al., 2004). "Bridgeness" can be 
+plot against any other centrality measure, e.g. semi-local centrality (plot is
+implemented), to enable additional view of vertex (protein) importance within 
+the network topology.
+
+To get a glance of the molecular signature of a disease or function on the 
+network, we implemented the disease-disease overlap analysis by measuring the 
+mean shortest distance for each disease (⟨d⟩), using the shortest distance 
+between each gene-disease association (GDA) to its next nearest GDA neighbor
+(Menche et al., 2015) [calcDiseasePairs], [runPermDisease] to be used for 
+obtaining signiificance values. In the presented example of the presynaptic 
+network we found a few neurological disorders to overlap with a high 
+significance, e.g. AD-PD, SCH-BP, ASD-ID, and, indeed, their comorbidity was
+confirmed by the literature. Same analysis can be performed with any in-house
+annotation.
+
+To allow the distribution of the specific annotation(s) over clustered graph, 
+we enabled overrepresentation analysis, which allows identify the network 
+community enriched wit specific function or disease, or any other annotation.
+
+The example illustrates the package functionality for the protein-protein
+interaction network for the presynaptic compartment of the synapse generated 
+from Synaptic proteome database (Sorokina et al., 2021) with Synaptome.db 
+package. The network has 1073 vertices and 3346 edges, the step by step 
+analysis shown below.
 
 # Build the network
 
-The package allows building the network from the data frame, where the rows correspond to the edges of the graph, or for the list of nodes (genes), for which the information will be retrieved from the SynaptomeDB.
+The package allows building the network from the data frame, where the rows
+correspond to the edges of the graph, or for the list of nodes (genes), for 
+which the information will be retrieved from the SynaptomeDB.
 
 ## Build the network from data frame
-The command builds the graph from provided data frame, simplifies the graph (removing multiple edges and loops) and finds the MCC (maximum connected component)
+The command builds the graph from provided data frame, simplifies the graph
+(removing multiple edges and loops) and return its MCC (maximum connected 
+component)
 ```{r network_from_scratch}
 file <- system.file("extdata", "PPI_Presynaptic.csv", package = "BioNAR")
 tbl <- read.csv(file, sep="\t")
@@ -71,7 +142,9 @@ summary(gg)
 
 ```
 ## Build network for the node list extracted from SynaptomeDB
-The command provides proxy for Synaptome.db package, enabling building the protein-protein interaction (PPI) network for entire synaptic compartment (pre-, or post-synaptic)
+The command provides proxy for Synaptome.db package, enabling building the
+protein-protein interaction (PPI) network for entire synaptic compartment 
+(pre-, or post-synaptic)
 
 ```{r net_from_SynaptomeDB}
 # Let's get the ID for presynaptic compartment
@@ -87,9 +160,11 @@ summary(gg)
 
 ```
 ## Use the predifined network
+Any predefined network stored as a graph file could be loaded for further 
+analysis by use of igraph functionality.
+
 ```{r net_predefind}
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-Any predefined network stored as a graph file could be loaded for further analysis by use of igraph functionality.
 gg1 <- igraph::read.graph(file,format="gml")
 summary(gg1)
 ```
@@ -102,17 +177,22 @@ ggCluster <- igraph::read.graph(file,format="gml")
 
 
 # Annotate the nodes with node attributes
-As soon as graph is loaded it can be annotated with any relevant annotations, such as protein names, functionality, disease associations, or any customized annotation (annotate_vertex {BioNAR}. For example, below we use functional annotation based on two published synaptic studies.
+As soon as graph is loaded it can be annotated with any relevant annotations, 
+such as protein names, functionality, disease associations, or any customized
+annotation (annotate_vertex {BioNAR}. For example, below we use functional
+annotation based on two published synaptic studies.
+
 ## Gene name
 Adding gene names to nodes.
 ```{r annotate_net}
-
 gg<-annotateGeneNames(gg)
 summary(gg)
 head(V(gg))
 head(V(gg)$GeneName)
 ```
+
 ## Diseases
+
 Adding diseases associations to genes linked to Human Disease Ontology 
 (HDO) terms extracted from the package
 (topOnto.HDO.db)[https://github.com/hxin/topOnto.HDO.db].
@@ -123,18 +203,23 @@ gg <- annotateTopOntoOVG(gg, dis)
 summary(gg)
 
 ```
-Lips et al., (2012) <doi:10.1038/mp.2011.117>.
+
 ## Schizopherina related synaptic gene functional annotation.
-Adding the annottation curated from (Lips et al., 2012).
+
+Adding the annottation curated from 
+Lips et al., (2012) <doi:10.1038/mp.2011.117>.
+
 ```{r annotate_Shanno}
 sfile<-system.file("extdata", "SCH_flatfile.csv", package = "BioNAR")
 shan<- read.table(sfile,sep="\t",skip=1,header=FALSE,strip.white=TRUE,quote="")
 sgg<-annotateSCHanno(gg,shan)
 summary(sgg)
 ```
-Boyken at al. (2013) <doi:10.1016/j.neuron.2013.02.027>.
+
 ## Presynaptic functional annotation
-Adding the presynaptic genes functional annotation derived from (Boyken at al., 2019).
+
+Adding the presynaptic genes functional annotation derived from 
+Boyken at al. (2013) <doi:10.1016/j.neuron.2013.02.027>.
 
 ```{r annotate_Chua, eval=FALSE}
 sfile<-system.file("extdata", "PresynAn.csv", package = "BioNAR")
@@ -142,7 +227,9 @@ pres <- read.csv(sfile,skip=1,header=FALSE,strip.white=TRUE,quote="")
 sgg <- annotatePresynaptic(gg, pres)
 summary(sgg)
 ```
+
 ## GO
+
 Adding functionality from GO: BP, MF,CC
 ```{r annotate_go}
 sfile<-system.file("extdata", "flatfile.go.BP.csv", package = "BioNAR")
@@ -159,10 +246,9 @@ sfile<-system.file("extdata", "flatfile.go.CC.csv", package = "BioNAR")
 goCC <- read.table(sfile,sep="\t",skip=1,header=FALSE,strip.white=TRUE,quote="")
 sgg <- annotateGoCC(gg, goCC)
 summary(sgg)
-
 ```
 
-#Esimate node centrality measures
+# Esimate node centrality measures
 
 ## Estimate centrality measures with values added as node attributes. 
 
@@ -180,7 +266,7 @@ gg <- calcCentrality(gg)
 summary(gg)
 ```
 
-##Get node centralities as a matrix. 
+## Get node centralities as a matrix. 
 
 In the case you don't want save centrality values on the graph, for example 
 you going to provide different names for the attributes, the same centrality
@@ -190,7 +276,9 @@ measures as before could be obtained in a matrix form:
 mc <- getCentralityMatrix(gg)
 head(mc)
 ```
-##Get the centrality measures for random graph
+
+## Get the centrality measures for random graph
+
 Sometimes one needs to compare the graph properties of the given network with the ones of the randomized graph. Command below provides three ways of randomization, including G(n,p) Erdos-Renyi model , Barabasi-Albert model and new random graph from a given graph by randomly adding/removing edges.
 
 ```
@@ -198,9 +286,16 @@ Sometimes one needs to compare the graph properties of the given network with th
 ggrm <- getRandomGraphCentrality(sgg, type = c("cgnp"))
 head(ggrm)
 ```
+
 ## Power law fit
-To examine the networks for underlying structure (i.e. not random), one can test network's degree distribution for evidence of scale-free structure and compare it against the randomised network model. For this we used the R “PoweRlaw” package (version 0.50.0) (Gillespie, 2015).
-In the example below we found evidence for disassortative mixing (Newman, 2002), i.e. a preference for high-degree genes to attach to low-degree gene(presynaptic: -0.16).
+
+To examine the networks for underlying structure (i.e. not random), one can 
+test network's degree distribution for evidence of scale-free structure and 
+compare it against the randomised network model. For this we used the R 
+“PoweRlaw” package (version 0.50.0) (Gillespie, 2015).
+In the example below we found evidence for disassortative mixing 
+(Newman, 2002), i.e. a preference for high-degree genes to attach to 
+low-degree gene(presynaptic: -0.16).
 
 ```{r powerLaw,fig.height=8,fig.width=8,dpi=56}
 pFit <- fitDegree( as.vector(igraph::degree(graph=gg)),threads=1,Nsim=5,
@@ -208,9 +303,19 @@ pFit <- fitDegree( as.vector(igraph::degree(graph=gg)),threads=1,Nsim=5,
 ```
 
 ## Get entropy rate
-```{r ent_rate,fig.height=8,fig.width=8,dpi=56}
-Evidence for scale-free structure can also be tested by performing a perturbation analysis on each network. In this analysis each protein is being perturbed through over-expression (red) and under-expression (green), with the global entropy rate (SR) after each proteins pertubation being plotted against the log of the proteins degree, as shown at the plot below. In the example network we observe a bi-modal response, between gene over-expression and degree, and opposing bi-phasic response relative to over/under-expression between global entropy rate and degree. This type of bi-modal, bi-phasic behaviour has been observed only in networks with scale-free or approximate scale-free topology (Teschendorff et al, 2014). 
 
+Evidence for scale-free structure can also be tested by performing a 
+perturbation analysis on each network. In this analysis each protein is 
+being perturbed through over-expression (red) and under-expression (green), 
+with the global entropy rate (SR) after each proteins pertubation being 
+plotted against the log of the proteins degree, as shown at the plot below. 
+In the example network we observe a bi-modal response, between gene 
+over-expression and degree, and opposing bi-phasic response relative to
+over/under-expression between global entropy rate and degree. This type of
+bi-modal, bi-phasic behaviour has been observed only in networks with 
+scale-free or approximate scale-free topology (Teschendorff et al, 2014). 
+
+```{r ent_rate,fig.height=8,fig.width=8,dpi=56}
 ent <- getEntropyRate(gg)
 ent
 SRprime <- getEntropy(gg, maxSr = NULL)
@@ -262,16 +367,19 @@ the data by maximising the objective function called the Minimum Description
 Length (Rissanen, 1978; Grwald et al., 2005)
 
 ```{r cluster.mem}
+# choose one algorithm from the list
 alg = "louvain"
-mem <- calcMembership(gg, alg)# choose one algorithm from the list
+mem <- calcMembership(gg, alg)
 pander(head(mem))
 ```
 
 Due to internal random initialisation consequtive invocation of the same 
 algorithm could produce slightly different community structures:
 ```{r cluster.mem2}
-mem2 <- calcMembership(gg, alg)# choose one algorithm from the list
-pander(head(cbind(mem,mem2)))
+mem2 <- calcMembership(gg, alg)
+idx<-match(mem$names,mem2$names)
+idnx<-which(mem$membership!=mem2$membership[idx])
+pander(head(cbind(mem[idnx,],mem2[idx[idnx],])))
 ```
 
 To avoid inconsistency if downstream analysis we provide two additional 
@@ -286,8 +394,7 @@ command will work for specific algorithm.
 
 ```{r cluster}
 gg <- calcClustering(gg, alg)
-gg
-
+summary(gg)
 ```
 
 Membership data could be obtained from the graph vertex attribute:
@@ -366,7 +473,7 @@ head(remem)
 
 And we can apply second order clustering layout:
 ```{r plot.recluster.layout,fig.height=8,fig.width=8,dpi=56}
-lay<-BioNAR:::layoutByRecluster(gg,remem,layout_nicely)
+lay<-layoutByRecluster(gg,remem,layout_nicely)
 plot(gg,vertex.size=3,layout=lay,
         vertex.label=NA,
         vertex.color=palette[as.numeric(mem.df$membership)],

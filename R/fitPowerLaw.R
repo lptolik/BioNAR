@@ -142,7 +142,8 @@ fitDegree <- function(DEG,
         suppressMessages(fitl <-
                              TeX(
                                  sprintf(
-                                     "Power-law $\\alpha = %.2f(%s), $k_{min} = %.0f(%s)",
+                                     paste("Power-law $\\alpha = %.2f(%s),',
+                                           '$k_{min} = %.0f(%s)"),
                                      S2,
                                      errS2,
                                      S1,
