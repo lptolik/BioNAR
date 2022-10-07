@@ -120,13 +120,27 @@ getOO<-function(IDS, annoF){
 #' Annotate Human Gene Names
 #'
 #' For the protein-protein interaction (PPI) or disease gene interaction (DGN)
-#' graphs that have EntrezID as a vertex name this function extract standard
-#' name from \code{\link[org.Hs.eg.db]{org.Hs.eg.db}} and annotate vertices.
-#' If for some
-#' vertices EntresID does not match \code{\link[org.Hs.eg.db]{org.Hs.eg.db}}
-#' empty string is added as GeneName.
+#' graphs that have EntrezID as a vertex \code{name} this function extract
+#' standard name from \code{\link[org.Hs.eg.db]{org.Hs.eg.db}} and annotate
+#' vertices.
+#'
+#' If vertex \code{name} attrubite stores not EntrezID or network is build
+#' not from human genes, other \code{\link[AnnotationDbi]{AnnotationDb}}
+#' object could be provided in \code{orgDB} and one of
+#' \code{\link[AnnotationDbi]{keytypes}} from that object
+#' that correspond to the nature of the vertex \code{name} attrubite could
+#' be provided in the \code{keytype} attribute.
+#'
+#' If for some vertices \code{name} attrubite does not match
+#' \code{\link[AnnotationDbi]{keys}} with
+#' particular \code{\link[AnnotationDbi]{keytypes}} in the
+#' \code{orgDB} object, empty string is added as GeneName.
 #'
 #' @param gg igraph object to annotate
+#' @param orgDB ordDB object, by default human is assumed from
+#'         \code{\link[org.Hs.eg.db]{org.Hs.eg.db}}
+#' @param keytype type of IDs stored in the \code{name} vertex attribute,
+#'         by default \code{ENTREZID} is assumed.
 #'
 #' @return igraph object with new vertex attribute \code{GeneName}
 #' @export
@@ -137,11 +151,11 @@ getOO<-function(IDS, annoF){
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
 #' gg <- igraph::read.graph(file, format="gml")
 #' agg<-annotateGeneNames(gg)
-annotateGeneNames <- function(gg) {
+annotateGeneNames <- function(gg,orgDB=org.Hs.eg.db,keytype = "ENTREZID") {
     ids <- V(gg)$name
-    gn <- AnnotationDbi::mapIds(org.Hs.eg.db, ids,
+    gn <- suppressMessages(AnnotationDbi::mapIds(orgDB, ids,
                                 column = "SYMBOL",
-                                keytype = "ENTREZID")
+                                keytype = keytype))
     gg <- removeVertexTerm(gg, "GeneName")
     set.vertex.attribute(gg, "GeneName", V(gg), "")
     V(gg)$GeneName <- gn
@@ -636,7 +650,22 @@ annotateInterpro <- function(gg, annoF, annoD) {
     }
     return(gg)
 }
-#
+
+#' Annotate nodes with GO terms
+#'
+#'
+#'
+#' @param gg
+#'
+#' @return
+#' @export
+#'
+#' @examples
+annotateGOall<-function(gg,orgDB=org.Hs.eg.db,keytype = "ENTREZID"){
+
+}
+
+
 #' Add GO MF annotation to the graph vertices
 #'
 #' Function takes data from \code{annoF} matrix and add them to attributes
