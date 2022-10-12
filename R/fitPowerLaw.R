@@ -36,7 +36,7 @@ lseqBy <-
              length.out = log10(to / from) + 1) {
         tmp <- exp(seq(log(from), log(to), length.out = length.out))
         tmp[seq(1, length(tmp), by)]
-}
+    }
 
 changeSciNotation <- function(n) {
     n <- format(n, scientific = TRUE)
@@ -143,7 +143,7 @@ fitDegree <- function(DEG,
                              TeX(
                                  sprintf(
                                      paste("Power-law $\\alpha = %.2f(%s),',
-                                           '$k_{min} = %.0f(%s)"),
+                                            '$k_{min} = %.0f(%s)"),
                                      S2,
                                      errS2,
                                      S1,

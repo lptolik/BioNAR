@@ -31,7 +31,8 @@ buildConsensusMatFromFiles <-
         for (s in seq_along(subdirs)) {
             filein <- sprintf("%s/%s/%s" , Dir, subdirs[s])
 
-            if (file.exists(filein) && file.info(filein)$size != 0) {
+            if (file.exists(filein) &&
+                file.info(filein)$size != 0) {
                 tb <- utils::read.delim(filein,
                                         skip = skip,
                                         header = FALSE,
@@ -75,7 +76,7 @@ buildConsensusMatFromFiles <-
                                            matrixDiv(M[, s], I[, s])))
         }
         return(C)
-}
+    }
 
 #' Build consensus matrix from the list of clusterings
 #'
@@ -231,5 +232,3 @@ calculateConsensusMat <- function(data = NULL) {
     return(list(M = M, I = I))
 
 }
-
-

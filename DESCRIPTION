@@ -1,6 +1,6 @@
 Package: BioNAR
 Title: Biological Network Analysis in R
-Version: 0.99.009
+Version: 0.99.011
 Authors@R: c(
     person("Colin", "Mclean", 
         email="Colin.D.Mclean@ed.ac.uk", role="aut"), 
@@ -22,10 +22,10 @@ License: Artistic-2.0
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
-Depends: R (>= 3.5.0), igraph, poweRlaw, org.Hs.eg.db, latex2exp, RSpectra, 
-    rSpectral, WGCNA, ggplot2, Rdpack
+Depends: R (>= 3.5.0), igraph, poweRlaw, latex2exp, RSpectra, 
+    Rdpack
 Imports: stringr, synaptome.db, clusterCons, fgsea, grid, methods, scales, 
-    AnnotationDbi
+    AnnotationDbi, dplyr, GO.db, org.Hs.eg.db, rSpectral, WGCNA, ggplot2
 RdMacros: Rdpack
 Suggests: 
     knitr, 

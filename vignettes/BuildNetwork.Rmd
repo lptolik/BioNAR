@@ -33,7 +33,8 @@ Most of proteomic studies usually result with a massive list of proteins being
 identified within a specific tissue, compartment or cell type, occasionally 
 accompanied by some qualitative or quantitative information. To obtain m
 eaningful biological insight from this data, one usually needs to process the 
-data in several stages to identify possible structural and/or functional dependencies.
+data in several stages to identify possible structural and/or functional 
+dependencies.
 
 One of the most popular ways of analysing the proteomic data is the building 
 of the protein-protein interaction networks, to study how its topology 
@@ -279,7 +280,10 @@ head(mc)
 
 ## Get the centrality measures for random graph
 
-Sometimes one needs to compare the graph properties of the given network with the ones of the randomized graph. Command below provides three ways of randomization, including G(n,p) Erdos-Renyi model , Barabasi-Albert model and new random graph from a given graph by randomly adding/removing edges.
+Sometimes one needs to compare the graph properties of the given network with 
+the ones of the randomized graph. Command below provides three ways of
+randomization, including G(n,p) Erdos-Renyi model , Barabasi-Albert model and 
+new random graph from a given graph by randomly adding/removing edges.
 
 ```
 {r}

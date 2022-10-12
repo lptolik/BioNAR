@@ -1,4 +1,5 @@
 
+
 #' Calculate cluster memberships for the graph.
 #'
 #' Calculate clustering membership for ten algoritms defined in
@@ -15,16 +16,23 @@
 #' data(karate, package='igraphdata')
 #' m<-calcMembership(karate, 'lec')
 #' head(m)
-calcMembership<-function(gg,
-                            alg=c('lec', 'wt', 'fc', 'infomap',
-                                'louvain', 'sgG1', 'sgG2',
-                                'sgG5', 'spectral')){
+calcMembership <- function(gg,
+                           alg = c('lec',
+                                   'wt',
+                                   'fc',
+                                   'infomap',
+                                   'louvain',
+                                   'sgG1',
+                                   'sgG2',
+                                   'sgG5',
+                                   'spectral')) {
     ids <- V(gg)$name
-    cl<-getClustering(gg, alg)
-    if(!is.null(cl)){
-    cc       <- data.frame(names=cl$names, membership=cl$membership)
-    }else{
-    cc <- data.frame(names='names', membership=0)[FALSE, ]
+    cl <- getClustering(gg, alg)
+    if (!is.null(cl)) {
+        cc       <- data.frame(names = cl$names,
+                               membership = cl$membership)
+    } else{
+        cc <- data.frame(names = 'names', membership = 0)[FALSE,]
     }
     return(cc)
 }
