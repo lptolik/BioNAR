@@ -125,7 +125,7 @@ getOO<-function(IDS, annoF){
 #' vertices.
 #'
 #' If vertex \code{name} attrubite stores not EntrezID or network is build
-#' not from human genes, other \code{\link[AnnotationDbi]{AnnotationDb}}
+#' not from human genes, other \code{\link[AnnotationDbi]{OrgDb-class}}
 #' object could be provided in \code{orgDB} and one of
 #' \code{\link[AnnotationDbi]{keytypes}} from that object
 #' that correspond to the nature of the vertex \code{name} attrubite could
@@ -217,6 +217,7 @@ getDiseases <- function() {
     disn[12] <- "DOID:2377"
     return(disn)
 }
+
 #' Generic annotation function
 #'
 #' It takes name of the attribute, and two column Pair form annotation
@@ -653,16 +654,69 @@ annotateInterpro <- function(gg, annoF, annoD) {
 
 #' Annotate nodes with GO terms
 #'
+#' For the protein-protein interaction (PPI) or disease gene interaction (DGN)
+#' graphs that have EntrezID as a vertex \code{name} this function extract
+#' GeneOntolgy annotation from \code{orgDB}, which should be
+#' \code{\link[AnnotationDbi]{OrgDb-class}}, split them into three ontology
+#' group (\code{MF},\code{BP},\code{CC}) and annotate vertices with .
 #'
+#' If vertex \code{name} attrubite stores not EntrezID or network is build
+#' not from human genes, other \code{\link[AnnotationDbi]{OrgDb-class}}
+#' object could be provided in \code{orgDB} and one of
+#' \code{\link[AnnotationDbi]{keytypes}} from that object
+#' that correspond to the nature of the vertex \code{name} attrubite could
+#' be provided in the \code{keytype} attribute.
 #'
-#' @param gg
+#' If for some vertices \code{name} attrubite does not match
+#' \code{\link[AnnotationDbi]{keys}} with
+#' particular \code{\link[AnnotationDbi]{keytypes}} in the
+#' \code{orgDB} object, empty string is added as GeneName.
 #'
-#' @return
+#' @param gg igraph object to annotate
+#' @param orgDB ordDB object, by default human is assumed from
+#'         \code{\link[org.Hs.eg.db]{org.Hs.eg.db}}
+#' @param keytype type of IDs stored in the \code{name} vertex attribute,
+#'         by default \code{ENTREZID} is assumed.
+#'
+#' @return igraph object with new vertex attribute \code{GeneName}
 #' @export
 #'
+#' @import dplyr GO.db org.Hs.eg.db
+#' @importFrom AnnotationDbi select
 #' @examples
-annotateGOall<-function(gg,orgDB=org.Hs.eg.db,keytype = "ENTREZID"){
+annotateGOont<-function(gg,orgDB=org.Hs.eg.db,keytype = "ENTREZID"){
+    if(!inherits(orgDB,'OrgDb')){
 
+    }
+    ids <- V(gg)$name
+    on <- AnnotationDbi::select(orgDB, ids,
+                                columns = c("GO",'ONTOLOGY'),
+                                keytype = keytype)
+    ###### MF annotation ######
+    mf<-on %>% dplyr::filter(ONTOLOGY=='MF') %>% select(!c(EVIDENCE)) %>% unique
+    mfid<- mf[,c(keytype,'GO')]
+    gg<-annotateVertex(gg,"GO_MF_ID",mfid)
+    res<-AnnotationDbi::select(GO.db,unique(mf$GO),column=c('TERM','DEFINITION'),keytype='GOID')
+    mft<-merge(mf,res,by.x='GO',by.y='GOID')[,c(keytype,'TERM')]
+    gg<-annotateVertex(gg,"GO_MF",mft)
+
+    ###### BP annotation ######
+    bp<-on %>% dplyr::filter(ONTOLOGY=='BP') %>% select(!c(EVIDENCE)) %>% unique
+    bpid<- bp[,c(keytype,'GO')]
+    gg<-annotateVertex(gg,"GO_BP_ID",bpid)
+    res<-AnnotationDbi::select(GO.db,unique(bp$GO),column=c('TERM','DEFINITION'),keytype='GOID')
+    bpt<-merge(bp,res,by.x='GO',by.y='GOID')[,c(keytype,'TERM')]
+    gg<-annotateVertex(gg,"GO_BP",bpt)
+
+    ###### CC annotation ######
+    cc<-on %>% dplyr::filter(ONTOLOGY=='CC') %>% select(!c(EVIDENCE)) %>% unique
+    ccid<- cc[,c(keytype,'GO')]
+    gg<-annotateVertex(gg,"GO_CC_ID",ccid)
+    res<-AnnotationDbi::select(GO.db,unique(cc$GO),column=c('TERM','DEFINITION'),keytype='GOID')
+    cct<-merge(cc,res,by.x='GO',by.y='GOID')[,c(keytype,'TERM')]
+    gg<-annotateVertex(gg,"GO_CC",cct)
+
+    return(gg)
 }
 
 
