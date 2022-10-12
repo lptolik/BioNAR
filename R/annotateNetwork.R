@@ -60,23 +60,26 @@ loopOverFiles <- function(GG, FILES, NAME, IDS, addIDS) {
                     strip.white = TRUE,
                     quote = ""
                 )
-            oo<-getOO(IDS, annoF)
+            oo <- getOO(IDS, annoF)
             GG <-
                 set.vertex.attribute(GG, NAME[f], V(GG), as.character(oo[, 2]))
             if (addIDS) {
                 GG <- set.vertex.attribute(GG,
-                                            sprintf("%s_ID", NAME[f]),
-                                            V(GG),
-                                            as.character(oo[, 3]))
+                                           sprintf("%s_ID", NAME[f]),
+                                           V(GG),
+                                           as.character(oo[, 3]))
             }
         }
     }
     return(GG)
 }
 
-getOO<-function(IDS, annoF){
+getOO <- function(IDS, annoF) {
     annoFIDS <- as.character(annoF[, 3])
-    typeF  <-unique(unlist(strsplit(as.character(unique(annoF[, 2])), ",")))
+    typeF  <-
+        unique(unlist(strsplit(as.character(unique(
+            annoF[, 2]
+        )), ",")))
     oo     <- matrix("", ncol = 3, nrow = length(IDS))
     oo[, 1] <- IDS
     for (i in seq_along(IDS)) {
@@ -86,13 +89,13 @@ getOO<-function(IDS, annoF){
         if (length(ind1) != 0) {
             if (length(ind1) == 1) {
                 Str1 <- as.character(annoF[ind1[1], 2])
-            }else {
+            } else {
                 Str1 <- paste(as.character(annoF[ind1, 2]),
                               collapse = COLLAPSE)
             }
             if (length(ind1) == 1) {
                 Str2 <- as.character(annoF[ind1[1], 1])
-            }else {
+            } else {
                 Str2 <- paste(as.character(annoF[ind1, 1]), collapse = COLLAPSE)
             }
             if (grepl(COLLAPSE, Str1)) {
@@ -151,16 +154,17 @@ getOO<-function(IDS, annoF){
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
 #' gg <- igraph::read.graph(file, format="gml")
 #' agg<-annotateGeneNames(gg)
-annotateGeneNames <- function(gg,orgDB=org.Hs.eg.db,keytype = "ENTREZID") {
-    ids <- V(gg)$name
-    gn <- suppressMessages(AnnotationDbi::mapIds(orgDB, ids,
-                                column = "SYMBOL",
-                                keytype = keytype))
-    gg <- removeVertexTerm(gg, "GeneName")
-    set.vertex.attribute(gg, "GeneName", V(gg), "")
-    V(gg)$GeneName <- gn
-    return(gg)
-}
+annotateGeneNames <-
+    function(gg, orgDB = org.Hs.eg.db, keytype = "ENTREZID") {
+        ids <- V(gg)$name
+        gn <- suppressMessages(AnnotationDbi::mapIds(orgDB, ids,
+                                                     column = "SYMBOL",
+                                                     keytype = keytype))
+        gg <- removeVertexTerm(gg, "GeneName")
+        set.vertex.attribute(gg, "GeneName", V(gg), "")
+        V(gg)$GeneName <- gn
+        return(gg)
+    }
 #' Get DiseaseTypes
 #'
 #' Return vector of disease abbreviations for synaptic PPI analysis.
@@ -257,9 +261,9 @@ annotateVertex <- function(gg, name, values) {
     uids <- unique(vids)
     gidx <- match(uids, ids)
     annL <- vapply(uids,
-                    function(.x)
-                        paste(unique(val[vids == .x]), collapse = COLLAPSE),
-                    c(ann = ''))
+                   function(.x)
+                       paste(unique(val[vids == .x]), collapse = COLLAPSE),
+                   c(ann = ''))
     ggm <- set.vertex.attribute(
         graph = ggm,
         name = name,
@@ -391,8 +395,8 @@ getAnnotationVertexList <-
 #' al<-getAnnotationList(annVec)
 #' al
 getAnnotationList <- function(annVec,
-                                col = COLLAPSE,
-                                sort = c('none', 'string', 'frequency')) {
+                              col = COLLAPSE,
+                              sort = c('none', 'string', 'frequency')) {
     sort <- match.arg(sort)
     res <- switch (
         sort,
@@ -458,14 +462,14 @@ annotateTopOntoOVG <- function(gg, dis) {
                     }
                     else {
                         Str1 <- paste(c(Str1, as.character(dtype[indx[j]])),
-                                        collapse = COLLAPSE)
+                                      collapse = COLLAPSE)
                     }
                     if (Str2 == "") {
                         Str2 <- as.character(disn[indx[j]])
                     }
                     else {
                         Str2 <- paste(c(Str2, as.character(disn[indx[j]])),
-                                        collapse = COLLAPSE)
+                                      collapse = COLLAPSE)
                     }
                 }
             }
@@ -615,14 +619,14 @@ annotateInterpro <- function(gg, annoF, annoD) {
             }
             else {
                 Str1 <- paste(as.character(annoF[ind1, 2]),
-                                collapse = COLLAPSE)
+                              collapse = COLLAPSE)
             }
             if (length(ind1) == 1) {
                 Str2 <- as.character(annoF[ind1[1], 1])
             }
             else {
                 Str2 <- paste(as.character(annoF[ind1, 1]),
-                                collapse = COLLAPSE)
+                              collapse = COLLAPSE)
             }
         }
         V(gg)[i]$InterPro_Family_ID <- as.character(Str2)
@@ -636,14 +640,14 @@ annotateInterpro <- function(gg, annoF, annoD) {
             }
             else {
                 Str1 <- paste(as.character(annoD[ind1, 2]),
-                                collapse = COLLAPSE)
+                              collapse = COLLAPSE)
             }
             if (length(ind1) == 1) {
                 Str2 <- as.character(annoD[ind1[1], 1])
             }
             else {
                 Str2 <- paste(as.character(annoD[ind1, 1]),
-                                collapse = COLLAPSE)
+                              collapse = COLLAPSE)
             }
         }
         V(gg)[i]$InterPro_Domain_ID <- as.character(Str2)
@@ -681,40 +685,63 @@ annotateInterpro <- function(gg, annoF, annoD) {
 #' @return igraph object with new vertex attribute \code{GeneName}
 #' @export
 #'
-#' @import dplyr GO.db org.Hs.eg.db
+#' @import GO.db org.Hs.eg.db
 #' @importFrom AnnotationDbi select
+#' @importFrom dplyr filter
 #' @examples
-annotateGOont<-function(gg,orgDB=org.Hs.eg.db,keytype = "ENTREZID"){
-    if(!inherits(orgDB,'OrgDb')){
+#' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
+#' gg <- igraph::read.graph(file, format="gml")
+#' ggGO <- annotateGOont(gg)
+annotateGOont <- function(gg, orgDB = org.Hs.eg.db, keytype = "ENTREZID") {
+    if (!inherits(orgDB, 'OrgDb')) {
 
     }
     ids <- V(gg)$name
-    on <- AnnotationDbi::select(orgDB, ids,
-                                columns = c("GO",'ONTOLOGY'),
-                                keytype = keytype)
+    on <- suppressMessages(AnnotationDbi::select(orgDB,
+                                ids,
+                                columns = c("GO", 'ONTOLOGY'),
+                                keytype = keytype))
     ###### MF annotation ######
-    mf<-on %>% dplyr::filter(ONTOLOGY=='MF') %>% select(!c(EVIDENCE)) %>% unique
-    mfid<- mf[,c(keytype,'GO')]
-    gg<-annotateVertex(gg,"GO_MF_ID",mfid)
-    res<-AnnotationDbi::select(GO.db,unique(mf$GO),column=c('TERM','DEFINITION'),keytype='GOID')
-    mft<-merge(mf,res,by.x='GO',by.y='GOID')[,c(keytype,'TERM')]
-    gg<-annotateVertex(gg,"GO_MF",mft)
+    mf <- on %>% dplyr::filter(ONTOLOGY == 'MF') %>%
+        dplyr::select(!c(EVIDENCE)) %>% unique
+    mfid <- mf[, c(keytype, 'GO')]
+    gg <- annotateVertex(gg, "GO_MF_ID", mfid)
+    res <- suppressMessages(AnnotationDbi::select(
+        GO.db,
+        unique(mf$GO),
+        column = c('TERM', 'DEFINITION'),
+        keytype = 'GOID'
+    ))
+    mft <- merge(mf, res, by.x = 'GO', by.y = 'GOID')[, c(keytype, 'TERM')]
+    gg <- annotateVertex(gg, "GO_MF", mft)
 
     ###### BP annotation ######
-    bp<-on %>% dplyr::filter(ONTOLOGY=='BP') %>% select(!c(EVIDENCE)) %>% unique
-    bpid<- bp[,c(keytype,'GO')]
-    gg<-annotateVertex(gg,"GO_BP_ID",bpid)
-    res<-AnnotationDbi::select(GO.db,unique(bp$GO),column=c('TERM','DEFINITION'),keytype='GOID')
-    bpt<-merge(bp,res,by.x='GO',by.y='GOID')[,c(keytype,'TERM')]
-    gg<-annotateVertex(gg,"GO_BP",bpt)
+    bp <- on %>% dplyr::filter(ONTOLOGY == 'BP') %>%
+        dplyr::select(!c(EVIDENCE)) %>% unique
+    bpid <- bp[, c(keytype, 'GO')]
+    gg <- annotateVertex(gg, "GO_BP_ID", bpid)
+    res <- suppressMessages(AnnotationDbi::select(
+        GO.db,
+        unique(bp$GO),
+        column = c('TERM', 'DEFINITION'),
+        keytype = 'GOID'
+    ))
+    bpt <- merge(bp, res, by.x = 'GO', by.y = 'GOID')[, c(keytype, 'TERM')]
+    gg <- annotateVertex(gg, "GO_BP", bpt)
 
     ###### CC annotation ######
-    cc<-on %>% dplyr::filter(ONTOLOGY=='CC') %>% select(!c(EVIDENCE)) %>% unique
-    ccid<- cc[,c(keytype,'GO')]
-    gg<-annotateVertex(gg,"GO_CC_ID",ccid)
-    res<-AnnotationDbi::select(GO.db,unique(cc$GO),column=c('TERM','DEFINITION'),keytype='GOID')
-    cct<-merge(cc,res,by.x='GO',by.y='GOID')[,c(keytype,'TERM')]
-    gg<-annotateVertex(gg,"GO_CC",cct)
+    cc <- on %>% dplyr::filter(ONTOLOGY == 'CC') %>%
+        dplyr::select(!c(EVIDENCE)) %>% unique
+    ccid <- cc[, c(keytype, 'GO')]
+    gg <- annotateVertex(gg, "GO_CC_ID", ccid)
+    res <- suppressMessages(AnnotationDbi::select(
+        GO.db,
+        unique(cc$GO),
+        column = c('TERM', 'DEFINITION'),
+        keytype = 'GOID'
+    ))
+    cct <- merge(cc, res, by.x = 'GO', by.y = 'GOID')[, c(keytype, 'TERM')]
+    gg <- annotateVertex(gg, "GO_CC", cct)
 
     return(gg)
 }
@@ -762,14 +789,14 @@ annotateGoMF <- function(gg, annoF) {
             }
             else {
                 Str1 <- paste(as.character(annoF[ind1, 2]),
-                                collapse = COLLAPSE)
+                              collapse = COLLAPSE)
             }
             if (length(ind1) == 1) {
                 Str2 <- as.character(annoF[ind1[1], 1])
             }
             else {
                 Str2 <- paste(as.character(annoF[ind1, 1]),
-                                collapse = COLLAPSE)
+                              collapse = COLLAPSE)
             }
         }
         V(gg)[i]$GO_MF_ID <- as.character(Str2)
@@ -820,14 +847,14 @@ annotateGoBP <- function(gg, annoF) {
             }
             else {
                 Str1 <- paste(as.character(annoF[ind1, 2]),
-                                collapse = COLLAPSE)
+                              collapse = COLLAPSE)
             }
             if (length(ind1) == 1) {
                 Str2 <- as.character(annoF[ind1[1], 1])
             }
             else {
                 Str2 <- paste(as.character(annoF[ind1, 1]),
-                                collapse = COLLAPSE)
+                              collapse = COLLAPSE)
             }
         }
         V(gg)[i]$GO_BP_ID <- as.character(Str2)
@@ -878,14 +905,14 @@ annotateGoCC <- function(gg, annoF) {
             }
             else {
                 Str1 <- paste(as.character(annoF[ind1, 2]),
-                                collapse = COLLAPSE)
+                              collapse = COLLAPSE)
             }
             if (length(ind1) == 1) {
                 Str2 <- as.character(annoF[ind1[1], 1])
             }
             else {
                 Str2 <- paste(as.character(annoF[ind1, 1]),
-                                collapse = COLLAPSE)
+                              collapse = COLLAPSE)
             }
         }
         V(gg)[i]$GO_CC_ID <- as.character(Str2)
