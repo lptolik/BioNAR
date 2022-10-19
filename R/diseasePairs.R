@@ -358,9 +358,13 @@ calcDiseasePairs <- function(gg,
     if (permute == 'none') {
         oo <- oo[gda != "",]
     }
+    oo<-as.data.frame(oo)
+    oo[,-c(1:2)]<-suppressWarnings(lapply(oo[,-c(1:2)],as.numeric))
+    res<-as.data.frame(res)
+    res[,-1]<-lapply(res[,-1],as.numeric)
     return(
         list(
-            disease_separation = DAB,
+            disease_separation = as.data.frame(DAB),
             gene_disease_separation = oo,
             disease_localisation = res
         )
@@ -483,6 +487,8 @@ runPermDisease <- function(gg,
             }
         }
     }
+    disease_location_sig<-as.data.frame(disease_location_sig)
+    disease_location_sig[,-1]<-lapply(disease_location_sig[,-1],as.numeric)
     sAB <- resD$disease_separation
     RAW_sAB <- vapply(resL, function(.x)
         .x$disease_separation,
@@ -495,10 +501,10 @@ runPermDisease <- function(gg,
     Nlevels <- NELE
 
     CN <-  c(
-        "HDO.ID",
-        "N",
-        "HDO.ID",
-        "N",
+        "HDO.ID.A",
+        "N.A",
+        "HDO.ID.B",
+        "N.B",
         "sAB",
         "Separated",
         "Overlap",
@@ -564,6 +570,13 @@ runPermDisease <- function(gg,
     }
     zs[, 12] <- stats::p.adjust(as.numeric(zs[, 9]), method = "BY")
     zs[, 13] <- WGCNA::qvalue(as.numeric(zs[, 9]))$qvalue
+    zs<-as.data.frame(zs)
+    zs[,c("N.A","N.B","sAB",
+          "zScore","pvalue",
+          "p.adjusted","q-value")]<-lapply(zs[,c("N.A","N.B","sAB",
+                                                 "zScore","pvalue",
+                                                 "p.adjusted","q-value")],
+                                           as.numeric)
     return(list(
         Disease_overlap_sig = zs,
         Disease_location_sig = disease_location_sig
