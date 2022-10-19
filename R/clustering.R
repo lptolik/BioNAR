@@ -200,7 +200,7 @@ getClustering <- function(gg,
                                            spins = as.numeric(500), gamma =
                                                5),
         spectral = rSpectral::spectral_igraph_communities(gg)
-    ))
+    ),silent = TRUE)
     if (inherits(cl, "try-error")) {
         warning('Clustering calculations for algorithm "',
                 alg,

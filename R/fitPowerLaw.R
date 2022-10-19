@@ -63,6 +63,7 @@ changeSciNotation <- function(n) {
 #' @param plot logical, do you want plot to be drawn
 #' @param threads number of parallel computational threads
 #' @param legpos position of the legend @seealso{legend}
+#' @param showErr logical, do you want error on the plot legend
 #'
 #' @return an object of class \code{\link{law-class}} with results of fitting
 #' @export
@@ -87,7 +88,8 @@ fitDegree <- function(DEG,
                       threads = 4,
                       WIDTH = 480,
                       HEIGHT = 480 ,
-                      legpos = "bottomleft") {
+                      legpos = "bottomleft",
+                      showErr = TRUE) {
     DEG <- DEG[DEG > 0]
     data <- DEG
     m_pl <- displ$new(data)
@@ -137,8 +139,13 @@ fitDegree <- function(DEG,
         S3 <- round(gof$p, 2)
         sdS1 <- round(stats::sd(gof$bootstraps$xmin), 0)
         sdS2 <- round(stats::sd(gof$bootstraps$pars), 2)
+        if(showErr){
         errS1 <- str_sub(as.character(sdS1), -1, -1)
         errS2 <- str_sub(as.character(sdS2), -1, -1)
+        }else{
+            errS1 <- '0'
+            errS2 <- '0'
+        }
         suppressMessages(fitl <-
                              TeX(
                                  sprintf(

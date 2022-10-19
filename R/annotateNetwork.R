@@ -194,6 +194,7 @@ getDType <- function() {
     #dtype[13]  <- "CNSD";
     return(dtype)
 }
+
 #' Get HDO disease IDs
 #'
 #' Return vector of HDO disease IDs for synaptic PPI analysis.
@@ -376,6 +377,7 @@ getAnnotationVertexList <-
         names(anL) <- unescapeAnnotation(anNames)
         return(anL)
     }
+
 #' Extract unique values from annotations.
 #'
 #' It is not uncommon that some nodes are annotated with list of terms and some

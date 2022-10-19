@@ -12,7 +12,8 @@ fitDegree(
   threads = 4,
   WIDTH = 480,
   HEIGHT = 480,
-  legpos = "bottomleft"
+  legpos = "bottomleft",
+  showErr = TRUE
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ fitDegree(
 \item{HEIGHT}{heigth of the plot in ptx}
 
 \item{legpos}{position of the legend @seealso{legend}}
+
+\item{showErr}{logical, do you want error on the plot legend}
 }
 \value{
 an object of class \code{\link{law-class}} with results of fitting

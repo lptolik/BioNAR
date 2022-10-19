@@ -281,7 +281,7 @@ applpMatrixToGraph <- function(gg, m) {
                 value = m[idx, i]
             )
         } else{
-            gindex <- which(is.na(idx))
+            gindex <- which(!is.na(idx))
             ggm <- set.vertex.attribute(
                 graph = ggm,
                 name = measures[i],
