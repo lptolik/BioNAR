@@ -220,7 +220,7 @@ getEntropyOverExpressed <- function(SRprime, perc = 1) {
     ii  <- floor(perc / 100 * V)
     GN  <- oo2[seq_len(ii), 1]
     DF3 <- SRprime[match(GN, SRprime[, 2]), c(1, 2, 3, 4)]
-    DF3 <- cbind(DF3, rep(paste0(perc, "%"), length(GN)))
+    DF3$PERCENT <- rep(paste0(perc, "%"), length(GN))
     return(DF3)
 }
 
@@ -277,9 +277,9 @@ plotEntropy <- function(SRprime,
         labs(x = "log(k)", y = "SR", title = subTIT) +
         guides(
             color = guide_legend(override.aes = list(fill = NA, size = 4)),
-            fill  = FALSE,
-            group = FALSE,
-            alpha = FALSE
+            fill  = "none",
+            group = "none",
+            alpha = "none"
         ) +
         theme(
             axis.title.x = element_text(face = "bold", size = rel(2)),

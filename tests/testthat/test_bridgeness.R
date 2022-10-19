@@ -37,3 +37,24 @@ test_that('Norm Modularity',{
     nm<-normModularity(gg, alg='louvain',Nint=10)
     expect_equal(nm,0.01347063,tolerance = 0.001)
 })
+
+test_that('Perturbation entropy',{
+    set.seed(100)
+    e<- getEntropy(louvainG)
+    expect_equal(dim(e),c(vcount(louvainG),5))
+    expect_equal(e$DEGREE[e$ENTREZ.ID==2891],4)
+    expect_equal(e$UP[e$ENTREZ.ID==2891],0.7948626,tolerance = 0.001)
+    expect_equal(e$DOWN[e$ENTREZ.ID==2891],0.8231825,tolerance = 0.001)
+    ove<-BioNAR:::getEntropyOverExpressed(e)
+    expect_equal(dim(ove),c(2,5))
+    expect_equal(as.vector(ove$ENTREZ.ID),c('10342','81488'))
+    g<- calcEntropy(louvainG)
+    expect_false(any(is.na(match(c('SR_UP', 'SR_DOWN'),vertex_attr_names(g)))))
+    set.seed(100)
+    ent <- getEntropyRate(louvainG)
+    vdiffr::expect_doppelganger("EntropyPlot",
+                                plotEntropy(e, subTIT = "Entropy",
+                                            SRo = ent$SRo, maxSr = ent$maxSr))
+
+})
+
