@@ -169,7 +169,7 @@ fitDegree <- function(DEG,
         options(op)
     }
     return(
-        new(
+        invisible(new(
             "law",
             fit = m_pl,
             p = as.numeric(gof$p),
@@ -177,5 +177,5 @@ fitDegree <- function(DEG,
             SDxmin = as.numeric(stats::sd(gof$bootstraps$xmin)),
             SDalpha = as.numeric(stats::sd(gof$bootstraps$pars))
         )
-    )
+    ))
 }

@@ -377,6 +377,7 @@ getGNP <- function(gg, ...) {
     g <- sample_gnp(nv, p = prob, ...)
     return(g)
 }
+
 getPA <- function(gg, pwr, ...) {
     nv <- vcount(gg)
     args <- list(...)
@@ -446,7 +447,7 @@ getCM <- function(m, nm, keepOrder) {
 #'
 #' @param l list of matrices, for example centrality obtained by invocation
 #'         \code{\link{getRandomGraphCentrality}}
-#' @param keepOrder if FALSE valuess will be sorted
+#' @param keepOrder if FALSE values will be sorted before distance calculations
 #' @param dist methods available from \code{\link{dist}} function
 #'
 #' @return matrix with seven columns containing distances between all pairs of

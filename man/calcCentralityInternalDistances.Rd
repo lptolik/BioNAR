@@ -10,7 +10,7 @@ calcCentralityInternalDistances(l, keepOrder = FALSE, dist = "euclidean")
 \item{l}{list of matrices, for example centrality obtained by invocation
 \code{\link{getRandomGraphCentrality}}}
 
-\item{keepOrder}{if FALSE valuess will be sorted}
+\item{keepOrder}{if FALSE values will be sorted before distance calculations}
 
 \item{dist}{methods available from \code{\link{dist}} function}
 }

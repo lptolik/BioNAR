@@ -5,10 +5,11 @@
 \title{Utility function to create network from
 \code{\link[synaptome.db]{synaptome.db}} data}
 \usage{
-buildFromSynaptomeGeneTable(t)
+buildFromSynaptomeGeneTable(geneTable)
 }
 \arguments{
-\item{t}{data.frame described in \code{\link[synaptome.db]{getGenesByID}}}
+\item{geneTable}{data.frame described in
+\code{\link[synaptome.db]{getGenesByID}}}
 }
 \value{
 largest connected component of network defined by the gene table
@@ -20,6 +21,6 @@ Utility function to create network from
 \examples{
 library(synaptome.db)
 cid<-match('Presynaptic', getCompartments()$Name)
-t<-getAllGenes4Compartment(cid)
-gg<-buildFromSynaptomeGeneTable(t)
+geneTable<-getAllGenes4Compartment(cid)
+gg<-buildFromSynaptomeGeneTable(geneTable)
 }

@@ -220,7 +220,8 @@ buildFromSynaptomeByEntrez<-function(entrez){
 #' Utility function to create network from
 #' \code{\link[synaptome.db]{synaptome.db}} data
 #'
-#' @param t data.frame described in \code{\link[synaptome.db]{getGenesByID}}
+#' @param geneTable data.frame described in
+#'        \code{\link[synaptome.db]{getGenesByID}}
 #'
 #' @return largest connected component of network defined by the gene table
 #' @export
@@ -228,13 +229,14 @@ buildFromSynaptomeByEntrez<-function(entrez){
 #' @examples
 #' library(synaptome.db)
 #' cid<-match('Presynaptic', getCompartments()$Name)
-#' t<-getAllGenes4Compartment(cid)
-#' gg<-buildFromSynaptomeGeneTable(t)
-buildFromSynaptomeGeneTable<-function(t){
-    p<-getPPIbyIDs(t$GeneID, type = 'limited')
-    aidx<-match(p$A, t$GeneID)
-    bidx<-match(p$B, t$GeneID)
-    gg<-buildNetwork(data.frame(A=t$HumanEntrez[aidx], B=t$HumanEntrez[bidx]))
+#' geneTable<-getAllGenes4Compartment(cid)
+#' gg<-buildFromSynaptomeGeneTable(geneTable)
+buildFromSynaptomeGeneTable<-function(geneTable){
+    p<-getPPIbyIDs(geneTable$GeneID, type = 'limited')
+    aidx<-match(p$A, geneTable$GeneID)
+    bidx<-match(p$B, geneTable$GeneID)
+    gg<-buildNetwork(data.frame(A=geneTable$HumanEntrez[aidx],
+                                B=geneTable$HumanEntrez[bidx]))
     return(gg)
 }
 
