@@ -431,9 +431,14 @@ clustering algorithm.
 
 The Bridgeness measure lies between 0 - implying a vertex clearly belongs in a single community, and 1 - implying a vertex forms a 'global bridge' across every community with the same strength. 
 
-```{r calc.bridge}
+```{r get.bridge}
 br<-getBridgeness(gg,alg = alg,conmat)
 pander(head(br))
+```
+
+```{r calc.bridge}
+gg<-calcBridgeness(gg,alg = alg,conmat)
+vertex_attr_names(gg)
 ```
 
 ## Bridgeness plot

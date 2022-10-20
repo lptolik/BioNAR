@@ -15,8 +15,12 @@ annotateGoCC(gg, annoF)
 annotated igraph object
 }
 \description{
-Function takes data from \code{annoF} matrix and add them to attributes
-\code{GO_CC} for term and \code{GO_CC_ID} for IDs.
+The function loads an annotation data matrix called \code{annoF}, which
+contains three columns; the first containing gene Entrez IDs, the second
+gene GO ID terms, the third gene GO CC description terms. The function
+then performs a many-to-one mapping of each matrix row to a network vertex
+using matching Entrez IDs, filling the vertices attributes \code{GO_CC_ID}
+and  \code{GO_CC}.
 }
 \examples{
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
