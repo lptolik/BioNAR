@@ -2,7 +2,8 @@
 % Please edit documentation in R/diseasePairs.R
 \name{sampleDegBinnedGDA}
 \alias{sampleDegBinnedGDA}
-\title{Perform degree-aware shuffling of the annotation.}
+\title{Function to randomly shuffle vertex annotation terms, whilst preserving the
+vertex degree originally found with that annotation term..}
 \usage{
 sampleDegBinnedGDA(org.map, term)
 }
@@ -16,7 +17,8 @@ sampleDegBinnedGDA(org.map, term)
 vertex IDs to assign \code{term} in shuffled annotation
 }
 \description{
-Perform degree-aware shuffling of the annotation.
+Function to randomly shuffle vertex annotation terms, whilst preserving the
+vertex degree originally found with that annotation term..
 }
 \examples{
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")

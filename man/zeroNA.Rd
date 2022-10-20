@@ -2,7 +2,7 @@
 % Please edit documentation in R/diseasePairs.R
 \name{zeroNA}
 \alias{zeroNA}
-\title{Auxiliary function to replase NAs with zeros.}
+\title{Auxiliary function to replace NAs with zeros.}
 \usage{
 zeroNA(x)
 }
@@ -13,7 +13,7 @@ zeroNA(x)
 matrix or vector with \code{NA}s replaced by zero.
 }
 \description{
-Auxiliary function to replase NAs with zeros.
+Auxiliary function to replace NAs with zeros.
 }
 \examples{
 x<-matrix(NA,nrow = 3,ncol = 3)

@@ -17,8 +17,8 @@ unescapeAnnotation(annVec, col = COLLAPSE, esc = ESC)
 vector of annotation strings with removed escape characters
 }
 \description{
-Perform opposite to escapeAnnotation operations: remove all escape
-characters from annotation strings.
+Function to remove all escape characters from annotation strings
+(opposite to escapeAnnotation).
 }
 \details{
 NOTE: spaces are treated as regular

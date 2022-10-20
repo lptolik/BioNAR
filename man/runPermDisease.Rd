@@ -36,14 +36,15 @@ tatistics for each pair of disease, and
 \code{Disease_location_sig} gives intra-disease statistics
 }
 \description{
-Function calculates disease overlap characteristics on the intact network
-and then apply \code{Nperm} permutations of \code{permute} type. From
-permuted networks function estimates significance of disease overlap and
-store p-value, Bonferoni-adjusted p-value and q-value in the
-\code{Disease_overlap_sig}.
-Function also compares average disease separation of intact and
-permuted network and calculate p-value with Wilcox test and store it in
-\code{Disease_location_sig}.
+Function to calculate the disease-pair overlap characteristics of an inputted
+network, before applying \code{Nperm} permutations on the disease annotations
+of #' type "random" or "binned" \code{permute}. From the permuted networks
+the function estimates the significance of disease overlap: p-value,
+Bonferoni-adjusted p-value, and q-value in the \code{Disease_overlap_sig}.
+The function also compares the average disease separation between inputted
+and permuted networks, and calculates its significance using the Wilcox test
+and store. Significance of disease-pair overlap and disease separation
+results are stored in the matrix \code{Disease_location_sig}.
 }
 \details{
 Run with care, as large number of permutations could require a lot of
