@@ -59,7 +59,14 @@ getEntropyRate <- function(gg) {
     return(list(maxSr = maxSr, SRo = SRo))
 }
 
-#' Calculates perturbation entropy and save it as attribute on the graph.
+#' Calculate the graph entropy for each perturbed vertex, and save the results
+#' as new vertex attributes in the graph.
+#'
+#' Calculate the graph entropy for each perturbed vertex, and save the results
+#' as new vertex attributes in the graph. Given a PPI network, the function will
+#' calculate the graph entropy for each vertex over- and under-expressed, where
+#' the user can set what over- and under-expressed values each vertex takes
+#' (Teschendorff et al, 2014).
 #'
 #' @param gg igraph object
 #' @param maxSr maxSr value, if NULL \code{getEntropyRate} will be called.
@@ -68,8 +75,8 @@ getEntropyRate <- function(gg) {
 #' default values \code{c(2,14)} and \code{c(-14,14)} will be used
 #' for \code{xx}  and \code{lambda} respectively.
 #'
-#' @return graph with SR_UP and SR_DOWN attributes storing entropy values for
-#' over- and underexpression respectively
+#' @return graph with SR_UP and SR_DOWN vertex attributes storing the graph
+#' entropy values with over- or under-expressing each vertex.
 #' @export
 #'
 #' @examples

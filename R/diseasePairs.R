@@ -231,11 +231,10 @@ prepareGDA <- function(gg, name) {
     return(gda)
 }
 
-#' Calculate each diease-pair overlap
+#' Calculate each disease-disease pair overlap given a list of disease terms.
 #'
-#' Calculate each diease-pair overlap/seperation on a selected
-#' synaptic PPI network models, based on analysis described in
-#' Menche et al. 2005
+#' Calculate each disease-disease pair overlap (or separation) on a given PPI
+#' network model, based on analysis described in Menche et al. 2015
 #'
 #' @references Menche, J. et al. Uncovering disease-disease relationships
 #'             through the incomplete interactome.
