@@ -14,11 +14,11 @@
 #' @param vid attribute to be used as a vertex ID
 #' @param alpha probability threshold
 #'
-#' @return A table with ORA results.
+#' @return A table with overrepresentation results.
 #' Each row corresponds to a tested annotation in particular cluster.
 #' The columns are the following:
 #' \itemize{
-#'   \item pathway – name of the pathway as in 'names(pathway)';
+#'   \item pathway – name of the enriched term as in 'names(pathway)';
 #'   \item pval – an enrichment p-value from hypergeometric test;
 #'   \item padj – a BH-adjusted p-value;
 #'   \item overlap – size of the overlap;

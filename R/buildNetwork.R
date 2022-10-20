@@ -3,7 +3,7 @@
 #'
 #' @param GG igraph object to analyze
 #'
-#' @return igraph representation largest CC
+#' @return igraph representation LCC
 #' @export
 #' @import igraph
 #'

@@ -55,6 +55,9 @@ changeSciNotation <- function(n) {
 
 #' Fit Power Law to degree distribution.
 #'
+#' Fit a Powerlaw distribution to graph's degree distribution using the R
+#' “PoweRlaw” package (version 0.50.0) (Gillespie, 2015)
+#'
 #' @param DEG degree distribution
 #' @param Nsim number of bootstrap iterations
 #' @param DATAleg legend string for degree data

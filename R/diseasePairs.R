@@ -116,6 +116,9 @@ diseaseOverlap <- function(GG, GDA, disA, disB, OO){
 
 #' Prepare mapping for degree-aware annotation shuffling.
 #'
+#' Function to randomly shuffle vertex annotation terms, whilst preserving the
+#' vertex degree originally found with that annotation term.
+#'
 #' @param gg graph to analyse
 #'
 #' @param GDA vertex annotations returned by \code{\link{prepareGDA}}
