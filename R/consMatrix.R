@@ -78,7 +78,8 @@ buildConsensusMatFromFiles <-
         return(C)
     }
 
-#' Build consensus matrix from the list of clusterings
+#' Build a consensus matrix from list of resampled clustering matrices outputted
+#' from the function sampleGraphClust
 #'
 #' @param lcc list of clustering matrices obtained from the
 #' \code{\link{sampleGraphClust}}
