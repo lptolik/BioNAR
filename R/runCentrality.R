@@ -534,9 +534,11 @@ calcCentralityExternalDistances <-
     }
 #' Compare distance distributions of internal and external distances
 #'
-#' Compare distance distributions of internal distances between random graph
-#' centralities and external distances between random and original graph
-#' centralities. Kolmogorov-Smirnov test is used for comparison
+#' Function to compare two distance distributions using the Kolmogorov-Smirnov
+#' test. Where the first distance distribution is generated internally and
+#' calculates the distance between random graph centralities. The second
+#' distance distribution is generated externally, and measures the distance
+#' between random and the original graph centralities.
 #'
 #' @param dmi distribution of internal distances between random graph
 #' centralities
