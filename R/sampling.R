@@ -313,7 +313,7 @@ calcReclusterMatrix <- function(gg,
 #'
 #' @param GG graph to cluster
 #' @param ALGN algorithm to apply
-#' @param CnMAX maximus size of the cluster in \code{mem} that will not be
+#' @param CnMAX maximum size of the cluster in \code{mem} that will not be
 #'        processed
 #'
 #' @return remembership matrix, that contains vertex ID membership and
