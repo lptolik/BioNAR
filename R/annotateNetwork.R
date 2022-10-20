@@ -809,8 +809,12 @@ annotateGoMF <- function(gg, annoF) {
 #
 #' Add GO BP annotation to the graph vertices
 #'
-#' Function takes data from \code{annoF} matrix and add them to attributes
-#'  \code{GO_BP} for term and \code{GO_BP_ID} for IDs.
+#' The function loads an annotation data matrix called \code{annoF}, which contains
+#' three columns; the first containing gene Entrez IDs, the second gene GO BP
+#' ID terms, the third gene GO BP description terms. The function then performs
+#' a many-to-one mapping of each matrix row to a network vertex using matching
+#' Entrez IDs, filling the vertices attributes \code{GO_BP_ID} and \code{GO_BP}.
+#'
 #'
 #'
 #' @param gg graph to update
