@@ -600,119 +600,44 @@ communicating with a few other specific communities (0<Sl<0.5; 0.1<Br<0.5).
 * Region 4, proteins with 'local' impact , primarily within one or two 
 communities (local or party hubs, 0.5<Sl<1, 0<Br<0.5).
 ```{r plot.bridgeness,fig.height=8,fig.width=8,dpi=56}
-scale <- function(x, VALUE=NULL){
-    
-    x = as.numeric(as.vector(x))
-    
-    xmin <- min(x,na.rm=TRUE)
-    xmax <- max(x,na.rm=TRUE)
-    
-    if( is.null(VALUE) ){
-    
-    x  <- x-xmin
-    x  <- ifelse(!is.na(x), x/(xmax-xmin), NA) 
-    
-    return(x)
-    }
-    
-    value = as.numeric(as.vector(value)[1])
-    value = value-xmin
-    value = ifelse(!is.na(value), value/(xmax-xmin), NA) 
-    return(value)
-}
-VIPs=c('8495','22999','8927','8573','26059','8497','27445','8499')
-# VIPs=c('81876','10890','51552','5874','5862','11021','54734','5865','5864',
-#        '9522','192683','10067','10396','9296','527','9114','537','535',
-#        '528','51382','534','51606','523','80331','114569','127262','57084',
-#        '57030','388662','6853','6854','8224','9900','9899','9145','9143',
-#        '6855','132204','6857','127833','6861','529','526','140679','7781',
-#        '81615','6844','6843')
-indx   <- match(V(gg)$name,VIPs)
-group <- ifelse( is.na(indx), 0,1)
-MainDivSize <- 0.8
-xmin        <- 0
-xmax        <- 1
-ymin        <- 0
-ymax        <- 1
-Xlab <- "Semilocal Centrality (SL)" 
-Ylab <- "Bridgeness (B)"
-X    <- as.numeric(igraph::get.vertex.attribute(gg,"SL",V(gg)))
-X    <- scale(X)
-Y       <- as.numeric(as.vector(br[,dim(br)[2]])) 
-lbls <- ifelse(!is.na(indx),V(gg)$GeneName,"")
-dt<-data.frame(X=X,Y=Y,vips=group,entres=V(gg)$name,name=V(gg)$GeneName)
-dt_vips<-dt[dt$vips==1,]
-dt_res<-dt[dt$vips==0,]
-##--- baseColor of genes
-baseColor="royalblue2"
-
-##--- SPcolor, colour highlighting any 'specical' genes
-SPColor="royalblue2"
-
-##--- PSDColor, colour of core PSD95 interactor genes
-PSDColor="magenta"
-
-ggplot(dt,aes(x=X,y=Y,label=name))+#geom_point()+
-    geom_point(data=dt_vips,
-                aes(x=X,y=Y),colour=baseColor,size = 7,
-                shape=15,show.legend=FALSE)+
-    geom_point(data=dt_res,
-                aes(x=X,y=Y, alpha=(X*Y)), size = 3,
-                shape=16,show.legend=FALSE)+
-    geom_label_repel(aes(label=as.vector(lbls)),
-                        fontface='bold',color='black',
-                        fill='white',box.padding=0.1,
-                        point.padding=NA,label.padding=0.15,
-                        segment.color='black',
-                        force=1,size=rel(3.8),show.legend=FALSE,
-                        max.overlaps=200)+
-        labs(x=Xlab,y=Ylab,title=sprintf("%s",alg))+
-    scale_x_continuous(expand = c(0, 0), limits = c(xmin, xmax)) + 
-    scale_y_continuous(expand = c(0, 0), limits = c(ymin, ymax))+
-    theme(            
-        axis.title.x=element_text(face="bold",size=rel(2.5)),
-        axis.title.y=element_text(face="bold",size=rel(2.5)),
-        legend.title=element_text(face="bold",size=rel(1.5)),
-        legend.text=element_text(face="bold",size=rel(1.5)),
-        legend.key=element_blank())+
-    theme(panel.grid.major = element_line(colour="grey40",size=0.2),
-            panel.grid.minor = element_line(colour="grey40",size=0.1),
-            panel.background = element_rect(fill="white"),
-            panel.border = element_rect(linetype="solid",fill=NA))+
-        geom_vline(xintercept=0.5,colour="grey40",size=MainDivSize,
-                    linetype=2,show.legend=FALSE)+
-    geom_hline(yintercept=0.5,colour="grey40",size=MainDivSize,
-                linetype=2,show.legend=FALSE)
-
+g<-plotBridgeness(gg,alg = alg,
+               VIPs=c('8495','22999','8927','8573',
+                      '26059','8497','27445','8499'),
+               Xatt='SL',
+               Xlab = "Semilocal Centrality (SL)",
+               Ylab = "Bridgeness (B)",
+               bsize = 3,
+               spsize =7,
+               MainDivSize = 0.8,
+               xmin = 0,
+               xmax = 1,
+               ymin = 0,
+               ymax = 1,
+               baseColor="royalblue2",
+               SPColor="royalblue2")
+g
 ```
 
 #Interactive view of bridgeness plot
 
 ```{r plotly,fig.height=6,fig.width=6}
 library(plotly)
-p<-ggplot(dt,aes(x=X,y=Y,label=name))+#geom_point()+
-    geom_point(data=dt_vips,
-                aes(x=X,y=Y),colour=baseColor,shape=15,show.legend=FALSE)+
-    geom_point(data=dt_res,
-                aes(x=X,y=Y, alpha=(X*Y)),shape=16,show.legend=FALSE)+
-        labs(x=Xlab,y=Ylab,title=sprintf("%s",alg))+
-    scale_x_continuous(expand = c(0, 0), limits = c(xmin, xmax)) + 
-    scale_y_continuous(expand = c(0, 0), limits = c(ymin, ymax))+
-    theme(            
-        axis.title.x=element_text(face="bold",size=rel(2.5)),
-        axis.title.y=element_text(face="bold",size=rel(2.5)),
-        legend.title=element_text(face="bold",size=rel(1.5)),
-        legend.text=element_text(face="bold",size=rel(1.5)),
-        legend.key=element_blank())+
-    theme(panel.grid.major = element_line(colour="grey40",size=0.2),
-            panel.grid.minor = element_line(colour="grey40",size=0.1),
-            panel.background = element_rect(fill="white"),
-            panel.border = element_rect(linetype="solid",fill=NA))+
-        geom_vline(xintercept=0.5,colour="grey40",size=MainDivSize,
-                    linetype=2,show.legend=FALSE)+
-    geom_hline(yintercept=0.5,colour="grey40",size=MainDivSize,
-                linetype=2,show.legend=FALSE)
-ggplotly(p)
+g<-plotBridgeness(gg,alg = alg,
+               VIPs=c('8495','22999','8927','8573',
+                      '26059','8497','27445','8499'),
+               Xatt='SL',
+               Xlab = "Semilocal Centrality (SL)",
+               Ylab = "Bridgeness (B)",
+               bsize = 1,
+               spsize =2,
+               MainDivSize = 0.8,
+               xmin = 0,
+               xmax = 1,
+               ymin = 0,
+               ymax = 1,
+               baseColor="royalblue2",
+               SPColor="royalblue2")
+ggplotly(g)
 ```
 
 # Disease/annotation pairs

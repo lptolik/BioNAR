@@ -18,8 +18,8 @@ calcMembership(
 data.frame with columns \code{names} and \code{membership}
 }
 \description{
-Calculate clustering membership for ten algoritms defined in
-\code{\link{getClustering}}
+Calculates the clustering membership for each of the 10 clustering algorithms
+defined in function \code{\link{getClustering}}
 }
 \examples{
 data(karate, package='igraphdata')

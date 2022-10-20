@@ -2,7 +2,7 @@
 % Please edit documentation in R/diseasePairs.R
 \name{calcDiseasePairs}
 \alias{calcDiseasePairs}
-\title{Calculate each diease-pair overlap}
+\title{Calculate each disease-disease pair overlap given a list of disease terms.}
 \usage{
 calcDiseasePairs(
   gg,
@@ -34,9 +34,8 @@ separation
 }
 }
 \description{
-Calculate each diease-pair overlap/seperation on a selected
-synaptic PPI network models, based on analysis described in
-Menche et al. 2005
+Calculate each disease-disease pair overlap (or separation) on a given PPI
+network model, based on analysis described in Menche et al. 2015
 }
 \examples{
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")

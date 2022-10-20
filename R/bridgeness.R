@@ -189,6 +189,8 @@ scale <- function(x, VALUE = NULL) {
 #' values. By default \code{SL} for semi-local centrality
 #' @param Xlab label for the X-axis
 #' @param Ylab label for the Y-axis
+#' @param bsize point size for genes
+#' @param spsize point size for 'specical' genes
 #' @param MainDivSize size of the line for the region separation lines
 #' @param xmin low limit for X-axis
 #' @param xmax upper limit for X-axis
@@ -196,17 +198,27 @@ scale <- function(x, VALUE = NULL) {
 #' @param ymax upper limit for Y-axis
 #' @param baseColor basic color for genes
 #' @param SPColor colour highlighting any 'specical' genes
-#' @param PSDColor
 #'
-#' @return
+#' @return \code{\link[ggplot2]{ggplot}} object with plot
 #' @export
 #' @importFrom igraph get.vertex.attribute
+#' @importFrom ggrepel geom_label_repel
+#' @import ggplot2
 #'
 #' @examples
+#' data(karate, package='igraphdata')
+#' set.seed(100)
+#' gg <- calcClustering(karate, 'louvain')
+#' gg <- calcCentrality(gg)
+#' cnmat <- makeConsensusMatrix(gg, N=10, alg = 'louvain', type = 2, mask = 10)
+#' gg<-calcBridgeness(gg, alg = 'louvain', cnmat)
+#' plotBridgeness(gg,alg = 'louvain',VIPs=c("Mr Hi","John A"))
 plotBridgeness<-function(gg,alg,VIPs,
                          Xatt='SL',
                          Xlab = "Semilocal Centrality (SL)",
                          Ylab = "Bridgeness (B)",
+                         bsize = 3,
+                         spsize =7,
                          MainDivSize = 0.8,
                          xmin = 0,
                          xmax = 1,
@@ -231,15 +243,23 @@ plotBridgeness<-function(gg,alg,VIPs,
     # Xlab <- "Semilocal Centrality (SL)"
     # Ylab <- "Bridgeness (B)"
     X    <- as.numeric(get.vertex.attribute(gg,Xatt,V(gg)))
+    if(length(X)==0){
+        stop('Graph vertices have no numerical attribute "',Xatt,'"\n')
+    }
     X    <- scale(X)
     Y   <- as.numeric(get.vertex.attribute(gg,
                                            sprintf("BRIDGENESS.%s", alg),
                                            V(gg)))
+    if(length(Y)==0){
+        stop('Graph vertices have no numerical attribute "',
+             sprintf("BRIDGENESS.%s", alg),'"\n',
+             "Check that you've calculated bridginess.\n")
+    }
     if('GeneName' %in% vertex_attr_names(gg)){
         lbls <- ifelse(!is.na(indx),V(gg)$GeneName,"")
         dt<-data.frame(X=X,Y=Y,vips=group,entres=V(gg)$name,name=V(gg)$GeneName)
     }else{
-        lbls <- ifelse(!is.na(indx),V(gg)$GeneName,"")
+        lbls <- ifelse(!is.na(indx),V(gg)$name,"")
         dt<-data.frame(X=X,Y=Y,vips=group,entres=V(gg)$name,name=V(gg)$name)
     }
     dt_vips<-dt[dt$vips==1,]
@@ -255,10 +275,10 @@ plotBridgeness<-function(gg,alg,VIPs,
 
     g<-ggplot(dt,aes(x=X,y=Y,label=name))+#geom_point()+
         geom_point(data=dt_vips,
-                   aes(x=X,y=Y),colour=baseColor,size = 7,
+                   aes(x=X,y=Y),colour=baseColor,size = spsize,
                    shape=15,show.legend=FALSE)+
         geom_point(data=dt_res,
-                   aes(x=X,y=Y, alpha=(X*Y)), size = 3,
+                   aes(x=X,y=Y, alpha=(X*Y)), size = bsize,
                    shape=16,show.legend=FALSE)+
         geom_label_repel(aes(label=as.vector(lbls)),
                          fontface='bold',color='black',
