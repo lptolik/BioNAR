@@ -189,11 +189,13 @@ getCommunityGraph <- function(gg, membership) {
     V(cgg)$size <- vapply(V(cgg)$composition, length, c(len = 0))
     return(cgg)
 }
-#' Hierarchial graph clustering
+#' Hierarchical graph clustering
 #'
-#' Function takes graph \code{gg} and its membership matrix \code{mem}
-#' as returned \code{calcMembership} and apply clustering algorithm \code{alg}
-#' to all clusters larger than \code{CnMAX}
+#' This function takes in a \code{gg} and initial vertex community membership
+#' values \code{mem} as returned by \code{calcMembership}, and then performs a
+#' reclustering of the graph given the clustering algorithm \code{alg} to those
+#' clusters of size greater than \code{CnMAX}
+#'
 #'
 #' @param gg graph to cluster
 #' @param mem data.frame with previous level clustering results
