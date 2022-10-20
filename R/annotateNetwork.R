@@ -225,10 +225,11 @@ getDiseases <- function() {
 
 #' Generic annotation function
 #'
-#' It takes name of the attribute, and two column Pair form annotation
-#' data.frame with vertex ID in the first column and annotation term in the
-#' second. All terms annotating the same vertex ID will be collapsed with
-#' semicolon as term separator.
+#' Function to build and fill a vertex attribute given an igraph object. Where
+#' parameter 'name' is the new vertex attribute name and values are filled from
+#' a two column data.frame supplied to 'value' attribute. The first first
+#' containing vertex name IDs, and the second the vertex annotation value.
+#'
 #'
 #' As a first step all attributes with provided names will be removed.
 #'
