@@ -446,7 +446,8 @@ getCM <- function(m, nm, keepOrder) {
         return(sort(v, decreasing = FALSE, na.last = TRUE))
     }
 }
-#' Function calculates matrix of distances between elements of list
+#' Function calculates a set of distance metrics between each vertex pair  given
+#' a list of vertex centrality matrices
 #'
 #' @param l list of matrices, for example centrality obtained by invocation
 #'         \code{\link{getRandomGraphCentrality}}
@@ -484,8 +485,8 @@ calcCentralityInternalDistances <-
         resm <- do.call(cbind, resl)
         return(resm)
     }
-#' Function calculates matrix of distances between elements of list and
-#' the reference matrix
+#' Function to calculate a distance matrix between a list of permuted vertex
+#' centrality matrices and a unperturbed reference matrix.
 #'
 #' @param m reference matrix, for example centrality obtained by invocation
 #'         \code{\link{getCentralityMatrix}}
