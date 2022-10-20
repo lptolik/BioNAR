@@ -18,6 +18,32 @@ test_that('Karate Bridgenes',{
     expect_equal(dim(br),c(34,2))
     expect_equal(br$BRIDGENESS.louvain[br$ID=='John A'],0.2407267,
                  tolerance = 0.01)
+    agg<-calcBridgeness(g, alg = 'louvain', cnmat)
+    expect_true(any(grepl('louvain',vertex_attr_names(agg))))
+    expect_true(any(grepl('BRIDGENESS.louvain',vertex_attr_names(agg))))
+    idx<-match(br$ID,V(agg)$name)
+    expect_false(any(is.na(idx)))
+    expect_equal(br$BRIDGENESS.louvain,V(agg)$BRIDGENESS.louvain[idx])
+    expect_error(getBridgeness(louvainG, alg = 'lec',cnmat),
+                 '.*calcClustering.*')
+    expect_error(plotBridgeness(agg, alg = 'lec',VIPs=c("Mr Hi","John A")),
+                 '.*SL.*')
+    agg <- calcCentrality(agg)
+    expect_error(plotBridgeness(agg, alg = 'lec',VIPs=c("Mr Hi","John A")),
+                 '.*BRIDGENESS.lec.*')
+    vdiffr::expect_doppelganger("KarateBridgenessPlot",
+                                plotBridgeness(agg,alg = 'louvain',
+                                               VIPs=c("Mr Hi","John A"),
+                                               Xatt='SL',
+                                               Xlab = "SL",
+                                               Ylab = "Bridgeness",
+                                               MainDivSize = 0.8,
+                                               xmin = 0,
+                                               xmax = 1,
+                                               ymin = 0,
+                                               ymax = 1,
+                                               baseColor="royalblue2",
+                                               SPColor="royalblue2"))
 })
 
 test_that('Presynaptic Bridgenes',{
@@ -29,13 +55,27 @@ test_that('Presynaptic Bridgenes',{
     expect_equal(br$BRIDGENESS.louvain[br$GENE.NAME == 'ACTN2'],0.2385256,
                  tolerance = 0.01)
     agg<-calcBridgeness(louvainG, alg = 'louvain', cnmat)
-    expect_match('louvain',vertex_attr_names(agg))
-    expect_match('BRIDGENESS.louvain',vertex_attr_names(agg))
+    expect_true(any(grepl('louvain',vertex_attr_names(agg))))
+    expect_true(any(grepl('BRIDGENESS.louvain',vertex_attr_names(agg))))
     idx<-match(br$ID,V(agg)$name)
     expect_false(any(is.na(idx)))
     expect_equal(br$BRIDGENESS.louvain,V(agg)$BRIDGENESS.louvain[idx])
-    expect_error(getBridgeness(louvainG, alg = 'lec',cnmat),
-                 '.*calcClustering.*')
+    agg <- calcCentrality(agg)
+    vdiffr::expect_doppelganger("PresynBridgenessPlot",
+                                plotBridgeness(agg,alg = 'louvain',
+                                               VIPs=c('8495','22999','8927',
+                                                      '8573','26059','8497',
+                                                      '27445','8499'),
+                                               Xatt='SL',
+                                               Xlab = "SL",
+                                               Ylab = "Bridgeness",
+                                               MainDivSize = 0.8,
+                                               xmin = 0,
+                                               xmax = 1,
+                                               ymin = 0,
+                                               ymax = 1,
+                                               baseColor="royalblue2",
+                                               SPColor="royalblue2"))
 })
 
 test_that('Norm Modularity',{
