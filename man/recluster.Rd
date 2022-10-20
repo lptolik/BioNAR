@@ -2,7 +2,7 @@
 % Please edit documentation in R/sampling.R
 \name{recluster}
 \alias{recluster}
-\title{Hierarchial graph clustering}
+\title{Hierarchical graph clustering}
 \usage{
 recluster(GG, ALGN, CnMAX)
 }
@@ -11,7 +11,7 @@ recluster(GG, ALGN, CnMAX)
 
 \item{ALGN}{algorithm to apply}
 
-\item{CnMAX}{maximus size of the cluster in \code{mem} that will not be
+\item{CnMAX}{maximum size of the cluster in \code{mem} that will not be
 processed}
 }
 \value{
@@ -19,9 +19,9 @@ remembership matrix, that contains vertex ID membership and
 result of reclustering
 }
 \description{
-Function takes graph \code{GG} and takes its membership from vertex
-attribute \code{ALGN} and apply clustering algorithm \code{ALGN}
-to all clusters larger than \code{CnMAX}
+Function reads in a graph \code{GG} with cluster membership stored in vertex
+attribute \code{ALGN}, and reapplies the clustering algorithm \code{ALGN} to
+all clusters larger than \code{CnMAX}
 }
 \examples{
 data(karate,package='igraphdata')

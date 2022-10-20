@@ -14,10 +14,10 @@ layoutByCluster(gg, mem, layout = layout_with_kk)
 \item{layout}{algorithm to use for layout}
 }
 \value{
-Layout in a form of 2D matrx.
+Layout in a form of 2D matrix.
 }
 \description{
-Function split graph into clusters and layout each cluster idependently.
+Function to split graph into clusters and layout each cluster independently..
 }
 \examples{
 data(karate,package='igraphdata')

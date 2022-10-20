@@ -2,8 +2,8 @@
 % Please edit documentation in R/diseasePairs.R
 \name{prepareGDA}
 \alias{prepareGDA}
-\title{Get particular annotation from the graph in the Vertex Annotation form
-and format it for further analysis.}
+\title{Function to return vertex annotation from a graph in the Vertex Annotation
+form and format it for further analysis.}
 \usage{
 prepareGDA(gg, name)
 }
@@ -11,14 +11,14 @@ prepareGDA(gg, name)
 \item{gg}{igraph object to take annotation from}
 
 \item{name}{name of the vertex attribute that contains annotation. If graph
-vertices has no such attribute error is thrown.}
+has no such vertex attribute an error is thrown..}
 }
 \value{
 escaped annotation in Vertex Annotation form
 }
 \description{
-Get particular annotation from the graph in the Vertex Annotation form
-and format it for further analysis.
+Function to return vertex annotation from a graph in the Vertex Annotation
+form and format it for further analysis.
 }
 \examples{
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")

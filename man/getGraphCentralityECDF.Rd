@@ -11,7 +11,7 @@ getGraphCentralityECDF(m)
 invocation.}
 }
 \value{
-list of sever ecdf objects, corresponding to values in
+list of several ecdf objects, corresponding to values in
 centrality matrix from \code{\link{getCentralityMatrix}} invocation.
 }
 \description{

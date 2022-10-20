@@ -2,7 +2,7 @@
 % Please edit documentation in R/perturbationEntropy.R
 \name{plotEntropy}
 \alias{plotEntropy}
-\title{Plot entropy values}
+\title{Plot graph entropy values versus vertex degree for each perturbed vertex value.}
 \usage{
 plotEntropy(SRprime, subTIT = "Entropy", SRo = NULL, maxSr = NULL)
 }
@@ -21,7 +21,7 @@ plotEntropy(SRprime, subTIT = "Entropy", SRo = NULL, maxSr = NULL)
 ggplot2 object with diagram
 }
 \description{
-Plot entropy values
+Plot graph entropy values versus vertex degree for each perturbed vertex value.
 }
 \examples{
 library(synaptome.db)

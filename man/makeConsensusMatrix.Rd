@@ -35,12 +35,13 @@ processed if reclustering is invoked}
 consensus matrix of Nvert X Nvert
 }
 \description{
-For assessing the robustness of the clustering randomization study could
-be performed, which applies the same clustering algorithm to N perturbed
-networks and returns the consensus matrix where each pair of nodes will be
-assigned the probability to belong to the same cluster. Network is
-perturbed by deleting \code{mask} percent of edges (\code{type=1}) or
-nodes (\code{type=2}) from network before clustering.
+Function to assess the robustness of network clustering. A randomisation
+study is performed apply the same clustering algorithm to N perturbed
+networks, and which returns the consensus matrix where each vertex pair is
+assigned the probability of belong to the same cluster. The inputted network
+is perturbed by randomly removing a \code{mask} percentage of edges
+(\code{type=1}) or vertices (\code{type=2}) from the network before
+clustering.
 }
 \examples{
 data(karate, package='igraphdata')

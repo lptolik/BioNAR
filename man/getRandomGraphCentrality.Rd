@@ -38,9 +38,10 @@ from \code{\link{fitDegree}} function.}
 matrix of random graph vertices centrality measure.
 }
 \description{
-Generate a random graph  that mimic somehow properties of the input graph
-and calls \code{\link{getCentralityMatrix}} to
-calculate all available centrality measires. There are four different
+Generate a random graph that mimics the properties of the input graph and
+calls \code{\link{getCentralityMatrix}} to calculate all available vertex
+centrality measures. There are four different types of random graph to
+generate
 }
 \examples{
 data(karate,package='igraphdata')

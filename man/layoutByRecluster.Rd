@@ -12,7 +12,7 @@ layoutByRecluster(gg, remem, layout = layout_with_kk)
 \item{remem}{recluster result obtained by \code{\link{calcReclusterMatrix}}
 invocation}
 
-\item{layout}{one of the layout algoritms from \code{\link[igraph]{layout_}}}
+\item{layout}{one of the layout algorithms from \code{\link[igraph]{layout_}}}
 }
 \value{
 Layout in a form of 2D matrx.
