@@ -127,7 +127,7 @@ layoutByCluster <- function(gg, mem, layout = layout_with_kk) {
 #' @param gg graph to layout
 #' @param remem recluster result obtained by \code{\link{calcReclusterMatrix}}
 #'        invocation
-#' @param layout one of the layout algoritms from \code{\link[igraph]{layout_}}
+#' @param layout one of the layout algorithms from \code{\link[igraph]{layout_}}
 #'
 #' @return Layout in a form of 2D matrx.
 #' @export
@@ -304,15 +304,16 @@ calcReclusterMatrix <- function(gg,
     return(ALG3)
 }
 
-#' Hierarchial graph clustering
+#' Hierarchical graph clustering
 #'
-#' Function takes graph \code{GG} and takes its membership from vertex
-#' attribute \code{ALGN} and apply clustering algorithm \code{ALGN}
-#' to all clusters larger than \code{CnMAX}
+#' Function reads in a graph \code{GG} with cluster membership stored in vertex
+#' attribute \code{ALGN}, and reapplies the clustering algorithm \code{ALGN} to
+#' all clusters larger than \code{CnMAX}
+#'
 #'
 #' @param GG graph to cluster
 #' @param ALGN algorithm to apply
-#' @param CnMAX maximus size of the cluster in \code{mem} that will not be
+#' @param CnMAX maximum size of the cluster in \code{mem} that will not be
 #'        processed
 #'
 #' @return remembership matrix, that contains vertex ID membership and

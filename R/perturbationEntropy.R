@@ -236,7 +236,7 @@ getEntropyOverExpressed <- function(SRprime, perc = 1) {
     return(DF3)
 }
 
-#' Plot entropy values
+#' Plot graph entropy values versus vertex degree for each perturbed vertex value.
 #'
 #' @param SRprime results of \code{\link{getEntropy}} invocation
 #' @param subTIT entropy axis label
