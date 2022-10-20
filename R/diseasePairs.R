@@ -206,12 +206,12 @@ sampleDegBinnedGDA <- function(org.map, term) {
 }
 
 
-#' Get particular annotation from the graph in the Vertex Annotation form
-#' and format it for further analysis.
+#' Function to return vertex annotation from a graph in the Vertex Annotation
+#' form and format it for further analysis.
 #'
 #' @param gg igraph object to take annotation from
 #' @param name name of the vertex attribute that contains annotation. If graph
-#'        vertices has no such attribute error is thrown.
+#' has no such vertex attribute an error is thrown..
 #'
 #' @return escaped annotation in Vertex Annotation form
 #' @export
