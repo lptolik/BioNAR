@@ -1,65 +1,4 @@
 
-
-#' function to get the member robustness from the consensus matrices #BUG
-#' fixed 14/03/12 TIS
-#'
-#' @param x consensus matrix
-#' @param rm reference matrix
-#'
-#' @return Returns a list of memroblist class objects, one for each cluster,
-#' and the full membership robustness matrix as a memrobmatrix class object.
-#' @import clusterCons
-#'
-#' @noRd
-#' @seealso clusterCons::memrob
-memrob <- function(x, rm = data.frame()) {
-    if (is(x, 'consmatrix')) {
-        cmref <- x@rm
-    } else{
-        if (length(rm) == 0) {
-            stop('You need to specify a reference matrix',
-                    'for a merge consensus matrix')
-        }else{
-            cmref <- rm
-        }
-    }
-     consensus <- x@cm
-    lvlsCM <- levels(as.factor(cmref$cm))
-    mem_rob <- matrix(0,
-                        dim(consensus)[1],
-                        length(lvlsCM),
-                        dimnames = list(row.names(consensus),
-                                        seq_along(lvlsCM)))
-    for (k in seq_along(lvlsCM)) {
-        for (i in seq_len(dim(consensus)[1])) {
-            Ik <- row.names(cmref)[cmref$cm == k] #where k is the cluster number
-            ind <- Ik[Ik != row.names(consensus)[i]]
-            sigma <- apply(as.matrix(consensus[ind, i]), 2, sum)
-            ei <- row.names(consensus)[i]
-            Nk <- summary(as.factor(cmref$cm), maxsum = 10000)[k]
-            if (sum(ei == Ik) == 1) {
-                mik <- (1 / (Nk - 1)) * sigma
-            }else{
-                mik <- (1 / Nk) * sigma
-            }
-            mem_rob[i, k] <- mik
-        }
-    }
-    mem_rob_list <- list()
-    for (i in seq_len(dim(mem_rob)[2])) {
-        cl_mem_rob <- (mem_rob[(cmref$cm == i), i])
-        current_list <- data.frame(sort(cl_mem_rob, decreasing = TRUE))
-        names(current_list) <- 'mem_rob'
-        current_mem_rob_list <- new('memroblist', mrl = current_list)
-        mem_rob_list[paste('cluster', i, sep = '')] <-
-            current_mem_rob_list
-    }
-    mem_rob_list['resultmatrix'] <- new('memrobmatrix', mrm = mem_rob)
-    mem_rob_list['algo'] <- x@a
-    mem_rob_list['type'] <- class(x)
-    return(mem_rob_list)
-}
-
 #' Calculate cluster robustness from consensus matrix
 #'
 #' @param gg igroph object
@@ -70,6 +9,7 @@ memrob <- function(x, rm = data.frame()) {
 #' robustness \code{Crob} and robustness scaled to range between 0 and 1.
 #' \code{CrobScaled}.
 #' @export
+#' @import clusterCons
 #'
 #' @examples
 #' data(karate, package='igraphdata')
