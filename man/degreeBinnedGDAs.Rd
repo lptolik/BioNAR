@@ -18,7 +18,8 @@ mapping matrix between vertices, vertex-degree groups and
 annotation terms.
 }
 \description{
-Prepare mapping for degree-aware annotation shuffling.
+Function to randomly shuffle vertex annotation terms, whilst preserving the
+vertex degree originally found with that annotation term.
 }
 \examples{
 options("show.error.messages"=TRUE)

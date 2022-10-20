@@ -2,7 +2,7 @@
 % Please edit documentation in R/perturbationEntropy.R
 \name{getEntropy}
 \alias{getEntropy}
-\title{Calculates perturbation entropy}
+\title{Calculates vertex perturbation graph entropy.}
 \usage{
 getEntropy(gg, maxSr = NULL, exVal = NULL)
 }
@@ -17,10 +17,11 @@ If NULL default values \code{c(2,14)} and \code{c(-14,14)} will
 be used for \code{xx} and \code{lambda} respectively.}
 }
 \value{
-matrix with EntrexID, GeneNames, Degree, Enttropy UP and Down
+matrix containing Gene: Entrez ID, Name, Degree and Graph Entropy
+values when gene is expressed up and down.
 }
 \description{
-Calculates perturbation entropy
+Calculates vertex perturbation graph entropy.
 }
 \examples{
 library(synaptome.db)

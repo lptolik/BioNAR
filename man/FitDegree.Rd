@@ -39,7 +39,8 @@ fitDegree(
 an object of class \code{\link{law-class}} with results of fitting
 }
 \description{
-Fit Power Law to degree distribution.
+Fit a Powerlaw distribution to graph's degree distribution using the R
+“PoweRlaw” package (version 0.50.0) (Gillespie, 2015)
 }
 \examples{
 ##No: of bootstrap iterations use nsim > 100 for reliable result

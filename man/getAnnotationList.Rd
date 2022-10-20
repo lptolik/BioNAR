@@ -21,9 +21,10 @@ getAnnotationList(
 vector of unique annotation terms
 }
 \description{
-It is not uncommon that some nodes are annotated with list of terms and some
-terms annotates multiple nodes. This function creates vector of unique terms
-that were used in annotation.
+It is not uncommon to find both duplicated vertex annotation terms, and
+vertices annotated with multiple terms, in a given annotation list. This
+function creates a vector of unique annotation terms for each vertex given
+an input annotation list.
 }
 \examples{
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")

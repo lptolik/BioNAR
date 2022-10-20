@@ -10,7 +10,7 @@ findLCC(GG)
 \item{GG}{igraph object to analyze}
 }
 \value{
-igraph representation largest CC
+igraph representation LCC
 }
 \description{
 Find Largest Connected Component of the graph

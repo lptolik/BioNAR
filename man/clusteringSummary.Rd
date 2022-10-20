@@ -18,13 +18,17 @@ clusteringSummary(
 matrix of clustering characteristics
 }
 \description{
-Function calculates statistics of clustering membership:
+Function to calculate basic summary statistics after apply clustering
+algorithm:
 \itemize{
-\item mod -- clustering modularity \code{\link[igraph]{modularity}}
+\item mod -- clustering modularity \code{\link[igraph]{modularity}}, the ratio
+of edges found within communities to the number of edges found between
+communities, relative to a randomised model
 \item C -- number of clusters
 \item Cn1 -- number of singletones (clusters of size 1)
 \item Cn100 -- number of clusters containing more than 100 nodes
-\item mu -- fraction of intercluster edges
+\item mu -- the ratio of edges found within communities to the number of edges
+found between communities
 \item Min. C -- minimum of the cluster size
 \item 1st Qu. C -- first quartile of the cluster size
 \item Median C -- median of the cluster size

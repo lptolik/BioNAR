@@ -17,11 +17,12 @@ escapeAnnotation(annVec, col = COLLAPSE, esc = ESC)
 vector of annotation strings with elements escaped
 }
 \description{
-In the case when annotation has not carefully planned, some annotation terms
-could be substring of other, for example \code{\link{grep}} search fo
-DOID:14 could return DOID:143, DOID:1433, and DOID:14330. To avoid this a
-ll terms should be enclosed in escape characters, which unlikely to find
-within annotation itself.
+In situations when a given list of annotation ID terms may not be well
+formatted, and therefore not be interoperated as unique. For example, given
+a list of HDO IDs: HDO:14, HDO:143, HDO:1433, and HDO:14330, a grep for the
+term HDO:14 could return: HDO:143, HDO:1433, HDO:14330. To avoid this all
+terms should be enclosed in escape characters, which unlikely to find within
+annotation itself.
 }
 \details{
 NOTE: spaces are treated as regular

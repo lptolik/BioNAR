@@ -2,7 +2,7 @@
 % Please edit documentation in R/sampling.R
 \name{calcReclusterMatrix}
 \alias{calcReclusterMatrix}
-\title{Hierarchial graph clustering}
+\title{Hierarchical graph clustering}
 \usage{
 calcReclusterMatrix(gg, mem, alg, CnMAX = 10, keepSplit = FALSE)
 }
@@ -24,9 +24,10 @@ remembership matrix, that contains vertex ID membership and
 result of reclustering
 }
 \description{
-Function takes graph \code{gg} and its membership matrix \code{mem}
-as returned \code{calcMembership} and apply clustering algorithm \code{alg}
-to all clusters larger than \code{CnMAX}
+This function takes in a \code{gg} and initial vertex community membership
+values \code{mem} as returned by \code{calcMembership}, and then performs a
+reclustering of the graph given the clustering algorithm \code{alg} to those
+clusters of size greater than \code{CnMAX}
 }
 \examples{
 data(karate,package='igraphdata')

@@ -13,7 +13,7 @@ getEntropyRate(gg)
 list with values of maxSr and SRo
 }
 \description{
-Calculate parameters for Entropy plot and calculations.
+Calculates vertex perturbed graph entropy values and parameters.
 }
 \examples{
 data(karate, package='igraphdata')

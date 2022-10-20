@@ -21,11 +21,11 @@ clusterORA(g, alg, name, vid = "name", alpha = 0.1, col = COLLAPSE)
 default is \code{;}}
 }
 \value{
-A table with ORA results.
+A table with overrepresentation results.
 Each row corresponds to a tested annotation in particular cluster.
 The columns are the following:
 \itemize{
-\item pathway – name of the pathway as in 'names(pathway)';
+\item pathway – name of the enriched term as in 'names(pathway)';
 \item pval – an enrichment p-value from hypergeometric test;
 \item padj – a BH-adjusted p-value;
 \item overlap – size of the overlap;
@@ -35,7 +35,11 @@ The columns are the following:
 }
 }
 \description{
-Calculate annotation enrichment for clusters in the graph
+Calculate the cluster enrichment of a graph given a clustering algorithm
+'alg' and vertex annotation attribute 'name'. Function generates an
+enrichment table, one row for each cluster, containing: the cluster ID, the
+cluster size, overlap of annotation terms in cluster, p.value of enrichment
+using the Hypergeometric test, adjusted p.value Bonferroni correction (BH).
 }
 \examples{
 options("show.error.messages"=TRUE)
