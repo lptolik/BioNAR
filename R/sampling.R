@@ -399,11 +399,13 @@ recluster <- function(GG, ALGN, CnMAX) {
 #Cnmax <- as.numeric(args[5]) #Cn max for reclustering algorithms
 #' Perturbe graph and calculate its clustering
 #'
-#' Function delete \code{mask} percent of edges (\code{type=1}) or nodes
-#' (\code{type=2}) from network find largest connected component and cluster it.
-#' Result is stored as Nx3 matrix: first column is vertex ID, second column
-#' is a flag shownig was vertex clustered (vertex ID) or not (-1), and a third
-#' column is a membership value for clustered vertices or -1.
+#' Function will mask \code{mask} a percentage of edges (\code{type=1}) or
+#' vertices (\code{type=2}) from the network, find the largest connected
+#' component of the masked network and cluster it. The clustering results are
+#' stored in a three column matrix: the first column contains the vertex IDs of
+#' input network; the second column the vertex IDs of the subsampled network,
+#' or -1 if the vertex has been masked; the third column the cluster membership
+#' of subsampled network, or -1 if vertex has been masked.
 #'
 #' This is internal function and not supposed to be calle by end user.
 #'
