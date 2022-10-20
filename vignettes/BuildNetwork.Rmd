@@ -733,7 +733,8 @@ p <- calcDiseasePairs(
     permute = "r"
 )
 pander(p$disease_separation)
-
+```
+```{r pdisPairs,warning=FALSE,message=FALSE}
 r <- runPermDisease(
     gg,
     name = "TopOnto_OVG_HDO_ID",

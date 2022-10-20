@@ -361,7 +361,7 @@ calcDiseasePairs <- function(gg,
     oo<-as.data.frame(oo)
     oo[,-c(1:2)]<-suppressWarnings(lapply(oo[,-c(1:2)],as.numeric))
     res<-as.data.frame(res)
-    res[,-1]<-lapply(res[,-1],as.numeric)
+    res[,-1]<-suppressWarnings(lapply(res[,-1],as.numeric))
     return(
         list(
             disease_separation = as.data.frame(DAB),
@@ -468,7 +468,7 @@ runPermDisease <- function(gg,
     disease_location_sig[, 2] <-
         loc[match(disease_location_sig[, 1], loc[, 1]), 2]
     for (i in seq_along(disn)) {
-        indx <- ds[, (2 + i)] != "."
+        indx <- !is.na(ds[, (2 + i)])# != "."
         ids <- ds[indx, 1]
         DS       <- as.numeric(as.vector(ds[indx, (2 + i)]))
         disease_location_sig[i, 3] <- as.numeric(mean(DS))
@@ -488,10 +488,11 @@ runPermDisease <- function(gg,
         }
     }
     disease_location_sig<-as.data.frame(disease_location_sig)
-    disease_location_sig[,-1]<-lapply(disease_location_sig[,-1],as.numeric)
-    sAB <- resD$disease_separation
+    disease_location_sig[,-1]<-suppressWarnings(lapply(
+        disease_location_sig[,-1],as.numeric))
+    sAB <- as.matrix(resD$disease_separation)
     RAW_sAB <- vapply(resL, function(.x)
-        .x$disease_separation,
+        as.matrix(.x$disease_separation),
         FUN.VALUE = sAB)
     RAN_sAB_mean <- apply(RAW_sAB, c(1, 2), mean0)
     RAN_sAB_sd <- apply(RAW_sAB, c(1, 2), sd0)
@@ -571,12 +572,12 @@ runPermDisease <- function(gg,
     zs[, 12] <- stats::p.adjust(as.numeric(zs[, 9]), method = "BY")
     zs[, 13] <- WGCNA::qvalue(as.numeric(zs[, 9]))$qvalue
     zs<-as.data.frame(zs)
-    zs[,c("N.A","N.B","sAB",
-          "zScore","pvalue",
-          "p.adjusted","q-value")]<-lapply(zs[,c("N.A","N.B","sAB",
-                                                 "zScore","pvalue",
-                                                 "p.adjusted","q-value")],
-                                           as.numeric)
+    zs[, c("N.A", "N.B", "sAB",
+           "zScore", "pvalue",
+           "p.adjusted", "q-value")] <- suppressWarnings(
+               lapply(zs[,c("N.A","N.B","sAB","zScore",
+                            "pvalue","p.adjusted","q-value")],
+                      as.numeric))
     return(list(
         Disease_overlap_sig = zs,
         Disease_location_sig = disease_location_sig
