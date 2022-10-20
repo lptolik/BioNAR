@@ -4,9 +4,12 @@
 #' together with its local neighbourhood. It was proposed in
 #' Nepusz et al., 2008 <doi:10.1103/PhysRevE.77.016107>.
 #'
-#' Algorithm assume that clustering was already calculated and its
-#' membership is stored in the appropriate vertex attribute. If
-#' \code{alg} attribute is not found error will be issued.
+#'
+#' Function assumes clustering already been performed by the clustering
+#' algorithm, and its membership values stored in vertex attributes. If
+#' clustering algorithm vertex  \code{alg} attribute is not found an
+#' error will be issued.
+#'
 #'
 #' @param gg igraph object
 #' @param alg clustering algorithm
