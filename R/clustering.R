@@ -215,12 +215,16 @@ getClustering <- function(gg,
 
 #' Matrix of cluster characteristics
 #'
-#' Function calculates statistics of clustering membership:
-#' * mod -- clustering modularity \code{\link[igraph]{modularity}}
+#' Function to calculate basic summary statistics after apply clustering
+#' algorithm:
+#' * mod -- clustering modularity \code{\link[igraph]{modularity}}, the ratio
+#' of edges found within communities to the number of edges found between
+#' communities, relative to a randomised model
 #' * C -- number of clusters
 #' * Cn1 -- number of singletones (clusters of size 1)
 #' * Cn100 -- number of clusters containing more than 100 nodes
-#' * mu -- fraction of intercluster edges
+#' * mu -- the ratio of edges found within communities to the number of edges
+#' found between communities
 #' * Min. C -- minimum of the cluster size
 #' * 1st Qu. C -- first quartile of the cluster size
 #' * Median C -- median of the cluster size
