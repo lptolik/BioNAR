@@ -21,22 +21,22 @@
 
 
 
-#' Calculates the normalized network modularity value.
+#' Calculates the normalised network modularity value.
 #'
-#' To allow the comparison of network modularity with networks of different
-#' size and connectivity.
+#' Function to compare network Modularity of input network with networks of
+#' different size and connectivity.
 #'
-#' Used the normalized network modularity value
+#' Used the normalised network modularity value
 #' Qm based on the previous studies by Parter et al., 2007, Takemoto, 2012,
 #' Takemoto, 2013, Takemoto and Borjigin, 2011, which was defined as:
 #' Qm = (Qreal-Qrand)/(Qmax-Qrand)
-#' Where Qreal is the network modularity of a real-world signaling
+#' Where Qreal is the network modularity of a real-world signalling
 #' network and, Qrand is the average network modularity value obtained
-#' from 10,000 randomized networks constructed from its real-world network.
+#' from 10,000 randomised networks constructed from its real-world network.
 #' Qmax was estimated as: 1 - 1/M, where M is the number of modules
 #' in the real network.
 #'
-#' Randomized networks were generated from a real-world network using the
+#' Randomised networks were generated from a real-world network using the
 #' edge-rewiring algorithm (Maslov and Sneppen, 2002).
 #'
 #'
