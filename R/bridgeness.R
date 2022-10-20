@@ -120,6 +120,30 @@ getBridgeness <- function(gg, alg, conmat) {
     return(res)
 }
 
+#' Helper function that uses \code{\link{getBridgeness}} to calculate
+#' graph node bridgeness values for selected algorithm and consensus matrix
+#' and save them as a graph attribute \code{BRIDGENESS.<alg>} with \code{<alg>}
+#' replaced by the selected algorithm name.
+#'
+#' @inheritParams getBridgeness
+#' @return graph with additional attributes to store Bridgeness value
+#' @export
+#' @seealso getBridgeness
+#'
+#' @examples
+#' library(BioNAR)
+#' data(karate, package='igraphdata')
+#' set.seed(100)
+#' gg <- calcClustering(karate, 'louvain')
+#' cnmat <- makeConsensusMatrix(gg, N=10, alg = 'louvain', type = 2, mask = 10)
+#' gg<-calcBridgeness(gg, alg = 'louvain', cnmat)
+#' hist(V(gg)$BRIDGENESS.louvain)
+calcBridgeness <- function(gg, alg, conmat) {
+    br<-getBridgeness(gg, alg = 'louvain', conmat)
+    agg<-applpMatrixToGraph(gg,br[,grep('(ID|BRDIDGENESS.+)',names(br))])
+    return(agg)
+}
+
 #### Code for plot ####
 scale <- function(x, VALUE = NULL) {
     x <- as.numeric(as.vector(x))
@@ -138,4 +162,126 @@ scale <- function(x, VALUE = NULL) {
     value <- value - xmin
     value <- ifelse(!is.na(value), value / (xmax - xmin), NA)
     return(value)
+}
+
+#' Plot Bridgeness values
+#'
+#' Semi-local centrality measure (Chen et al., 2011)
+#' lies between 0 and 1 indicating whether protein is important globally or
+#' locally. By plotting Bridgeness against semi-local centrality we can
+#' categorises the influence each protein found in our network has on the
+#' overall network structure:
+#' * Region 1, proteins having a 'global' rather than 'local' influence in
+#' the network (also been called bottle-neck bridges, connector or kinless
+#' hubs (0<Sl<0.5; 0.5<Br<1).
+#' * Region 2, proteins having 'global' and 'local' influence (0.5<Sl<1,
+#' 0.5<Br<1).
+#' * Region 3, proteins centred within the community they belong to, but also
+#' communicating with a few other specific communities (0<Sl<0.5; 0.1<Br<0.5).
+#' * Region 4, proteins with 'local' impact , primarily within one or two
+#' communities (local or party hubs, 0.5<Sl<1, 0<Br<0.5).
+#'
+#' @param gg
+#' @param alg
+#' @param VIPs
+#' @param Xatt
+#' @param Xlab
+#' @param Ylab
+#' @param MainDivSize
+#' @param xmin
+#' @param xmax
+#' @param ymin
+#' @param ymax
+#' @param baseColor
+#' @param SPColor
+#' @param PSDColor
+#'
+#' @return
+#' @export
+#' @importFrom igraph get.vertex.attribute
+#'
+#' @examples
+plotBridgeness<-function(gg,alg,VIPs,
+                         Xatt='SL',
+                         Xlab = "Semilocal Centrality (SL)",
+                         Ylab = "Bridgeness (B)",
+                         MainDivSize = 0.8,
+                         xmin = 0,
+                         xmax = 1,
+                         ymin = 0,
+                         ymax = 1,
+                         baseColor="royalblue2",
+                         SPColor="royalblue2",
+                         PSDColor="magenta"){
+    #VIPs=c('8495','22999','8927','8573','26059','8497','27445','8499')
+    # VIPs=c('81876','10890','51552','5874','5862','11021','54734','5865','5864',
+    #        '9522','192683','10067','10396','9296','527','9114','537','535',
+    #        '528','51382','534','51606','523','80331','114569','127262','57084',
+    #        '57030','388662','6853','6854','8224','9900','9899','9145','9143',
+    #        '6855','132204','6857','127833','6861','529','526','140679','7781',
+    #        '81615','6844','6843')
+    indx   <- match(V(gg)$name,VIPs)
+    group <- ifelse( is.na(indx), 0,1)
+    # MainDivSize <- 0.8
+    # xmin        <- 0
+    # xmax        <- 1
+    # ymin        <- 0
+    # ymax        <- 1
+    # Xlab <- "Semilocal Centrality (SL)"
+    # Ylab <- "Bridgeness (B)"
+    X    <- as.numeric(get.vertex.attribute(gg,Xatt,V(gg)))
+    X    <- scale(X)
+    Y   <- as.numeric(get.vertex.attribute(gg,
+                                           sprintf("BRIDGENESS.%s", alg),
+                                           V(gg)))
+    if('GeneName' %in% vertex_attr_names(gg)){
+        lbls <- ifelse(!is.na(indx),V(gg)$GeneName,"")
+        dt<-data.frame(X=X,Y=Y,vips=group,entres=V(gg)$name,name=V(gg)$GeneName)
+    }else{
+        lbls <- ifelse(!is.na(indx),V(gg)$GeneName,"")
+        dt<-data.frame(X=X,Y=Y,vips=group,entres=V(gg)$name,name=V(gg)$name)
+    }
+    dt_vips<-dt[dt$vips==1,]
+    dt_res<-dt[dt$vips==0,]
+    ##--- baseColor of genes
+    #baseColor="royalblue2"
+
+    ##--- SPcolor, colour highlighting any 'specical' genes
+    #SPColor="royalblue2"
+
+    ##--- PSDColor, colour of core PSD95 interactor genes
+    #PSDColor="magenta"
+
+    g<-ggplot(dt,aes(x=X,y=Y,label=name))+#geom_point()+
+        geom_point(data=dt_vips,
+                   aes(x=X,y=Y),colour=baseColor,size = 7,
+                   shape=15,show.legend=FALSE)+
+        geom_point(data=dt_res,
+                   aes(x=X,y=Y, alpha=(X*Y)), size = 3,
+                   shape=16,show.legend=FALSE)+
+        geom_label_repel(aes(label=as.vector(lbls)),
+                         fontface='bold',color='black',
+                         fill='white',box.padding=0.1,
+                         point.padding=NA,label.padding=0.15,
+                         segment.color='black',
+                         force=1,size=rel(3.8),show.legend=FALSE,
+                         max.overlaps=200)+
+        labs(x=Xlab,y=Ylab,title=sprintf("%s",alg))+
+        scale_x_continuous(expand = c(0, 0), limits = c(xmin, xmax)) +
+        scale_y_continuous(expand = c(0, 0), limits = c(ymin, ymax))+
+        theme(
+            axis.title.x=element_text(face="bold",size=rel(2.5)),
+            axis.title.y=element_text(face="bold",size=rel(2.5)),
+            legend.title=element_text(face="bold",size=rel(1.5)),
+            legend.text=element_text(face="bold",size=rel(1.5)),
+            legend.key=element_blank())+
+        theme(panel.grid.major = element_line(colour="grey40",size=0.2),
+              panel.grid.minor = element_line(colour="grey40",size=0.1),
+              panel.background = element_rect(fill="white"),
+              panel.border = element_rect(linetype="solid",fill=NA))+
+        geom_vline(xintercept=0.5,colour="grey40",size=MainDivSize,
+                   linetype=2,show.legend=FALSE)+
+        geom_hline(yintercept=0.5,colour="grey40",size=MainDivSize,
+                   linetype=2,show.legend=FALSE)
+    return(g)
 }

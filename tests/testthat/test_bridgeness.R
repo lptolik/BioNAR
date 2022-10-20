@@ -28,6 +28,12 @@ test_that('Presynaptic Bridgenes',{
     expect_equal(dim(br),c(212,3))
     expect_equal(br$BRIDGENESS.louvain[br$GENE.NAME == 'ACTN2'],0.2385256,
                  tolerance = 0.01)
+    agg<-calcBridgeness(louvainG, alg = 'louvain', cnmat)
+    expect_match('louvain',vertex_attr_names(agg))
+    expect_match('BRIDGENESS.louvain',vertex_attr_names(agg))
+    idx<-match(br$ID,V(agg)$name)
+    expect_false(any(is.na(idx)))
+    expect_equal(br$BRIDGENESS.louvain,V(agg)$BRIDGENESS.louvain[idx])
     expect_error(getBridgeness(louvainG, alg = 'lec',cnmat),
                  '.*calcClustering.*')
 })
