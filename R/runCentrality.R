@@ -319,9 +319,11 @@ calcCentrality <- function(gg) {
 #get centrality measures for random graph
 #' Centrality measures for random graphs induced by input one
 #'
-#' Generate a random graph  that mimic somehow properties of the input graph
-#' and calls \code{\link{getCentralityMatrix}} to
-#' calculate all available centrality measires. There are four different
+#' Generate a random graph that mimics the properties of the input graph and
+#' calls \code{\link{getCentralityMatrix}} to calculate all available vertex
+#' centrality measures. There are four different types of random graph to
+#' generate
+#'
 #'
 #' @param gg template graph to mimic
 #' @param type type of random graph to generate:
@@ -404,7 +406,7 @@ getPA <- function(gg, pwr, ...) {
 #' @param m centrality matrix from \code{\link{getCentralityMatrix}}
 #' invocation.
 #'
-#' @return list of sever ecdf objects, corresponding to values in
+#' @return list of several ecdf objects, corresponding to values in
 #' centrality matrix from \code{\link{getCentralityMatrix}} invocation.
 #'
 #' @seealso getCentralityMatrix
