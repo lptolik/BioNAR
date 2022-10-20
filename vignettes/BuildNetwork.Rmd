@@ -590,10 +590,11 @@ r <- runPermDisease(
 
 pander(r$Disease_overlap_sig)
 ```
+
 ## Cluster overrepresentation
 To identify the clusters with overrepresented function or disease we introduced the function which calculates the overrepesentation (enrichment for specified annotation). Based on R package fgsea.
-```{r ora,warning=FALSE,message=FALSE}}
-ora <- clusterORA(g, alg, name = 'TopOnto_OVG_HDO_ID', vid = "name",alpha = 0.1, col = COLLAPSE)
+```{r ora,warning=FALSE,message=FALSE}
+ora <- clusterORA(gg, alg, name = 'TopOnto_OVG_HDO_ID', vid = "name",alpha = 0.1, col = COLLAPSE)
 ```
 
 # Session Info
