@@ -40,9 +40,10 @@ calcMembership <- function(gg,
 #' Calculate memberships for all clustering algorithms and store them on the
 #' graph vertices.
 #'
-#' Function apply \code{\link{calcClustering}} for each name in standard
-#' list of available algorithms. In the case when clustering could not been
-#' calculated warning will be issued and no attributes added to the graph.
+#' This function will call \code{\link{calcClustering}} for each clustering
+#' algorithm given in our predefined list. In the event no clustering could be
+#' performed, warnings will be issued and no new vertex attribute added to the
+#' graph.
 #'
 #' @param gg graph for analysis
 #'
