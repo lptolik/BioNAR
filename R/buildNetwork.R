@@ -243,8 +243,10 @@ buildFromSynaptomeGeneTable<-function(geneTable){
 
 #' Calculate sparsness of the graph.
 #'
-#' Sparsness is defined as ratio of graph edge numbers to the edge numbers of
-#' the full graph of the same size.
+#' For a simple unweighted, undirected graph G(N,E).
+#' Network sparseness is defined as the ratio of the actual number of graph
+#' edges (E) to the maximum number of edges possible in a graph with same number
+#' of vertices (N):  E/binom(N,2)
 #'
 #' @param gg graph to evaluate
 #'
