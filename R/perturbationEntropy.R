@@ -103,7 +103,8 @@ calcEntropy <- function(gg, maxSr = NULL, exVal = NULL) {
 #' If NULL default values \code{c(2,14)} and \code{c(-14,14)} will
 #' be used for \code{xx} and \code{lambda} respectively.
 #'
-#' @return matrix with EntrexID, GeneNames, Degree, Enttropy UP and Down
+#' @return matrix containing Gene: Entrez ID, Name, Degree and Graph Entropy
+#' values when gene is expressed up and down.
 #' @export
 #'
 #' @examples
