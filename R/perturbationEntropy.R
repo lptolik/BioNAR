@@ -75,8 +75,8 @@ getEntropyRate <- function(gg) {
 #' default values \code{c(2,14)} and \code{c(-14,14)} will be used
 #' for \code{xx}  and \code{lambda} respectively.
 #'
-#' @return graph with SR_UP and SR_DOWN attributes storing entropy values for
-#' over- and underexpression respectively
+#' @return graph with SR_UP and SR_DOWN vertex attributes storing the graph
+#' entropy values with over- or under-expressing each vertex.
 #' @export
 #'
 #' @examples

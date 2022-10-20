@@ -2,8 +2,8 @@
 
 #' Calculate cluster memberships for the graph.
 #'
-#' Calculate clustering membership for ten algoritms defined in
-#' \code{\link{getClustering}}
+#' Calculates the clustering membership for each of the 10 clustering algorithms
+#' defined in function \code{\link{getClustering}}
 #'
 #' @param gg igraph object to cluster
 #' @param alg algorithm name
