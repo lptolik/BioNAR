@@ -94,7 +94,7 @@ calcEntropy <- function(gg, maxSr = NULL, exVal = NULL) {
     return(gg)
 }
 
-#' Calculates perturbation entropy
+#' Calculates vertex perturbation graph entropy.
 #'
 #' @param gg igraph object
 #' @param maxSr maxSr value, if NULL \code{getEntropyRate} will be called.
