@@ -31,7 +31,7 @@ permute <- function(GNS, N){
 
 stars    <- c("*", "**", "***")
 
-#' Auxiliary function to replase NAs with zeros.
+#' Auxiliary function to replace NAs with zeros.
 #'
 #' @param x matrix or vector to process
 #'

@@ -319,8 +319,8 @@ escapeAnnotation <- function(annVec, col = COLLAPSE, esc = ESC) {
 }
 #' Unescape annotation strings
 #'
-#' Perform opposite to escapeAnnotation operations: remove all escape
-#' characters from annotation strings.
+#' Function to remove all escape characters from annotation strings
+#' (opposite to escapeAnnotation).
 #'
 #' NOTE: spaces are treated as regular
 #' characters, no trimming is applied before or after escaping.

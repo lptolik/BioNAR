@@ -413,9 +413,9 @@ recluster <- function(GG, ALGN, CnMAX) {
 #' @param mask percentage of elements to perturbe
 #' @param alg clustering alg.
 #' @param type edges=>1 or nodes=>2  to mask
-#' @param reclust logical to decide wether to invoke reclustering via
+#' @param reclust logical to decide whether to invoke reclustering via
 #'        \code{\link{recluster}}
-#' @param Cnmax maximus size of the cluster in \code{mem} that will not be
+#' @param Cnmax maximum size of the cluster in \code{mem} that will not be
 #'        processed if reclustering is invoked
 #'
 #' @return list of Nx3 matrices
