@@ -181,19 +181,21 @@ scale <- function(x, VALUE = NULL) {
 #' * Region 4, proteins with 'local' impact , primarily within one or two
 #' communities (local or party hubs, 0.5<Sl<1, 0<Br<0.5).
 #'
-#' @param gg
-#' @param alg
-#' @param VIPs
-#' @param Xatt
-#' @param Xlab
-#' @param Ylab
-#' @param MainDivSize
-#' @param xmin
-#' @param xmax
-#' @param ymin
-#' @param ymax
-#' @param baseColor
-#' @param SPColor
+#' @param gg igraph object with bridgenes values stored as attributes,
+#' after call to \code{\link{calcBridgeness}}
+#' @param alg clustering algorithm that was used to calculate bridgeness values
+#' @param VIPs list of 'specical' genes to be marked on the plot
+#' @param Xatt name of the attribute that stores values to be used as X-axis
+#' values. By default \code{SL} for semi-local centrality
+#' @param Xlab label for the X-axis
+#' @param Ylab label for the Y-axis
+#' @param MainDivSize size of the line for the region separation lines
+#' @param xmin low limit for X-axis
+#' @param xmax upper limit for X-axis
+#' @param ymin low limit for Y-axis
+#' @param ymax upper limit for Y-axis
+#' @param baseColor basic color for genes
+#' @param SPColor colour highlighting any 'specical' genes
 #' @param PSDColor
 #'
 #' @return
@@ -211,8 +213,7 @@ plotBridgeness<-function(gg,alg,VIPs,
                          ymin = 0,
                          ymax = 1,
                          baseColor="royalblue2",
-                         SPColor="royalblue2",
-                         PSDColor="magenta"){
+                         SPColor="royalblue2"){
     #VIPs=c('8495','22999','8927','8573','26059','8497','27445','8499')
     # VIPs=c('81876','10890','51552','5874','5862','11021','54734','5865','5864',
     #        '9522','192683','10067','10396','9296','527','9114','537','535',
