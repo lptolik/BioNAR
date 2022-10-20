@@ -25,7 +25,8 @@ RoxygenNote: 7.2.1
 Depends: R (>= 3.5.0), igraph, poweRlaw, latex2exp, RSpectra, 
     Rdpack
 Imports: stringr, synaptome.db, clusterCons, fgsea, grid, methods, scales, 
-    AnnotationDbi, dplyr, GO.db, org.Hs.eg.db, rSpectral, WGCNA, ggplot2
+    AnnotationDbi, dplyr, GO.db, org.Hs.eg.db, rSpectral, WGCNA, ggplot2,
+    ggrepel
 RdMacros: Rdpack
 Suggests: 
     knitr, 

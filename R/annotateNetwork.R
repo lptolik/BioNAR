@@ -495,13 +495,14 @@ annotateTopOntoOVG <- function(gg, dis) {
 #' Add SCHanno synaptic functional groups
 #'
 #' The function loads an annotation data matrix of functional groups for
-#' schizopherina risk genes [1] called anno, which contains three columns; the
+#' schizopherina risk genes (1) called anno, which contains three columns; the
 #' first containing gene Entrez IDs, the second gene functional group ID terms,
 #' the third gene functional group description terms. The function then performs
 #' a many-to-one mapping of each matrix row to a network vertex using matching
 #' Entrez IDs, filling the \code{SCHanno} vertices attribute.
-
-#' [1] Lips E, Cornelisse L, Toonen R, Min J, Hultman C, the International
+#'
+#' References:
+#' 1. Lips E, Cornelisse L, Toonen R, Min J, Hultman C, the International
 #' Schizophernia Consortium, Holmans P, Donovan M, Purcell S, Smit A, Verhage M,
 #' Sullivan P, Visscher P, D P: Functional gene group analysis identifies
 #' synaptic gene groups as risk factor for schizophrenia.

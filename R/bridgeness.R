@@ -257,10 +257,12 @@ plotBridgeness<-function(gg,alg,VIPs,
     }
     if('GeneName' %in% vertex_attr_names(gg)){
         lbls <- ifelse(!is.na(indx),V(gg)$GeneName,"")
-        dt<-data.frame(X=X,Y=Y,vips=group,entres=V(gg)$name,name=V(gg)$GeneName)
+        name <- V(gg)$GeneName
+        dt<-data.frame(X=X,Y=Y,vips=group,entres=V(gg)$name,name=name)
     }else{
         lbls <- ifelse(!is.na(indx),V(gg)$name,"")
-        dt<-data.frame(X=X,Y=Y,vips=group,entres=V(gg)$name,name=V(gg)$name)
+        name <- V(gg)$name
+        dt<-data.frame(X=X,Y=Y,vips=group,entres=V(gg)$name,name=name)
     }
     dt_vips<-dt[dt$vips==1,]
     dt_res<-dt[dt$vips==0,]
