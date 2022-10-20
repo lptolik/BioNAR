@@ -292,12 +292,15 @@ applpMatrixToGraph <- function(gg, m) {
     }
     return(ggm)
 }
-#' Calculate centrality measures for graph nodes and save them as vertex
-#' property.
+#' Calculate the vertex centrality measures (degree, betweenness, closeness,
+#' semi-local, etc....) for each graph vertex and store each result as
+#' new vertex attribute in the graph.
 #'
-#' Wrapper finction that calls \code{\link{getCentralityMatrix}} to calculate
-#' all available centrality measires and apply \code{\link{applpMatrixToGraph}}
-#' to store them as a vertex attributes.
+#' A wrapper function that first calls \code{\link{getCentralityMatrix}}, to
+#' calculate all vertex centrality measures, and then
+#' \code{\link{applpMatrixToGraph}} to store each centrality result as a new
+#' vertex attribute in the graph.
+#'
 #'
 #' @param gg igraph object
 #'
