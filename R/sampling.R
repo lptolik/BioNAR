@@ -91,13 +91,13 @@ getClusterSubgraphByID <- function(clID, gg, mem) {
 }
 #' Calculate layout based upon membership
 #'
-#' Function split graph into clusters and layout each cluster idependently.
+#' Function to split graph into clusters and layout each cluster independently..
 #'
 #' @param gg graph to layout
 #' @param mem membership data.frame from \code{\link{calcMembership}}
 #' @param layout algorithm to use for layout
 #'
-#' @return Layout in a form of 2D matrx.
+#' @return Layout in a form of 2D matrix.
 #' @export
 #' @seealso igraph::layout_
 #' @examples

@@ -29,10 +29,13 @@ ESC      <- "|"
 #'
 #' This function is a syntactic sugar wrapper for the
 #' \code{\link{annotateVertex}} function. It could be used to quickly load
-#' annotation from the set of files, for example all three branches of GO in
-#' one run. Each file suppose to be TSV file (use TAB as a column separator)
-#' and contains annotation ID in the first column, annotation term in the
-#' second and vertex ID in the third. Names of the columns are ignored.
+#' annotations from a set of files, for example all three branches of GO in
+#' one run. Each file is required to be formatted as a TSV file, i.e. TAB
+#' separated, and contain three columns. The first column containing the
+#' annotation ID, the second column containing the annotation term, and the
+#' third column the graph vertices ID. Names of the columns are ignored.
+
+#'
 #'
 #' @param GG igraph object
 #' @param FILES list of file path strings to read annotation from
