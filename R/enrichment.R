@@ -1,5 +1,11 @@
 #' Calculate annotation enrichment for clusters in the graph
 #'
+#' Calculate the cluster enrichment of a graph given a clustering algorithm
+#' 'alg' and vertex annotation attribute 'name'. Function generates an
+#' enrichment table, one row for each cluster, containing: the cluster ID, the
+#' cluster size, overlap of annotation terms in cluster, p.value of enrichment
+#' using the Hypergeometric test, adjusted p.value Bonferroni correction (BH).
+#'
 #' @param g graph to get annotation from
 #' @param alg cluster algorithm and membership attribute name
 #' @param name annotation attribute name
