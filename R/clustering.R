@@ -85,15 +85,17 @@ calcAllClustering <- function(gg) {
     return(ggm)
 }
 
-#' Calculate memberships for particular clustering algorithms and store
-#' them on the graph vertices.
+#' Calculate community membership for given clustering algorithm and store the
+#' results as new vertex attributes in the graph..
 #'
-#' Results of clustering algorithm application to the same graph could differ
-#' between runs due to use of stochastic algorithm. To allow reproducible
-#' downstream analysis clustering results are stored as graph attributes. This
-#' function call \code{\link{getClustering}} and store membership as vertex
-#' attribute and modularity as graph attribute with attribute name defined by
-#' \code{alg} value.
+#' When applying resampling the clustering results of a clustering algorithm
+#' applied to a graph can differ due to the stochastic nature of the resampling
+#' algorithm. To allow reproducible downstream analysis clustering results are
+#' stored as vertex attributes in the graph. This function call
+#' \code{\link{getClustering}} and stores community membership as new vertex
+#' attribute in the graph, and Modularity as a new graph attribute prefix with
+#' the \code{alg} name.
+#'
 #'
 #' NOTE: \code{\link{getClustering}} verifies algorithm names with
 #' \code{\link[base]{match.arg}} so correct membership will be calculated, but
