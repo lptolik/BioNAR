@@ -18,6 +18,10 @@ maxLSi <- function(XX, BASE = 0) {
 
 #' Calculate parameters for Entropy plot and calculations.
 #'
+#'
+#' Calculates vertex perturbed graph entropy values and parameters.
+#'
+#'
 #' @param gg igroph object
 #'
 #' @return list with values of maxSr and SRo
