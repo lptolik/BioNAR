@@ -15,10 +15,14 @@ annotateTopOntoOVG(gg, dis)
 annotated igraph object
 }
 \description{
-For the protein-protein interaction (PPI) or disease gene interaction (DGN)
-graphs that have EntrezID as a vertex name this function takes annotation
-from \code{dis} matrix and put it on the vertices with attributes
-\code{TopOnto_OVG} for terms and \code{TopOnto_OVG_HDO_ID} for IDs.
+The function loads a human disease annotation matrix called \code{dis}, which
+contains three columns; the first containing gene Entrez IDs, the second gene
+Human Disease Ontology (HDO) ID terms, the third gene HDO description terms.
+For human protein-protein interaction (PPI) or disease-gene networks (DGN)
+that have human Entrez IDs for the igraph vertex name attribute. The function
+then performs a many-to-one mapping of each matrix row to a network vertex
+using matching Entrez IDs, filling the vertices attributes
+\code{TopOnto_OVG_HDO_ID} and \code{TopOnto_OVG}.
 }
 \examples{
 library(synaptome.db)

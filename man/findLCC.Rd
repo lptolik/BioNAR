@@ -2,7 +2,7 @@
 % Please edit documentation in R/buildNetwork.R
 \name{findLCC}
 \alias{findLCC}
-\title{Find Largest Conneced Component of the graph}
+\title{Find Largest Connected Component of the graph}
 \usage{
 findLCC(GG)
 }
@@ -13,7 +13,7 @@ findLCC(GG)
 igraph representation largest CC
 }
 \description{
-Find Largest Conneced Component of the graph
+Find Largest Connected Component of the graph
 }
 \examples{
 g1 <- make_star(10, mode="undirected") \%du\% make_ring(7) \%du\% make_ring(5)

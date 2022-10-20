@@ -2,7 +2,8 @@
 % Please edit documentation in R/runCentrality.R
 \name{calcCentralityInternalDistances}
 \alias{calcCentralityInternalDistances}
-\title{Function calculates matrix of distances between elements of list}
+\title{Function calculates a set of distance metrics between each vertex pair  given
+a list of vertex centrality matrices}
 \usage{
 calcCentralityInternalDistances(l, keepOrder = FALSE, dist = "euclidean")
 }
@@ -19,7 +20,8 @@ matrix with seven columns containing distances between all pairs of
 \code{l} elements.
 }
 \description{
-Function calculates matrix of distances between elements of list
+Function calculates a set of distance metrics between each vertex pair  given
+a list of vertex centrality matrices
 }
 \examples{
 data(karate,package='igraphdata')

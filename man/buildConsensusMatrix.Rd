@@ -2,7 +2,8 @@
 % Please edit documentation in R/consMatrix.R
 \name{buildConsensusMatrix}
 \alias{buildConsensusMatrix}
-\title{Build consensus matrix from the list of clusterings}
+\title{Build a consensus matrix from list of resampled clustering matrices outputted
+from the function sampleGraphClust}
 \usage{
 buildConsensusMatrix(lcc)
 }
@@ -14,5 +15,6 @@ buildConsensusMatrix(lcc)
 consensus matrix
 }
 \description{
-Build consensus matrix from the list of clusterings
+Build a consensus matrix from list of resampled clustering matrices outputted
+from the function sampleGraphClust
 }

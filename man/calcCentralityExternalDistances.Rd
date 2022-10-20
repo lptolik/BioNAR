@@ -2,8 +2,8 @@
 % Please edit documentation in R/runCentrality.R
 \name{calcCentralityExternalDistances}
 \alias{calcCentralityExternalDistances}
-\title{Function calculates matrix of distances between elements of list and
-the reference matrix}
+\title{Function to calculate a distance matrix between a list of permuted vertex
+centrality matrices and a unperturbed reference matrix.}
 \usage{
 calcCentralityExternalDistances(m, l, keepOrder = FALSE, dist = "euclidean")
 }
@@ -23,8 +23,8 @@ matrix with seven columns  containing distances between each element
 of \code{l} and reference matrix \code{m}
 }
 \description{
-Function calculates matrix of distances between elements of list and
-the reference matrix
+Function to calculate a distance matrix between a list of permuted vertex
+centrality matrices and a unperturbed reference matrix.
 }
 \examples{
 data(karate,package='igraphdata')

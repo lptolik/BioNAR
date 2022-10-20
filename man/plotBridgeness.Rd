@@ -11,6 +11,8 @@ plotBridgeness(
   Xatt = "SL",
   Xlab = "Semilocal Centrality (SL)",
   Ylab = "Bridgeness (B)",
+  bsize = 3,
+  spsize = 7,
   MainDivSize = 0.8,
   xmin = 0,
   xmax = 1,
@@ -35,6 +37,10 @@ values. By default \code{SL} for semi-local centrality}
 
 \item{Ylab}{label for the Y-axis}
 
+\item{bsize}{point size for genes}
+
+\item{spsize}{point size for 'specical' genes}
+
 \item{MainDivSize}{size of the line for the region separation lines}
 
 \item{xmin}{low limit for X-axis}
@@ -48,8 +54,9 @@ values. By default \code{SL} for semi-local centrality}
 \item{baseColor}{basic color for genes}
 
 \item{SPColor}{colour highlighting any 'specical' genes}
-
-\item{PSDColor}{}
+}
+\value{
+\code{\link[ggplot2]{ggplot}} object with plot
 }
 \description{
 Semi-local centrality measure (Chen et al., 2011)
@@ -68,4 +75,13 @@ communicating with a few other specific communities (0<Sl<0.5; 0.1<Br<0.5).
 \item Region 4, proteins with 'local' impact , primarily within one or two
 communities (local or party hubs, 0.5<Sl<1, 0<Br<0.5).
 }
+}
+\examples{
+data(karate, package='igraphdata')
+set.seed(100)
+gg <- calcClustering(karate, 'louvain')
+gg <- calcCentrality(gg)
+cnmat <- makeConsensusMatrix(gg, N=10, alg = 'louvain', type = 2, mask = 10)
+gg<-calcBridgeness(gg, alg = 'louvain', cnmat)
+plotBridgeness(gg,alg = 'louvain',VIPs=c("Mr Hi","John A"))
 }
