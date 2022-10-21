@@ -3,12 +3,14 @@
 \docType{data}
 \name{flatfile.go.MF.csv}
 \alias{flatfile.go.MF.csv}
-\title{Title for flatfile.go.MF.csv}
+\title{Annotation from Gene Ontology Molecular Function (GO_MF)}
 \description{
-description for flatfile.go.MF.csv
+Annotation, downloaded from Gene Ontology for Molecular Function domain.
+The table has columns: the first containing gene gene functional group ID
+terms, the second gene functional group description terms,
+the third - Human gene Entrez IDs; in csv format
 }
-\details{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{details for flatfile.go.MF.csv
-}\if{html}{\out{</div>}}
+\seealso{
+\code{\link{annotateGoMF}}
 }
-\keyword{flatfile.go.MF.csv}
+\keyword{file}

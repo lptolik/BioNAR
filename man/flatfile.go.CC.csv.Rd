@@ -3,12 +3,14 @@
 \docType{data}
 \name{flatfile.go.CC.csv}
 \alias{flatfile.go.CC.csv}
-\title{Title for flatfile.go.CC.csv}
+\title{Annotation from Gene Ontology Cellular Compartment (GO_CC)}
 \description{
-description for flatfile.go.CC.csv
+Annotation, downloaded from Gene Ontology for Cellular Compartment domain.
+The table has columns: the first containing gene gene functional group ID
+terms, the second gene functional group description terms,
+the third - Human gene Entrez IDs; in csv format
 }
-\details{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{details for flatfile.go.CC.csv
-}\if{html}{\out{</div>}}
+\seealso{
+\code{\link{annotateGoCC}}
 }
-\keyword{flatfile.go.CC.csv}
+\keyword{file}

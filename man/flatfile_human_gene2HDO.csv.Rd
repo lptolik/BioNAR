@@ -3,12 +3,14 @@
 \docType{data}
 \name{flatfile_human_gene2HDO.csv}
 \alias{flatfile_human_gene2HDO.csv}
-\title{Title for flatfile_human_gene2HDO.csv}
+\title{Human Gene Disease Associations (GDA)}
 \description{
-description for flatfile_human_gene2HDO.csv
+Annotation derived from Human Disease Ontology database (HDO). The table
+contains three columns; the first containing gene Entrez IDs, the second gene
+Human Disease Ontology (HDO) ID terms, the third gene HDO description terms;
+in csv format
 }
-\details{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{details for flatfile_human_gene2HDO.csv
-}\if{html}{\out{</div>}}
+\seealso{
+\code{\link{annotateTopOntoOVG}}
 }
-\keyword{flatfile_human_gene2HDO.csv}
+\keyword{file}

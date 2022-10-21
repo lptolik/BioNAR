@@ -8,11 +8,9 @@
 #'
 #'
 #' @name PPI_Presynaptic.csv
-#' @keywords PPI_Presynaptic.csv
+#' @keywords file
 #' @docType data
-#' @details
-#'     details for PPI_Presynaptic.csv
-#'
+#' @seealso \code{\link{buildNetwork}}
 NULL
 
 #' PPI graph for presynaptic compartment
@@ -30,10 +28,8 @@ NULL
 #'
 #'
 #' @name PPI_Presynaptic.gml
-#' @keywords PPI_Presynaptic.gml
+#' @keywords file
 #' @docType data
-#' @details
-#'     details for PPI_Presynaptic.gml
 #'
 NULL
 
@@ -46,11 +42,9 @@ NULL
 #' description terms, third - gene Human Entrez Ids; in csv format
 #'
 #' @name PresynAn.csv
-#' @keywords PresynAn.csv
+#' @keywords file
 #' @docType data
-#' @details
-#'     details for PresynAn.csv
-#'
+#' @seealso \code{\link{annotatePresynaptic}}
 NULL
 
 #' Schizopherina related synaptic gene functional annotation.
@@ -61,22 +55,32 @@ NULL
 #' the third gene functional group description terms; in csv format
 #'
 #' @name SCH_flatfile.csv
-#' @keywords SCH_flatfile.csv
+#' @keywords file
 #' @docType data
-#' @details
-#'     details for SCH_flatfile.csv
-#'
+#' @seealso \code{\link{annotateSCHanno}}
 NULL
 
-#' Title for diseasome.rda
+#' Barabasi's Diseasome Network
 #'
-#' description for diseasome.rda
+#' In the paper Goh.t al. (2007) doi:10.1073/pnas.0701361104 Barabasi with
+#' colleagues published Diseasome: a network of disorders and disease genes
+#' linked by known disorder–gene associations. We extract definition of the
+#' genes, disorders and interactions from papers supplementary materials and
+#' store it as \code{\link[igraph]{graph}} object.
+#'
+#' Diseasesome is a bipartite graph that have nodes of two types \code{gene}
+#' and \code{disease} and links are allowed only between nodes of different
+#' types. It could be projected to Human Disease Network (HDN) and Disease
+#' Gene Network (DGN).
 #'
 #' @name diseasome.rda
-#' @keywords diseasome.rda
+#' @keywords diseasome
+#' @keywords graphs
+#' @keywords file
+#' @source Goh, K.-I. et al. The human disease network. Proc. Natl. Acad. Sci.
+#' U.S.A. 104, 8685–8690 (2007).
+#' https://pnas.org/doi/full/10.1073/pnas.0701361104
 #' @docType data
-#' @details
-#'     details for diseasome.rda
 #'
 NULL
 
@@ -88,11 +92,9 @@ NULL
 #' the third - Human gene Entrez IDs; in csv format
 #'
 #' @name flatfile.go.BP.csv
-#' @keywords flatfile.go.BP.csv
+#' @keywords file
 #' @docType data
-#' @details
-#'     details for flatfile.go.BP.csv
-#'
+#' @seealso \code{\link{annotateGoBP}}
 NULL
 
 #' Annotation from Gene Ontology Cellular Compartment (GO_CC)
@@ -103,14 +105,12 @@ NULL
 #' the third - Human gene Entrez IDs; in csv format
 #'
 #' @name flatfile.go.CC.csv
-#' @keywords flatfile.go.CC.csv
+#' @keywords file
 #' @docType data
-#' @details
-#'     details for flatfile.go.CC.csv
-#'
+#' @seealso \code{\link{annotateGoCC}}
 NULL
 
-#' Annotation from Gene Ontology Molecular Function (GO_CC)
+#' Annotation from Gene Ontology Molecular Function (GO_MF)
 #'
 #' Annotation, downloaded from Gene Ontology for Molecular Function domain.
 #' The table has columns: the first containing gene gene functional group ID
@@ -118,11 +118,9 @@ NULL
 #' the third - Human gene Entrez IDs; in csv format
 #'
 #' @name flatfile.go.MF.csv
-#' @keywords flatfile.go.MF.csv
+#' @keywords file
 #' @docType data
-#' @details
-#'     details for flatfile.go.MF.csv
-#'
+#' @seealso \code{\link{annotateGoMF}}
 NULL
 
 #' Human Gene Disease Associations (GDA)
@@ -134,9 +132,7 @@ NULL
 #'
 #'
 #' @name flatfile_human_gene2HDO.csv
-#' @keywords flatfile_human_gene2HDO.csv
+#' @keywords file
 #' @docType data
-#' @details
-#'     details for flatfile_human_gene2HDO.csv
-#'
+#' @seealso \code{\link{annotateTopOntoOVG}}
 NULL

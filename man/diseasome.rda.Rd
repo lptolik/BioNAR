@@ -3,12 +3,25 @@
 \docType{data}
 \name{diseasome.rda}
 \alias{diseasome.rda}
-\title{Title for diseasome.rda}
+\title{Barabasi's Diseasome Network}
+\source{
+Goh, K.-I. et al. The human disease network. Proc. Natl. Acad. Sci.
+U.S.A. 104, 8685–8690 (2007).
+https://pnas.org/doi/full/10.1073/pnas.0701361104
+}
 \description{
-description for diseasome.rda
+In the paper Goh.t al. (2007) doi:10.1073/pnas.0701361104 Barabasi with
+colleagues published Diseasome: a network of disorders and disease genes
+linked by known disorder–gene associations. We extract definition of the
+genes, disorders and interactions from papers supplementary materials and
+store it as \code{\link[igraph]{graph}} object.
 }
 \details{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{details for diseasome.rda
-}\if{html}{\out{</div>}}
+Diseasesome is a bipartite graph that have nodes of two types \code{gene}
+and \code{disease} and links are allowed only between nodes of different
+types. It could be projected to Human Disease Network (HDN) and Disease
+Gene Network (DGN).
 }
-\keyword{diseasome.rda}
+\keyword{diseasome}
+\keyword{file}
+\keyword{graphs}

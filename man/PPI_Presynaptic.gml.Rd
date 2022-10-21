@@ -3,12 +3,17 @@
 \docType{data}
 \name{PPI_Presynaptic.gml}
 \alias{PPI_Presynaptic.gml}
-\title{Title for PPI_Presynaptic.gml}
+\title{PPI graph for presynaptic compartment}
 \description{
-description for PPI_Presynaptic.gml
+Protein-protein interactions (PPIS) for presynaptic compartment, extracted
+from Synaptome.db, and saved in a graph format. Graph contains node
+attributes, such as names (Entrez IDs), Gene Names, disease association
+(TopOntoOVG, TopOntoOVGHDOID), annotation with schizophrenia-related genes
+(Schanno (v/c), function annotation from GO (GOBPID, GOBP, GOMFID, GOMF,
+GOCCID, GOCC), centrality measures (DEG - degree, BET - betweenness, CC -
+clustering coefficient,  SL - semilocal centrality, mnSP - mean shortest
+path, PR - page rank, sdSP - standard deviation of the shortest path), and
+clustering memberships for 8 clustering algorithms (lec, wt, fc, infomap,
+louvain, sgG1, sgG2, sgG5)
 }
-\details{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{details for PPI_Presynaptic.gml
-}\if{html}{\out{</div>}}
-}
-\keyword{PPI_Presynaptic.gml}
+\keyword{file}

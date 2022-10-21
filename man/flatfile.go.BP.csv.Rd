@@ -3,12 +3,14 @@
 \docType{data}
 \name{flatfile.go.BP.csv}
 \alias{flatfile.go.BP.csv}
-\title{Title for flatfile.go.BP.csv}
+\title{Annotation from Gene Ontology Biological Process (GO_BP)}
 \description{
-description for flatfile.go.BP.csv
+Annotation, downloaded from Gene Ontology for Biological Proceess domain.
+The table has columns: the first containing gene gene functional group ID
+terms, the second gene functional group description terms,
+the third - Human gene Entrez IDs; in csv format
 }
-\details{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{details for flatfile.go.BP.csv
-}\if{html}{\out{</div>}}
+\seealso{
+\code{\link{annotateGoBP}}
 }
-\keyword{flatfile.go.BP.csv}
+\keyword{file}

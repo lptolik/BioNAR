@@ -3,12 +3,14 @@
 \docType{data}
 \name{SCH_flatfile.csv}
 \alias{SCH_flatfile.csv}
-\title{Title for SCH_flatfile.csv}
+\title{Schizopherina related synaptic gene functional annotation.}
 \description{
-description for SCH_flatfile.csv
+Annotation, manually curated from an external file: Lips et al., (2012)
+doi:10.1038/mp.2011.117.The table has columns: the first
+containing gene Human Entrez IDs, the second gene functional group ID terms,
+the third gene functional group description terms; in csv format
 }
-\details{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{details for SCH_flatfile.csv
-}\if{html}{\out{</div>}}
+\seealso{
+\code{\link{annotateSCHanno}}
 }
-\keyword{SCH_flatfile.csv}
+\keyword{file}

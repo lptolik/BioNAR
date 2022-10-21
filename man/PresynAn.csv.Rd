@@ -3,12 +3,14 @@
 \docType{data}
 \name{PresynAn.csv}
 \alias{PresynAn.csv}
-\title{Title for PresynAn.csv}
+\title{Presynaptic genes specific functional annotation}
 \description{
-description for PresynAn.csv
+Presynaptic genes functional annotation derived from Boyken at al. (2013)
+\url{doi:10.1016/j.neuron.2013.02.027}. The table has columns: the first
+containing  functional group ID terms, the second - gene functional group
+description terms, third - gene Human Entrez Ids; in csv format
 }
-\details{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{details for PresynAn.csv
-}\if{html}{\out{</div>}}
+\seealso{
+\code{\link{annotatePresynaptic}}
 }
-\keyword{PresynAn.csv}
+\keyword{file}

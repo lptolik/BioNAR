@@ -3,12 +3,14 @@
 \docType{data}
 \name{PPI_Presynaptic.csv}
 \alias{PPI_Presynaptic.csv}
-\title{Title for PPI_Presynaptic.csv}
+\title{Table of protein protein interactions for presynaptic compartment}
 \description{
-description for PPI_Presynaptic.csv
+Protein-protein interactions (PPIS) for presynaptic compartment, extracted
+from Synaptome.db, in a csv form. Columns A and B correspond to Entrez IDs
+for interacting proteins A and B (node names); column We contains the edge
+weights, if available.
 }
-\details{
-\if{html}{\out{<div class="sourceCode">}}\preformatted{details for PPI_Presynaptic.csv
-}\if{html}{\out{</div>}}
+\seealso{
+\code{\link{buildNetwork}}
 }
-\keyword{PPI_Presynaptic.csv}
+\keyword{file}
