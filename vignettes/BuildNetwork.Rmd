@@ -213,7 +213,7 @@ summary(gg)
 ```
 
 ## Schizopherina related synaptic gene functional annotation.
-Adding the annottation curated from an external file: Schizophrenia annotaion 
+Adding the annotation curated from an external file: Schizophrenia annotaion 
 curatedcurated from Lips et al., (2012) doi:10.1038/mp.2011.117.
 
 ```{r annotate_Shanno}
