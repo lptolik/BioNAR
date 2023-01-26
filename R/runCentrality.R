@@ -231,7 +231,7 @@ makeDataFrame <- function(m, keep = c('ID')) {
     numcol <- dim(m)[2]
     df <- as.data.frame(m)
     for (i in seq_len(numcol)[-keep.idx]) {
-        df[, i] <- as.numeric(df[, i])
+        df[, i] <- suppressWarnings(as.numeric(df[, i]))
     }
     return(df)
 }
