@@ -27,6 +27,7 @@
 #'   \item cl – cluster ID
 #'   }
 #' @export
+#' @import data.table
 #' @importFrom fgsea fora
 #' @examples
 #' options("show.error.messages"=TRUE)
