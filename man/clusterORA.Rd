@@ -4,7 +4,7 @@
 \alias{clusterORA}
 \title{Calculate annotation enrichment for clusters in the graph}
 \usage{
-clusterORA(g, alg, name, vid = "name", alpha = 0.1, col = COLLAPSE)
+clusterORA(g, alg, name, vid = "name", alpha = 1, col = COLLAPSE)
 }
 \arguments{
 \item{g}{graph to get annotation from}
