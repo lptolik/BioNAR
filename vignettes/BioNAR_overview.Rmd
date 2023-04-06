@@ -241,7 +241,9 @@ GO annotation is specifically supported with the function  [annotateGOont]:
 ```{r annotate_go}
 
 ggGO <- annotateGOont(gg)
+```
 
+```{r annotate_file_go}
 #however, functionality from GO: BP, MF,CC can be added
 
 sfile<-system.file("extdata", "flatfile.go.BP.csv", package = "BioNAR")

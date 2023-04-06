@@ -4,7 +4,7 @@
 \alias{annotateInterpro}
 \title{Add InterPro Family and Domain annotation to the graph vertices}
 \usage{
-annotateInterpro(gg, annoF, annoD)
+annotateInterpro(gg, annoF, annoD, idatt = "name")
 }
 \arguments{
 \item{gg}{graph to update}
@@ -12,6 +12,8 @@ annotateInterpro(gg, annoF, annoD)
 \item{annoF}{family annotation matrix in Pair form}
 
 \item{annoD}{domain  annotation matrix in Pair form}
+
+\item{idatt}{optional name of the vertex attributes that contains Entrez IDs}
 }
 \value{
 annotated igraph object

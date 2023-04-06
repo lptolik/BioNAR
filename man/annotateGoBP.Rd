@@ -4,7 +4,7 @@
 \alias{annotateGoBP}
 \title{Add GO BP annotation to the graph vertices}
 \usage{
-annotateGoBP(gg, annoF)
+annotateGoBP(gg, annoF, idatt = "name")
 }
 \arguments{
 \item{gg}{graph to update}

@@ -4,7 +4,7 @@
 \alias{annotateGoMF}
 \title{Add GO MF annotation to the graph vertices}
 \usage{
-annotateGoMF(gg, annoF)
+annotateGoMF(gg, annoF, idatt = "name")
 }
 \arguments{
 \item{gg}{graph to update}

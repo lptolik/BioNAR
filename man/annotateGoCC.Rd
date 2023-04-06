@@ -4,7 +4,7 @@
 \alias{annotateGoCC}
 \title{Add GO CC  annotation to the graph vertices}
 \usage{
-annotateGoCC(gg, annoF)
+annotateGoCC(gg, annoF, idatt = "name")
 }
 \arguments{
 \item{gg}{graph to update}

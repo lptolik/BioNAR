@@ -4,12 +4,14 @@
 \alias{annotateSCHanno}
 \title{Add SCHanno synaptic functional groups}
 \usage{
-annotateSCHanno(gg, anno)
+annotateSCHanno(gg, anno, idatt = "name")
 }
 \arguments{
 \item{gg}{igraph object to annotate}
 
 \item{anno}{annotation matrix in Pairs form}
+
+\item{idatt}{optional name of the vertex attributes that contains Entrez IDs}
 }
 \value{
 annotated igraph object

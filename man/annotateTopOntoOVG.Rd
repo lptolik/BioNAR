@@ -4,12 +4,14 @@
 \alias{annotateTopOntoOVG}
 \title{Annotate graph with disease terms}
 \usage{
-annotateTopOntoOVG(gg, dis)
+annotateTopOntoOVG(gg, dis, idatt = "name")
 }
 \arguments{
 \item{gg}{igraph object to annotate}
 
 \item{dis}{annotation matrix in Pairs form}
+
+\item{idatt}{optional name of the vertex attributes that contains Entrez IDs}
 }
 \value{
 annotated igraph object
