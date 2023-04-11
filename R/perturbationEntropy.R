@@ -317,12 +317,12 @@ plotEntropy <- function(SRprime,
             geom_hline(
                 yintercept = SRo / maxSr,
                 colour = "black",
-                size = 2,
+                linewidth = 2,
                 linetype = 2,
                 show.legend = FALSE
             )
     }
     # geom_hline(yintercept=SRo/maxSr,colour="grey40",
-    #            size=2,linetype=2,show.legend=F)
+    #            linewidth=2,linetype=2,show.legend=F)
     return(gplot)
 }

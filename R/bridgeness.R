@@ -305,9 +305,9 @@ plotBridgeness<-function(gg,alg,VIPs,
               panel.grid.minor = element_line(colour="grey40",size=0.1),
               panel.background = element_rect(fill="white"),
               panel.border = element_rect(linetype="solid",fill=NA))+
-        geom_vline(xintercept=0.5,colour="grey40",size=MainDivSize,
+        geom_vline(xintercept=0.5,colour="grey40",linewidth=MainDivSize,
                    linetype=2,show.legend=FALSE)+
-        geom_hline(yintercept=0.5,colour="grey40",size=MainDivSize,
+        geom_hline(yintercept=0.5,colour="grey40",linewidth=MainDivSize,
                    linetype=2,show.legend=FALSE)
     return(g)
 }

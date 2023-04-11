@@ -63,11 +63,17 @@ clusterORA <- function(g,
                               ((cn-overlap)*(size-overlap))),
                     CIw= sqrt(1/overlap+1/(cn-overlap)+1/(size-overlap)+
                               1/(vcnt-size+overlap-cn)),
-                    Fe=log2((overlap/size)/den),
-                    pval,padj)]
-        res<-as.data.frame(res[,.(cl,FL,N,F,Cn,Mu,OR,
+                    Fe=(overlap/size)/den,
+                    Fc=(overlap/cn)/den,
+                    pval,padj,
+                    overlapGenes)]
+        res$palt <- sapply(1:dim(res)[1], function(.i){fisher(res$Mu[.i],res$F[.i],res$Cn[.i],res$N[.i],alternative = 'less')})
+
+        res<-as.data.frame(res[,.(alg=alg,cl,FL,N,F,Cn,Mu,OR,
                                   CIl=OR-1.96*CIw,CIu=OR+1.96*CIw,
-                               Fe,pval,padj)])
+                               Fe,Fc,pval,padj,palt,paltadj=p.adjust(palt,method = 'BH'),
+                               overlapGenes)])
+
         return(res)
     }
     resL <- lapply(seq_along(cl), forafun)
@@ -79,13 +85,16 @@ clusterORA <- function(g,
     return(res)
 }
 
-fisher <- function( mu, P, F, N ){
+fisher <- function( mu, P, F, N,alternative = 'less' ){
 
-    mm  <- matrix(c(mu,(P-mu),(F-mu),(N-P-F-mu)),2,2)
-    res <- fisher.test(mm)
+    mm  <- matrix(c(mu,(P-mu),(F-mu),(N-P-F+mu)),2,2)
+    res <- fisher.test(mm,alternative = alternative)
     return(res$p.value)
 }
 
+lsum<-function(x){
+    return(length(which(x)))
+}
 #' Calculate summary statistics from enrichment table
 #'
 #' @param RES enrichment results \code{data.frame}
@@ -102,19 +111,20 @@ summaryStats <- function( RES, ALPHA, usePadj=FALSE, FeMAX=0, FcMAX=0 ){
 
     CN <- colnames(RES[[1]])
 
-    ALGi   = which(CN=="Alg")[1]
-    Pvi    = which(CN=="Pv")[1]
-    PvALTi = which(CN=="PvALT")[1]
+    ALGi   = which(CN=="alg")[1]
+    Pvi    = which(CN=="pval")[1]
+    PvALTi = which(CN=="palt")[1]
     if( usePadj ){
-        Pvi    = which(CN=="Ap")[1]
-        PvALTi = which(CN=="ApALT")[1]
+        Pvi    = which(CN=="padj")[1]
+        PvALTi = which(CN=="paltadj")[1]
     }
     ORi    = which(CN=="OR")[1]
     CIli   = which(CN=="CIl")[1]
     Fei    = which(CN=="Fe")[1]
     Fci    = which(CN=="Fc")[1]
 
-    Ci     = which(CN=="C")[1]
+    Ci     = which(CN=="cl")[1]
+    Fli    = which(CN=="FL")[1]
     Cni    = which(CN=="Cn")[1]
     Mui    = which(CN=="Mu")[1]
 
@@ -165,38 +175,38 @@ summaryStats <- function( RES, ALPHA, usePadj=FALSE, FeMAX=0, FcMAX=0 ){
 
         sum1[i,4] = Ncn ##
 
-        sum1[i,5] = sum(P <= ALPHA)
+        sum1[i,5] = lsum(P <= ALPHA)
 
-        sum1[i,6] = sum(Palt <= ALPHA)
+        sum1[i,6] = lsum(Palt <= ALPHA)
 
-        sum1[i,7] =  sum(OR > 1)
+        sum1[i,7] =  lsum(OR > 1)
 
-        sum1[i,8] =  sum(OR > 1 & CI > 1)
+        sum1[i,8] =  lsum(OR > 1 & CI > 1)
 
-        sum1[i,9] =  sum(OR > 1 & CI > 1 & P <= ALPHA)
+        sum1[i,9] =  lsum(OR > 1 & CI > 1 & P <= ALPHA)
 
-        sum1[i,10] =  sum(OR > 1 & CI > 1 & Palt <= ALPHA)
+        sum1[i,10] =  lsum(OR > 1 & CI > 1 & Palt <= ALPHA)
 
-        sum1[i,11] = sum( log2(FE) > 0.5 & log2(FE) < 4.8 )
+        sum1[i,11] = lsum( log2(FE) > 0.5 & log2(FE) < 4.8 )
 
-        sum1[i,12] = sum(OR > 1 & CI > 1 & P <= ALPHA & log2(FE) > 0.5 & log2(FE) < 4.8 )
+        sum1[i,12] = lsum(OR > 1 & CI > 1 & P <= ALPHA & log2(FE) > 0.5 & log2(FE) < 4.8 )
 
         sum2[i,1] =  as.character(RES[[i]][1,ALGi])
-        sum2[i,2] =  sum(OR > 1 & CI > 1 & P <= ALPHA)
+        sum2[i,2] =  lsum(OR > 1 & CI > 1 & P <= ALPHA)
         for( j in 1:length(hh) ){
-            sum2[i,(j+2)] = sum(OR > 1 & CI > 1 & P <= ALPHA & CNo > ((cmin[j]*N)/100) & CNo < ((10*N)/100) )
+            sum2[i,(j+2)] = lsum(OR > 1 & CI > 1 & P <= ALPHA & CNo > ((cmin[j]*N)/100) & CNo < ((10*N)/100) )
         }
 
         sum3[i,1] =  as.character(RES[[i]][1,ALGi])
-        sum3[i,2] =  sum(OR > 1 & CI > 1 & P <= ALPHA)
+        sum3[i,2] =  lsum(OR > 1 & CI > 1 & P <= ALPHA)
         for( j in 1:length(hh2) ){
-            sum3[i,(j+2)] = sum(OR > 1 & CI > 1 & P <= ALPHA & log2(FE) > femin[j] )
+            sum3[i,(j+2)] = lsum(OR > 1 & CI > 1 & P <= ALPHA & log2(FE) > femin[j] )
         }
 
         sum4[i,1] =  as.character(RES[[i]][1,ALGi])
-        sum4[i,2] =  sum(OR > 1 & CI > 1 & P <= ALPHA)
+        sum4[i,2] =  lsum(OR > 1 & CI > 1 & P <= ALPHA)
         for( j in 1:length(hh3) ){
-            sum4[i,(j+2)] = sum(OR > 1 & CI > 1 & P <= ALPHA & log2(FC) > fcmin[j] )
+            sum4[i,(j+2)] = lsum(OR > 1 & CI > 1 & P <= ALPHA & log2(FC) > fcmin[j] )
         }
 
         sum1[i,13] = (as.numeric(sum1[i,9]) / as.numeric(sum1[i,4])) * 100
@@ -205,19 +215,19 @@ summaryStats <- function( RES, ALPHA, usePadj=FALSE, FeMAX=0, FcMAX=0 ){
                             as.numeric(sum1[i,11]), as.numeric(sum1[i,4]))
 
         #store candidate enriched functional communities
-        indx <- OR > 1 & CI > 1 & P <= ALPHA & log2(FE) > 0
-        n    <- sum(indx)
+        indx <- which(OR > 1 & CI > 1 & P <= ALPHA & log2(FE) > 0)
+
+        n    <- length(indx)
         A    <- rep(sum1[i,1],n)
-        B    <- RES[[i]][indx,1]
-        C    <- RES[[i]][indx,2]
+        B    <- RES[[i]][indx,Fli]
+        C    <- RES[[i]][indx,Ci]
         D    <- RES[[i]][indx,Mui]
         cand <- rbind(cand,data.frame(A,B,C,D))
     }
 
     colnames(cand) <- c("ALG","Fn","C","Mu")
 
-    return(new("STAT",
-               SUM=sum1,
+    return(list(SUM=sum1,
                SUM2=sum2,
                SUM3=sum3,
                SUM4=sum4,

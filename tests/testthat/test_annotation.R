@@ -108,6 +108,7 @@ test_that('File annotation',{
 
 test_that('Enrichment',{
     anL<-getAnnotationVertexList(gg, 'TopOntoOVGHDOID')
-    res<-clusterORA(gg, alg='louvain', name='TopOntoOVGHDOID', vid='name')
-    expect_equal(dim(res),c(18,7))
+    res<-clusterORA(gg, alg='louvain', name='TopOntoOVGHDOID', vid='name',
+                    alpha=0.1)
+    expect_equal(dim(res),c(18,15))
 })
