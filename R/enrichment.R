@@ -303,7 +303,7 @@ plotRatio <- function(x,
 
     #---
     rank = rank[order(as.numeric(rank[,2]),decreasing=T),]
-    colnames(rank) <- c("Alg","FacComsEnriched_log2(FE)>0.5_log2(FE)<4.8","FacComsEnriched_log2(FE)>4.8_log2(FE)<8.0")
+    colnames(rank) <- c("Alg","FracComsEnriched_log2(FE)>0.5_log2(FE)<4.8","FracComsEnriched_log2(FE)>4.8_log2(FE)<8.0")
     #write.table(rank, sprintf("ranking_%s.csv",desc), sep="\t", row.names=F, col.names=T, quote=F)
 
 
@@ -436,7 +436,7 @@ plotRatio <- function(x,
                size  = 'none')
 
 if(is.null(type)){
-    return(list(p1=gplot,p2=gplot2,p3=gplot3,p4=gplot4))
+    return(list(p1=gplot,p2=gplot2,p3=gplot3,p4=gplot4,ranktable=rank))
         }else if(type==1){
 
         return(gplot)
