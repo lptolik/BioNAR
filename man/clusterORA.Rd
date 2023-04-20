@@ -49,6 +49,6 @@ anL<-getAnnotationVertexList(g, 'TopOntoOVGHDOID')
 res<-clusterORA(g, alg='louvain', name='TopOntoOVGHDOID', vid='name')
 andf<-unique(data.frame(ID=get.vertex.attribute(g, 'TopOntoOVGHDOID'),
 Term=get.vertex.attribute(g, 'TopOntoOVG')))
-rr<-merge(andf, res, by.y='pathway', by.x='ID')
+rr<-merge(andf, res, by.y='FL', by.x='ID')
 rr[order(rr$cl), ]
 }

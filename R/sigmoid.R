@@ -63,9 +63,9 @@ highlightRate <- function( rates, val=-2){
 plotSigmoid <- function( x, rates, model, alg="", pv=0 ){
 
     conf     <- NULL
-    try(conf <- confint(model), FALSE)
+    conf <- try(confint(model), silent = TRUE)
 
-    if( !is.null(conf) ){
+    if( !inherits(conf,'try-error') ){
         # adding the 95% confidence interval around the fitted coefficient
         lower = list(a=conf[1, 1], b=conf[2, 1], c=conf[3, 1], d=conf[4, 1])
         upper = list(a=conf[1, 2], b=conf[2, 2], c=conf[3, 2], d=conf[4, 2])
@@ -75,7 +75,7 @@ plotSigmoid <- function( x, rates, model, alg="", pv=0 ){
     y    <- model$m$lhs()
     yhat <- as.vector(fitted(model))
 
-    if( !is.null(conf) ){
+    if( !inherits(conf,'try-error') ){
         ylower <- sigmoid(pars=lower, xx=x)
         yupper <- sigmoid(pars=upper, xx=x)
     } else {
@@ -104,7 +104,8 @@ plotSigmoid <- function( x, rates, model, alg="", pv=0 ){
     ##---
 
     ##--- data.frame to plot
-    colnames(df) <- c("alg", "x", "y", "yhat", "ylower", "yupper", sprintf("yiR%f", seq(1,R,1)))
+    colnames(df) <- c("alg", "x", "y", "yhat", "ylower", "yupper", sprintf("yiR%.0f", seq(1,R,1)))
+    #cat(format(Sys.time(), "%b %d %X"),colnames(df),'\n')
     df <- as.data.frame(df)
 
     ##--- labels
@@ -126,20 +127,20 @@ plotSigmoid <- function( x, rates, model, alg="", pv=0 ){
     ##---
 
     ##--- build the plot
-    gplot <- ggplot(df, aes(as.numeric(df$x)))+
-        geom_point(aes(y=as.numeric(as.vector(df$y))),   shape=1, size=2.5)+
-        geom_line(aes(y=as.numeric(as.vector(df$yhat))), linetype="dashed", color="red", size=2)+
-        geom_line(aes(y=as.numeric(as.vector(df$yiR1))), linetype="solid", color=Rcol[1], size=Rsize[1])+
-        geom_line(aes(y=as.numeric(as.vector(df$yiR2))), linetype="solid", color=Rcol[2], size=Rsize[2])+
-        geom_line(aes(y=as.numeric(as.vector(df$yiR3))), linetype="solid", color=Rcol[3], size=Rsize[3])+
-        geom_line(aes(y=as.numeric(as.vector(df$yiR4))), linetype="solid", color=Rcol[4], size=Rsize[4])+
-        geom_line(aes(y=as.numeric(as.vector(df$yiR5))), linetype="solid", color=Rcol[5], size=Rsize[5])+
+    gplot <- ggplot(df, aes(as.numeric(x)))+
+        geom_point(aes(y=as.numeric(as.vector(y))),   shape=1, size=2.5)+
+        geom_line(aes(y=as.numeric(as.vector(yhat))), linetype="dashed", color="red", size=2)+
+        geom_line(aes(y=as.numeric(as.vector(yiR1))), linetype="solid", color=Rcol[1], size=Rsize[1])+
+        geom_line(aes(y=as.numeric(as.vector(yiR2))), linetype="solid", color=Rcol[2], size=Rsize[2])+
+        geom_line(aes(y=as.numeric(as.vector(yiR3))), linetype="solid", color=Rcol[3], size=Rsize[3])+
+        geom_line(aes(y=as.numeric(as.vector(yiR4))), linetype="solid", color=Rcol[4], size=Rsize[4])+
+        geom_line(aes(y=as.numeric(as.vector(yiR5))), linetype="solid", color=Rcol[5], size=Rsize[5])+
         #geom_line(aes(y=as.numeric(as.vector(df$yiR6))), linetype="solid", color=Rcol[6], size=Rsize[6])+
-        {if(plotCI)geom_line(aes(y=as.numeric(as.vector(df$ylower))), linetype="dashed", color="blue", size=2)}+
-        {if(plotCI)geom_line(aes(y=as.numeric(as.vector(df$yupper))), linetype="dashed", color="blue", size=2)}+
+        {if(plotCI)geom_line(aes(y=as.numeric(as.vector(ylower))), linetype="dashed", color="blue", size=2)}+
+        {if(plotCI)geom_line(aes(y=as.numeric(as.vector(yupper))), linetype="dashed", color="blue", size=2)}+
         labs(x="log2(Fe)",y="Fraction of Enriched Communities",title=sprintf("%s, KS GoF = %3.e", alg, pv))+
-        theme(axis.title.x=element_text(face="bold",size=rel(1.5)),
-              axis.title.y=element_text(face="bold",size=rel(1.5)),
+        theme(axis.title.x=element_text(face="bold",size=rel(1.1)),
+              axis.title.y=element_text(face="bold",size=rel(1.1)),
               legend.text=element_text(face="bold",size=rel(1.5)),
               plot.title=element_text(face="bold",size=rel(1.5)),
               legend.position="bottom")+
@@ -150,9 +151,9 @@ plotSigmoid <- function( x, rates, model, alg="", pv=0 ){
               panel.grid.minor = element_line(colour="grey40",size=0.1),
               panel.background = element_rect(fill = "white"),
               panel.border = element_rect(linetype="solid",fill=NA))+
-        guides(color = FALSE,
-               alpha = FALSE,
-               size  = FALSE)
+        guides(color = 'none',
+               alpha = 'none',
+               size  = 'none')
     ##---
 
     return(list(gplot=gplot, df=df))
@@ -197,14 +198,21 @@ gofs <- function(x, rate, model, sigma2=NULL, countDATA=TRUE ){
 
 #' Fit Fe distribution to sigmoid function
 #'
-#' @param df enrichment \code{data.frame}
+#' Grid plot is designed in a way to be viewed in the device at least 12 inches
+#' in width and 12 inches in height.
+#'
+#' @param stat enrichment results
 #' @param SDv vector of noise SD values
 #'
 #' @return list of fitted functions tables and plots
 #'
 #' @importFrom minpack.lm nls.lm.control nlsLM
+#' @importFrom cowplot plot_grid
+#' @importFrom stats confint fisher.test fitted ks.test median
+#' @importFrom stats p.adjust quantile rnorm
 #' @export
-fitSigmoid<-function(df,SDv=c(0, 0.05, 0.1, 0.5)){
+fitSigmoid<-function(stat,SDv=c(0, 0.05, 0.1, 0.5)){
+    df<-stat$SUM3
     x.range.value  = "6.0"
     Xmax = match(x.range.value,colnames(df))
     tt   = df[,1:Xmax]
@@ -293,7 +301,8 @@ fitSigmoid<-function(df,SDv=c(0, 0.05, 0.1, 0.5)){
             }
         }
 
-        p <- cowplot::plot_grid(plotlist=GPLOTS, labels = "AUTO", label_size=50, label_fontface="bold")
+        p <- cowplot::plot_grid(plotlist=GPLOTS,
+                                labels = "AUTO", label_size=20, label_fontface="bold")
         #ggsave(sprintf("%s/Fitting_%s.png",plotDIR,SDlab[s]), p, width=20, height=20, device="png")
 
         #write.table(oo, sprintf("%s/ks_pv_sd_%s.csv",plotDIR, SDlab[s]), sep="\t", col.names=T, row.names=F, quote=F)

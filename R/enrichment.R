@@ -37,7 +37,7 @@
 #' res<-clusterORA(g, alg='louvain', name='TopOntoOVGHDOID', vid='name')
 #' andf<-unique(data.frame(ID=get.vertex.attribute(g, 'TopOntoOVGHDOID'),
 #' Term=get.vertex.attribute(g, 'TopOntoOVG')))
-#' rr<-merge(andf, res, by.y='pathway', by.x='ID')
+#' rr<-merge(andf, res, by.y='FL', by.x='ID')
 #' rr[order(rr$cl), ]
 clusterORA <- function(g,
                        alg,
@@ -239,7 +239,7 @@ summaryStats <- function( RES, ALPHA, usePadj=FALSE, FeMAX=0, FcMAX=0 ){
 
 #' Plot fraction of enriched communities
 #'
-#' @param xx enrichment statistics
+#' @param x enrichment statistics
 #' @param desc plot subtitle
 #' @param anno name of annotation used
 #' @param LEGtextSize size of the text
@@ -249,17 +249,16 @@ summaryStats <- function( RES, ALPHA, usePadj=FALSE, FeMAX=0, FcMAX=0 ){
 #' @return ggplot object
 #' @export
 #' @import viridis
-#'
-#' @examples
-plotRatio <- function(xx,
+plotRatio <- function(x,
                       desc="", anno="",
                       LEGtextSize=1.5,
                       LEGlineSize=4,
-                      type=c('1','2','3','4')){
+                      type=NULL){
+    #type=c('1','2','3','4')){
 
 
     #---For p.values
-    #xx  = statsR1@SUM3 #Fe
+    xx  = x$SUM3 #Fe
     Nxx = length(colnames(xx))
     df  = data.frame()
 
@@ -342,7 +341,6 @@ plotRatio <- function(xx,
     #LEGlineSize=4    #Selected ALgs
 
     colours = df$COL[match(levels(factor(df$ALG)),df$ALG)]
-if(type==1){
     gplot <- ggplot(df,aes(x=(as.numeric(df$X)),y=as.numeric(as.vector(df$Y)),colour=df$ALG))+
         geom_line(size=as.numeric(as.vector(df$LSIZE)),alpha=as.numeric(as.vector(df$ALPHA)))+
         labs(x="log2(Fe)",y="Fraction of Enriched Communities",title=anno)+
@@ -353,7 +351,7 @@ if(type==1){
               legend.position="bottom")+
         scale_color_manual("",breaks=c(levels(factor(df$ALG))),values=c(colours))+
         scale_y_continuous(expand=c(0,0),limits=c(0,1))+
-        scale_x_discrete(expand=c(0,0), limit=xval, labels=xlab)+
+        scale_x_continuous(expand=c(0,0), limit=xval, labels=xlab)+
         theme(panel.grid.major = element_line(colour = "grey40"),
               panel.grid.minor = element_line(colour="grey40",size=0.1),
               panel.background = element_rect(fill = "white"),
@@ -362,12 +360,8 @@ if(type==1){
         geom_vline(xintercept=(as.numeric(X2)),colour="grey10",size=SIZEb,linetype=2,show.legend=F)+
         geom_vline(xintercept=(as.numeric(X3)),colour="grey10",size=SIZEb,linetype=2,show.legend=F)+
         guides(color = guide_legend(override.aes = list(size=LEGlineSize)),
-               alpha = FALSE,
-               size  = FALSE)
-
-    print(gplot)
-
-}else if(type == 2){
+               alpha = 'none',
+               size  = 'none')
 
     gplot2 <- ggplot(df,aes(x=log(as.numeric(df$X)),y=as.numeric(as.vector(df$Y)),colour=df$ALG))+
         geom_line(size=as.numeric(as.vector(df$LSIZE)),alpha=as.numeric(as.vector(df$ALPHA)))+
@@ -379,7 +373,7 @@ if(type==1){
               legend.position="bottom")+
         scale_color_manual("",breaks=c(levels(factor(df$ALG))),values=c(colours))+
         scale_y_continuous(expand=c(0,0),limits=c(0,1))+
-        scale_x_discrete(expand=c(0,0), limit=xval, labels=xlab)+
+        scale_x_continuous(expand=c(0,0), limit=xval, labels=xlab)+
         theme(panel.grid.major = element_line(colour = "grey40"),
               panel.grid.minor = element_line(colour="grey40",size=0.1),
               panel.background = element_rect(fill = "white"),
@@ -388,11 +382,8 @@ if(type==1){
         geom_vline(xintercept=log(as.numeric(X2)),colour="grey10",size=SIZEb,linetype=2,show.legend=F)+
         geom_vline(xintercept=log(as.numeric(X3)),colour="grey10",size=SIZEb,linetype=2,show.legend=F)+
         guides(color = guide_legend(override.aes = list(size=LEGlineSize)),
-               alpha = FALSE,
-               size  = FALSE)
-
-    return(gplot2)
-}else if(type == 3){
+               alpha = 'none',
+               size  = 'none')
 
     gplot3 <- ggplot(df,aes(x=(as.numeric(df$X)),y=as.numeric(as.vector(df$Y)),colour=df$ALG))+
         geom_line(size=as.numeric(as.vector(df$LSIZE)),alpha=as.numeric(as.vector(df$ALPHA)))+
@@ -404,7 +395,7 @@ if(type==1){
               legend.position="bottom")+
         scale_color_viridis("",discrete = TRUE, option = "D")+
         scale_y_continuous(expand=c(0,0),limits=c(0,1))+
-        scale_x_discrete(expand=c(0,0), limit=xval, labels=xlab)+
+        scale_x_continuous(expand=c(0,0), limit=xval, labels=xlab)+
         theme(panel.grid.major = element_line(colour = "grey40"),
               panel.grid.minor = element_line(colour="grey40",size=0.1),
               panel.background = element_rect(fill = "white"),
@@ -413,11 +404,9 @@ if(type==1){
         geom_vline(xintercept=(as.numeric(X2)),colour="grey10",size=SIZEb,linetype=2,show.legend=F)+
         geom_vline(xintercept=(as.numeric(X3)),colour="grey10",size=SIZEb,linetype=2,show.legend=F)+
         guides(color = guide_legend(override.aes = list(size=LEGlineSize)),
-               alpha = FALSE,
-               size  = FALSE)
+               alpha = 'none',
+               size  = 'none')
 
-        return(gplot3)
-}else if(type == 4){
     gplot4 <- ggplot(df,aes(x=log(as.numeric(df$X)),y=as.numeric(as.vector(df$Y)),colour=df$ALG))+
         geom_line(size=as.numeric(as.vector(df$LSIZE)),alpha=as.numeric(as.vector(df$ALPHA)))+
         labs(x="log(log2(Fe))",y="Fraction of Enriched Communities",title=anno)+
@@ -428,7 +417,7 @@ if(type==1){
               legend.position="bottom")+
         scale_color_viridis("",discrete = TRUE, option = "D")+
         scale_y_continuous(expand=c(0,0),limits=c(0,1))+
-        scale_x_discrete(expand=c(0,0), limit=xval, labels=xlab)+
+        scale_x_continuous(expand=c(0,0), limit=xval, labels=xlab)+
         theme(panel.grid.major = element_line(colour = "grey40"),
               panel.grid.minor = element_line(colour="grey40",size=0.1),
               panel.background = element_rect(fill = "white"),
@@ -437,10 +426,22 @@ if(type==1){
         geom_vline(xintercept=log(as.numeric(X2)),colour="grey10",size=SIZEb,linetype=2,show.legend=F)+
         geom_vline(xintercept=log(as.numeric(X3)),colour="grey10",size=SIZEb,linetype=2,show.legend=F)+
         guides(color = guide_legend(override.aes = list(size=LEGlineSize)),
-               alpha = FALSE,
-               size  = FALSE)
+               alpha = 'none',
+               size  = 'none')
 
-    return(gplot4)
+if(is.null(type)){
+    return(list(p1=gplot,p2=gplot2,p3=gplot3,p4=gplot4))
+        }else if(type==1){
+
+        return(gplot)
+
+    }else if(type == 2){
+
+        return(gplot2)
+    }else if(type == 3){
+        return(gplot3)
+    }else if(type == 4){
+        return(gplot4)
 }
 }
 
