@@ -4,7 +4,7 @@
 \alias{fitSigmoid}
 \title{Fit Fe distribution to sigmoid function}
 \usage{
-fitSigmoid(df, SDv)
+fitSigmoid(df, SDv = c(0, 0.05, 0.1, 0.5))
 }
 \arguments{
 \item{df}{enrichment \code{data.frame}}

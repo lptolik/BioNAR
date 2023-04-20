@@ -95,6 +95,8 @@ fisher <- function( mu, P, F, N,alternative = 'less' ){
 lsum<-function(x){
     return(length(which(x)))
 }
+
+
 #' Calculate summary statistics from enrichment table
 #'
 #' @param RES enrichment results \code{data.frame}
@@ -246,6 +248,7 @@ summaryStats <- function( RES, ALPHA, usePadj=FALSE, FeMAX=0, FcMAX=0 ){
 #'
 #' @return ggplot object
 #' @export
+#' @import viridis
 #'
 #' @examples
 plotRatio <- function(xx,
@@ -253,4 +256,191 @@ plotRatio <- function(xx,
                       LEGtextSize=1.5,
                       LEGlineSize=4,
                       type=c('1','2','3','4')){
+
+
+    #---For p.values
+    #xx  = statsR1@SUM3 #Fe
+    Nxx = length(colnames(xx))
+    df  = data.frame()
+
+    #--- labels
+    xlab = colnames(xx)[3:Nxx]
+    xval = seq(0,(length(xlab)-1),1)
+    xlim = c(0,25,50,75,100)
+
+    indx = match(xlim,xval)
+    xval = xval[indx]
+    xlab = xlab[indx]
+    #---
+
+    #--- test intervals
+    X1 = 7
+    X2 = 54
+    X3 = 90
+
+    rank <- matrix("",ncol=3,nrow=length(xx[,1]))
+
+    for( i in 1:length(xx[,1]) ){
+
+        size  = rep(1.8,length(xx[i,1]))
+        alpha = rep(0.7,length(xx[i,1]))
+        col   = rep("grey", length(xx[i,1]))
+        xlabs = colnames(xx)[3:Nxx]
+
+        tmp = cbind(xx[i,1],seq(1,(Nxx-2),1),as.numeric(xx[i,3:Nxx])/as.numeric(xx[i,2]), size, alpha, col, xlabs)
+
+        df = rbind(df,tmp)
+
+        zz0 = as.numeric(as.vector(xx[i,2]))
+        zz  = as.numeric(as.vector(xx[i,3:Nxx]))
+
+        rank[i,1] = xx[i,1]
+        rank[i,2] = ifelse( zz0 == 0, 0, (zz[7]  - zz[54])/zz0)
+        rank[i,3] = ifelse( zz0 == 0, 0, (zz[54] - zz[90])/zz0)
+
+    }
+
+    #---
+    rank = rank[order(as.numeric(rank[,2]),decreasing=T),]
+    colnames(rank) <- c("Alg","FacComsEnriched_log2(FE)>0.5_log2(FE)<4.8","FacComsEnriched_log2(FE)>4.8_log2(FE)<8.0")
+    #write.table(rank, sprintf("ranking_%s.csv",desc), sep="\t", row.names=F, col.names=T, quote=F)
+
+
+    colnames(df) <- c("ALG","X","Y","LSIZE","ALPHA","COL","XLAB")
+    df           <- df[order(match(df[,1],rank[,1])),]
+    df$ALG       <- factor(df$ALG, levels=rank[,1])
+    df           <- as.data.frame(df)
+
+    if( length(which(df$ALG == rank[1,1])) != 0 ){
+        df$COL[df$ALG   == rank[1,1]]="royalblue"#lawngreen"
+            df$ALPHA[df$ALG == rank[1,1]]= 1.0
+
+    }
+
+    if( length(which(df$ALG == rank[2,1])) != 0 ){
+        df$COL[df$ALG   == rank[2,1]]="green2"
+            df$ALPHA[df$ALG == rank[2,1]]= 1.0
+
+    }
+
+
+    if( length(which(df$ALG == rank[3,1])) != 0 ){
+        df$COL[df$ALG   == rank[3,1]]="magenta"
+            df$ALPHA[df$ALG == rank[3,1]]= 1.0
+    }
+    #---
+
+    #---Generate plot
+    SIZEa=2
+    SIZEb=2
+
+    #---legend
+    #LEGtextSize=0.75 #ALL Algs
+    #LEGtextSize=1.5   #Selected ALgs
+
+    #LEGlineSize=2    #ALL Algs
+    #LEGlineSize=4    #Selected ALgs
+
+    colours = df$COL[match(levels(factor(df$ALG)),df$ALG)]
+if(type==1){
+    gplot <- ggplot(df,aes(x=(as.numeric(df$X)),y=as.numeric(as.vector(df$Y)),colour=df$ALG))+
+        geom_line(size=as.numeric(as.vector(df$LSIZE)),alpha=as.numeric(as.vector(df$ALPHA)))+
+        labs(x="log2(Fe)",y="Fraction of Enriched Communities",title=anno)+
+        theme(axis.title.x=element_text(face="bold",size=rel(1.5)),
+              axis.title.y=element_text(face="bold",size=rel(1.5)),
+              legend.text=element_text(face="bold",size=rel(LEGtextSize)),
+              plot.title=element_text(face="bold",size=rel(1.5)),
+              legend.position="bottom")+
+        scale_color_manual("",breaks=c(levels(factor(df$ALG))),values=c(colours))+
+        scale_y_continuous(expand=c(0,0),limits=c(0,1))+
+        scale_x_discrete(expand=c(0,0), limit=xval, labels=xlab)+
+        theme(panel.grid.major = element_line(colour = "grey40"),
+              panel.grid.minor = element_line(colour="grey40",size=0.1),
+              panel.background = element_rect(fill = "white"),
+              panel.border = element_rect(linetype="solid",fill=NA))+
+        geom_vline(xintercept=(as.numeric(X1)),colour="grey10",size=SIZEb,linetype=2,show.legend=F)+
+        geom_vline(xintercept=(as.numeric(X2)),colour="grey10",size=SIZEb,linetype=2,show.legend=F)+
+        geom_vline(xintercept=(as.numeric(X3)),colour="grey10",size=SIZEb,linetype=2,show.legend=F)+
+        guides(color = guide_legend(override.aes = list(size=LEGlineSize)),
+               alpha = FALSE,
+               size  = FALSE)
+
+    print(gplot)
+
+}else if(type == 2){
+
+    gplot2 <- ggplot(df,aes(x=log(as.numeric(df$X)),y=as.numeric(as.vector(df$Y)),colour=df$ALG))+
+        geom_line(size=as.numeric(as.vector(df$LSIZE)),alpha=as.numeric(as.vector(df$ALPHA)))+
+        labs(x="log(log2(Fe))",y="Fraction of Enriched Communities",title=anno)+
+        theme(axis.title.x=element_text(face="bold",size=rel(1.5)),
+              axis.title.y=element_text(face="bold",size=rel(1.5)),
+              legend.text=element_text(face="bold",size=rel(LEGtextSize)),
+              plot.title=element_text(face="bold",size=rel(1.5)),
+              legend.position="bottom")+
+        scale_color_manual("",breaks=c(levels(factor(df$ALG))),values=c(colours))+
+        scale_y_continuous(expand=c(0,0),limits=c(0,1))+
+        scale_x_discrete(expand=c(0,0), limit=xval, labels=xlab)+
+        theme(panel.grid.major = element_line(colour = "grey40"),
+              panel.grid.minor = element_line(colour="grey40",size=0.1),
+              panel.background = element_rect(fill = "white"),
+              panel.border = element_rect(linetype="solid",fill=NA))+
+        geom_vline(xintercept=log(as.numeric(X1)),colour="grey10",size=SIZEb,linetype=2,show.legend=F)+
+        geom_vline(xintercept=log(as.numeric(X2)),colour="grey10",size=SIZEb,linetype=2,show.legend=F)+
+        geom_vline(xintercept=log(as.numeric(X3)),colour="grey10",size=SIZEb,linetype=2,show.legend=F)+
+        guides(color = guide_legend(override.aes = list(size=LEGlineSize)),
+               alpha = FALSE,
+               size  = FALSE)
+
+    return(gplot2)
+}else if(type == 3){
+
+    gplot3 <- ggplot(df,aes(x=(as.numeric(df$X)),y=as.numeric(as.vector(df$Y)),colour=df$ALG))+
+        geom_line(size=as.numeric(as.vector(df$LSIZE)),alpha=as.numeric(as.vector(df$ALPHA)))+
+        labs(x="log2(Fe)",y="Fraction of Enriched Communities",title=anno)+
+        theme(axis.title.x=element_text(face="bold",size=rel(1.5)),
+              axis.title.y=element_text(face="bold",size=rel(1.5)),
+              legend.text=element_text(face="bold",size=rel(LEGtextSize)),
+              plot.title=element_text(face="bold",size=rel(1.5)),
+              legend.position="bottom")+
+        scale_color_viridis("",discrete = TRUE, option = "D")+
+        scale_y_continuous(expand=c(0,0),limits=c(0,1))+
+        scale_x_discrete(expand=c(0,0), limit=xval, labels=xlab)+
+        theme(panel.grid.major = element_line(colour = "grey40"),
+              panel.grid.minor = element_line(colour="grey40",size=0.1),
+              panel.background = element_rect(fill = "white"),
+              panel.border = element_rect(linetype="solid",fill=NA))+
+        geom_vline(xintercept=(as.numeric(X1)),colour="grey10",size=SIZEb,linetype=2,show.legend=F)+
+        geom_vline(xintercept=(as.numeric(X2)),colour="grey10",size=SIZEb,linetype=2,show.legend=F)+
+        geom_vline(xintercept=(as.numeric(X3)),colour="grey10",size=SIZEb,linetype=2,show.legend=F)+
+        guides(color = guide_legend(override.aes = list(size=LEGlineSize)),
+               alpha = FALSE,
+               size  = FALSE)
+
+        return(gplot3)
+}else if(type == 4){
+    gplot4 <- ggplot(df,aes(x=log(as.numeric(df$X)),y=as.numeric(as.vector(df$Y)),colour=df$ALG))+
+        geom_line(size=as.numeric(as.vector(df$LSIZE)),alpha=as.numeric(as.vector(df$ALPHA)))+
+        labs(x="log(log2(Fe))",y="Fraction of Enriched Communities",title=anno)+
+        theme(axis.title.x=element_text(face="bold",size=rel(1.5)),
+              axis.title.y=element_text(face="bold",size=rel(1.5)),
+              legend.text=element_text(face="bold",size=rel(LEGtextSize)),
+              plot.title=element_text(face="bold",size=rel(1.5)),
+              legend.position="bottom")+
+        scale_color_viridis("",discrete = TRUE, option = "D")+
+        scale_y_continuous(expand=c(0,0),limits=c(0,1))+
+        scale_x_discrete(expand=c(0,0), limit=xval, labels=xlab)+
+        theme(panel.grid.major = element_line(colour = "grey40"),
+              panel.grid.minor = element_line(colour="grey40",size=0.1),
+              panel.background = element_rect(fill = "white"),
+              panel.border = element_rect(linetype="solid",fill=NA))+
+        geom_vline(xintercept=log(as.numeric(X1)),colour="grey10",size=SIZEb,linetype=2,show.legend=F)+
+        geom_vline(xintercept=log(as.numeric(X2)),colour="grey10",size=SIZEb,linetype=2,show.legend=F)+
+        geom_vline(xintercept=log(as.numeric(X3)),colour="grey10",size=SIZEb,linetype=2,show.legend=F)+
+        guides(color = guide_legend(override.aes = list(size=LEGlineSize)),
+               alpha = FALSE,
+               size  = FALSE)
+
+    return(gplot4)
 }
+}
+
