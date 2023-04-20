@@ -269,7 +269,9 @@ plotRatio <- function(x,
 
     indx = match(xlim,xval)
     xval = xval[indx]
+    xval = factor(xval)
     xlab = xlab[indx]
+    brks = as.numeric(xlab)
     #---
 
     #--- test intervals
@@ -351,7 +353,8 @@ plotRatio <- function(x,
               legend.position="bottom")+
         scale_color_manual("",breaks=c(levels(factor(df$ALG))),values=c(colours))+
         scale_y_continuous(expand=c(0,0),limits=c(0,1))+
-        scale_x_continuous(expand=c(0,0), limit=xval, labels=xlab)+
+#        scale_x_discrete(expand=c(0,0), limit=xval, labels=xlab)+
+#        scale_x_continuous(expand=c(0,0), breaks = 2^brks, labels=xlab)+
         theme(panel.grid.major = element_line(colour = "grey40"),
               panel.grid.minor = element_line(colour="grey40",size=0.1),
               panel.background = element_rect(fill = "white"),
@@ -373,7 +376,8 @@ plotRatio <- function(x,
               legend.position="bottom")+
         scale_color_manual("",breaks=c(levels(factor(df$ALG))),values=c(colours))+
         scale_y_continuous(expand=c(0,0),limits=c(0,1))+
-        scale_x_continuous(expand=c(0,0), limit=xval, labels=xlab)+
+#        scale_x_discrete(expand=c(0,0), limit=xval, labels=xlab)+
+        scale_x_continuous(expand=c(0,0), breaks = brks, labels=xlab)+
         theme(panel.grid.major = element_line(colour = "grey40"),
               panel.grid.minor = element_line(colour="grey40",size=0.1),
               panel.background = element_rect(fill = "white"),
@@ -395,7 +399,8 @@ plotRatio <- function(x,
               legend.position="bottom")+
         scale_color_viridis("",discrete = TRUE, option = "D")+
         scale_y_continuous(expand=c(0,0),limits=c(0,1))+
-        scale_x_continuous(expand=c(0,0), limit=xval, labels=xlab)+
+ #       scale_x_discrete(expand=c(0,0), limit=xval, labels=xlab)+
+ #       scale_x_continuous(expand=c(0,0), breaks = 2^brks, labels=xlab)+
         theme(panel.grid.major = element_line(colour = "grey40"),
               panel.grid.minor = element_line(colour="grey40",size=0.1),
               panel.background = element_rect(fill = "white"),
@@ -417,7 +422,8 @@ plotRatio <- function(x,
               legend.position="bottom")+
         scale_color_viridis("",discrete = TRUE, option = "D")+
         scale_y_continuous(expand=c(0,0),limits=c(0,1))+
-        scale_x_continuous(expand=c(0,0), limit=xval, labels=xlab)+
+#        scale_x_discrete(expand=c(0,0), limit=xval, labels=xlab)+
+        scale_x_continuous(expand=c(0,0), breaks = brks, labels=xlab)+
         theme(panel.grid.major = element_line(colour = "grey40"),
               panel.grid.minor = element_line(colour="grey40",size=0.1),
               panel.background = element_rect(fill = "white"),
