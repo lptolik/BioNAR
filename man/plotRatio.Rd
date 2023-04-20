@@ -5,16 +5,16 @@
 \title{Plot fraction of enriched communities}
 \usage{
 plotRatio(
-  xx,
+  x,
   desc = "",
   anno = "",
   LEGtextSize = 1.5,
   LEGlineSize = 4,
-  type = c("1", "2", "3", "4")
+  type = NULL
 )
 }
 \arguments{
-\item{xx}{enrichment statistics}
+\item{x}{enrichment statistics}
 
 \item{desc}{plot subtitle}
 

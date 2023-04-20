@@ -301,8 +301,8 @@ plotBridgeness<-function(gg,alg,VIPs,
             legend.title=element_text(face="bold",size=rel(1.5)),
             legend.text=element_text(face="bold",size=rel(1.5)),
             legend.key=element_blank())+
-        theme(panel.grid.major = element_line(colour="grey40",size=0.2),
-              panel.grid.minor = element_line(colour="grey40",size=0.1),
+        theme(panel.grid.major = element_line(colour="grey40",linewidth=0.2),
+              panel.grid.minor = element_line(colour="grey40",linewidth=0.1),
               panel.background = element_rect(fill="white"),
               panel.border = element_rect(linetype="solid",fill=NA))+
         geom_vline(xintercept=0.5,colour="grey40",linewidth=MainDivSize,

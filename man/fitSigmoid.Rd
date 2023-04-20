@@ -4,10 +4,10 @@
 \alias{fitSigmoid}
 \title{Fit Fe distribution to sigmoid function}
 \usage{
-fitSigmoid(df, SDv = c(0, 0.05, 0.1, 0.5))
+fitSigmoid(stat, SDv = c(0, 0.05, 0.1, 0.5))
 }
 \arguments{
-\item{df}{enrichment \code{data.frame}}
+\item{stat}{enrichment results}
 
 \item{SDv}{vector of noise SD values}
 }
@@ -15,5 +15,6 @@ fitSigmoid(df, SDv = c(0, 0.05, 0.1, 0.5))
 list of fitted functions tables and plots
 }
 \description{
-Fit Fe distribution to sigmoid function
+Grid plot is designed in a way to be viewed in the device at least 12 inches
+in width and 12 inches in height.
 }
