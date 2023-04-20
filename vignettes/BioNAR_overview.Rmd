@@ -136,7 +136,7 @@ the edges of the graph; alternatively for our synaptic proteome exemple, a list
 of vertices (genes) is needed, for which the information will be retrieved from 
 SynaptomeDB package.
 
-## Build q network from a given data frame
+## Build a network from a given data frame
 The command listed below builds a graph from provided data frame, simplifies the 
 graph (removing multiple edges and loops) and return its MCC (maximum connected 
 component)
@@ -148,6 +148,7 @@ gg <- buildNetwork(tbl)
 summary(gg)
 
 ```
+
 ## Build a network given a node list extracted from SynaptomeDB
 The command provides proxy for Synaptome.db package, enabling building the 
 protein-protein interaction (PPI) network for entire synaptic compartment 

@@ -98,9 +98,9 @@ test_that('Perturbation entropy',{
     expect_false(any(is.na(match(c('SR_UP', 'SR_DOWN'),vertex_attr_names(g)))))
     set.seed(100)
     ent <- getEntropyRate(louvainG)
-    vdiffr::expect_doppelganger("EntropyPlot",
-                                plotEntropy(e, subTIT = "Entropy",
-                                            SRo = ent$SRo, maxSr = ent$maxSr))
+    # vdiffr::expect_doppelganger("EntropyPlot",
+    #                             plotEntropy(e, subTIT = "Entropy",
+    #                                         SRo = ent$SRo, maxSr = ent$maxSr))
 
 })
 

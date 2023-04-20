@@ -42,12 +42,12 @@ changeSciNotation <- function(n) {
     n <- format(n, scientific = TRUE)
     oo <- strsplit(as.character(n), "e")
     out <- vector(length = length(oo))
-    out[1] <- TeX(sprintf("10^{%s}", sub("-0?", "-", oo[[1]][2])))
+    out[1] <- TeX(sprintf("$10^{%s}$", sub("-0?", "-", oo[[1]][2])))
     for (i in 2:length(oo)) {
         if (grepl("-", oo[[i]][2])) {
-            out[i] <- TeX(sprintf("10^{%s}", sub("-0?", "-", oo[[i]][2])))
+            out[i] <- TeX(sprintf("$10^{%s}$", sub("-0?", "-", oo[[i]][2])))
         } else {
-            out[i] <- TeX(sprintf("10^{%s}", sub("\\+0?", "", oo[[i]][2])))
+            out[i] <- TeX(sprintf("$10^{%s}$", sub("\\+0?", "", oo[[i]][2])))
         }
     }
     return(out)
@@ -152,8 +152,8 @@ fitDegree <- function(DEG,
         suppressMessages(fitl <-
                              TeX(
                                  sprintf(
-                                     paste("Power-law $\\alpha = %.2f(%s),',
-                                            '$k_{min} = %.0f(%s)"),
+                                     paste("Power-law $\\alpha = %.2f(%s),",
+                                            "k_{min} = %.0f(%s)$"),
                                      S2,
                                      errS2,
                                      S1,
