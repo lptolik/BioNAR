@@ -291,7 +291,7 @@ plotBridgeness<-function(gg,alg,VIPs,
                          point.padding=NA,label.padding=0.15,
                          segment.color='black',
                          force=1,size=rel(3.8),show.legend=FALSE,
-                         max.overlaps=200)+
+                         max.overlaps=300)+
         labs(x=Xlab,y=Ylab,title=sprintf("%s",alg))+
         scale_x_continuous(expand = c(0, 0), limits = c(xmin, xmax)) +
         scale_y_continuous(expand = c(0, 0), limits = c(ymin, ymax))+
