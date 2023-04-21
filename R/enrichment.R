@@ -57,7 +57,7 @@ clusterORA <- function(g,
         )
         cn<-length(gids)
         den<-cn/vcnt
-        res <- fres[,.(cl=.i,FL=pathway,N=vcnt,Fn=size,Cn=cn,
+        res <- fres[,list(cl=.i,FL=pathway,N=vcnt,Fn=size,Cn=cn,
                     Mu=overlap,
                     OR=log(overlap*(vcnt-size+overlap-cn)/
                               ((cn-overlap)*(size-overlap))),
@@ -76,7 +76,7 @@ clusterORA <- function(g,
                                       alternative = 'less')},
                            fval)
 
-        res<-as.data.frame(res[,.(alg=alg,cl,FL,N,Fn,Cn,Mu,OR,
+        res<-as.data.frame(res[,list(alg=alg,cl,FL,N,Fn,Cn,Mu,OR,
                                   CIl=OR-1.96*CIw,CIu=OR+1.96*CIw,
                                Fe,Fc,pval,padj,palt,paltadj=p.adjust(palt,method = 'BH'),
                                overlapGenes)])
