@@ -26,7 +26,7 @@ Depends: R (>= 3.5.0), igraph (>= 1.4.0), poweRlaw, latex2exp, RSpectra,
     Rdpack
 Imports: stringr, synaptome.db, clusterCons, fgsea, grid, methods, scales, 
     AnnotationDbi, dplyr, GO.db, org.Hs.eg.db, rSpectral, WGCNA, ggplot2,
-    ggrepel, minpack.lm, viridis, cowplot, data.table
+    ggrepel, minpack.lm, viridis, cowplot, data.table, stats
 RdMacros: Rdpack
 Suggests: 
     knitr, 
