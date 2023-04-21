@@ -52,11 +52,11 @@ highlightRate <- function( rates, val=-2){
 
 #' Plot results of the sigmoid fit
 #'
-#' @param x
-#' @param rates
-#' @param model
-#' @param alg
-#' @param pv
+#' @param x steps along the Fe
+#' @param rates parameters of the sigmoid
+#' @param model fitted model
+#' @param alg name of the clustering algorithm
+#' @param pv Kolmogorov-Smirnov test's p-value
 #'
 #' @return \code{\link[ggplot2]{ggplot}} object with sigmoid fit plot
 #' @export
@@ -167,11 +167,11 @@ addNoise <- function( Y, MN=0, SD=0.05 ){
 ##goodness of fit test, KS
 #' Goodnes of fit KS test
 #'
-#' @param x
-#' @param rate
-#' @param model
-#' @param sigma2
-#' @param countDATA
+#' @param x steps along the Fe
+#' @param rates parameters of the sigmoid
+#' @param model fitted model
+#' @param sigma2 noise strength
+#' @param countDATA should points to be counted
 #'
 #' @return list of \code{\link[stats]{ks.test}} values for each value in
 #'         \code{rate}
@@ -202,7 +202,7 @@ gofs <- function(x, rate, model, sigma2=NULL, countDATA=TRUE ){
 #' Grid plot is designed in a way to be viewed in the device at least 12 inches
 #' in width and 12 inches in height.
 #'
-#' @param stat enrichment results
+#' @param stat enrichment results obtained from \code{\link{summaryStats}}
 #' @param SDv vector of noise SD values
 #'
 #' @return list of fitted functions tables and plots

@@ -14,7 +14,7 @@ diseases across the network and specific clusters pointing towards
 shared/common mechanisms.
 }
 \author{
-\strong{Maintainer}: Anatoly Sorokin \email{lptolik@gmail.com}
+\strong{Maintainer}: Anatoly Sorokin \email{lptolik@gmail.com} (\href{https://orcid.org/0000-0002-0047-0606}{ORCID})
 
 Authors:
 \itemize{

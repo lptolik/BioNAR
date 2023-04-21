@@ -7,7 +7,15 @@
 gofs(x, rate, model, sigma2 = NULL, countDATA = TRUE)
 }
 \arguments{
-\item{countDATA}{}
+\item{x}{steps along the Fe}
+
+\item{model}{fitted model}
+
+\item{sigma2}{noise strength}
+
+\item{countDATA}{should points to be counted}
+
+\item{rates}{parameters of the sigmoid}
 }
 \value{
 list of \code{\link[stats]{ks.test}} values for each value in

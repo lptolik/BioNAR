@@ -7,7 +7,15 @@
 plotSigmoid(x, rates, model, alg = "", pv = 0)
 }
 \arguments{
-\item{pv}{}
+\item{x}{steps along the Fe}
+
+\item{rates}{parameters of the sigmoid}
+
+\item{model}{fitted model}
+
+\item{alg}{name of the clustering algorithm}
+
+\item{pv}{Kolmogorov-Smirnov test's p-value}
 }
 \value{
 \code{\link[ggplot2]{ggplot}} object with sigmoid fit plot

@@ -7,7 +7,7 @@
 fitSigmoid(stat, SDv = c(0, 0.05, 0.1, 0.5))
 }
 \arguments{
-\item{stat}{enrichment results}
+\item{stat}{enrichment results obtained from \code{\link{summaryStats}}}
 
 \item{SDv}{vector of noise SD values}
 }
