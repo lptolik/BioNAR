@@ -3,7 +3,7 @@ title: "BioNAR: Biological Network Analysis in R"
 author: "Colin Mclean, Anatoly Sorokin, T. I. Simpson, J. Douglas Armstrong, Oksana Sorokina"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{BioNAR_overview}
+  %\VignetteIndexEntry{BioNAR: Biological Network Analysis in R}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
