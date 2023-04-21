@@ -9,6 +9,9 @@ plotSigmoid(x, rates, model, alg = "", pv = 0)
 \arguments{
 \item{pv}{}
 }
+\value{
+\code{\link[ggplot2]{ggplot}} object with sigmoid fit plot
+}
 \description{
 Plot results of the sigmoid fit
 }

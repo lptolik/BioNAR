@@ -57,7 +57,7 @@ clusterORA <- function(g,
         )
         cn<-length(gids)
         den<-cn/vcnt
-        res <- fres[,.(cl=.i,FL=pathway,N=vcnt,F=size,Cn=cn,
+        res <- fres[,.(cl=.i,FL=pathway,N=vcnt,Fn=size,Cn=cn,
                     Mu=overlap,
                     OR=log(overlap*(vcnt-size+overlap-cn)/
                               ((cn-overlap)*(size-overlap))),
@@ -67,9 +67,16 @@ clusterORA <- function(g,
                     Fc=(overlap/cn)/den,
                     pval,padj,
                     overlapGenes)]
-        res$palt <- sapply(1:dim(res)[1], function(.i){fisher(res$Mu[.i],res$F[.i],res$Cn[.i],res$N[.i],alternative = 'less')})
+        fval <- fisher(res$Mu[1],res$Fn[1],res$Cn[1],res$N[1],
+                       alternative = 'less')
+        res$palt <- vapply(seq_len(nrow(res)),
+                           function(.i){
+                               fisher(res$Mu[.i],res$Fn[.i],
+                                      res$Cn[.i],res$N[.i],
+                                      alternative = 'less')},
+                           fval)
 
-        res<-as.data.frame(res[,.(alg=alg,cl,FL,N,F,Cn,Mu,OR,
+        res<-as.data.frame(res[,.(alg=alg,cl,FL,N,Fn,Cn,Mu,OR,
                                   CIl=OR-1.96*CIw,CIu=OR+1.96*CIw,
                                Fe,Fc,pval,padj,palt,paltadj=p.adjust(palt,method = 'BH'),
                                overlapGenes)])
@@ -85,9 +92,9 @@ clusterORA <- function(g,
     return(res)
 }
 
-fisher <- function( mu, P, F, N,alternative = 'less' ){
+fisher <- function( mu, P, Fn, N,alternative = 'less' ){
 
-    mm  <- matrix(c(mu,(P-mu),(F-mu),(N-P-F+mu)),2,2)
+    mm  <- matrix(c(mu,(P-mu),(Fn-mu),(N-P-Fn+mu)),2,2)
     res <- fisher.test(mm,alternative = alternative)
     return(res$p.value)
 }
@@ -155,7 +162,7 @@ summaryStats <- function( RES, ALPHA, usePadj=FALSE, FeMAX=0, FcMAX=0 ){
     sum4  = matrix("",nrow=length(names(RES)), ncol=(2+length(hh3)) )
     colnames(sum4) = c("Alg","Psig&ORsig",hh3)
 
-    for( i in 1:length(RES) ){
+    for( i in seq_along(RES) ){
 
         Ncn = length(RES[[i]][,1])
         P   = as.numeric(RES[[i]][,Pvi])
@@ -195,19 +202,19 @@ summaryStats <- function( RES, ALPHA, usePadj=FALSE, FeMAX=0, FcMAX=0 ){
 
         sum2[i,1] =  as.character(RES[[i]][1,ALGi])
         sum2[i,2] =  lsum(OR > 1 & CI > 1 & P <= ALPHA)
-        for( j in 1:length(hh) ){
+        for( j in seq_along(hh) ){
             sum2[i,(j+2)] = lsum(OR > 1 & CI > 1 & P <= ALPHA & CNo > ((cmin[j]*N)/100) & CNo < ((10*N)/100) )
         }
 
         sum3[i,1] =  as.character(RES[[i]][1,ALGi])
         sum3[i,2] =  lsum(OR > 1 & CI > 1 & P <= ALPHA)
-        for( j in 1:length(hh2) ){
+        for( j in seq_along(hh2) ){
             sum3[i,(j+2)] = lsum(OR > 1 & CI > 1 & P <= ALPHA & log2(FE) > femin[j] )
         }
 
         sum4[i,1] =  as.character(RES[[i]][1,ALGi])
         sum4[i,2] =  lsum(OR > 1 & CI > 1 & P <= ALPHA)
-        for( j in 1:length(hh3) ){
+        for( j in seq_along(hh3) ){
             sum4[i,(j+2)] = lsum(OR > 1 & CI > 1 & P <= ALPHA & log2(FC) > fcmin[j] )
         }
 
@@ -281,7 +288,7 @@ plotRatio <- function(x,
 
     rank <- matrix("",ncol=3,nrow=length(xx[,1]))
 
-    for( i in 1:length(xx[,1]) ){
+    for( i in seq_along(xx[,1]) ){
 
         size  = rep(1.8,length(xx[i,1]))
         alpha = rep(0.7,length(xx[i,1]))
@@ -302,7 +309,7 @@ plotRatio <- function(x,
     }
 
     #---
-    rank = rank[order(as.numeric(rank[,2]),decreasing=T),]
+    rank = rank[order(as.numeric(rank[,2]),decreasing=TRUE),]
     colnames(rank) <- c("Alg","FracComsEnriched_log2(FE)>0.5_log2(FE)<4.8","FracComsEnriched_log2(FE)>4.8_log2(FE)<8.0")
     #write.table(rank, sprintf("ranking_%s.csv",desc), sep="\t", row.names=F, col.names=T, quote=F)
 
@@ -359,9 +366,9 @@ plotRatio <- function(x,
               panel.grid.minor = element_line(colour="grey40",size=0.1),
               panel.background = element_rect(fill = "white"),
               panel.border = element_rect(linetype="solid",fill=NA))+
-        geom_vline(xintercept=(as.numeric(X1)),colour="grey10",size=SIZEb,linetype=2,show.legend=F)+
-        geom_vline(xintercept=(as.numeric(X2)),colour="grey10",size=SIZEb,linetype=2,show.legend=F)+
-        geom_vline(xintercept=(as.numeric(X3)),colour="grey10",size=SIZEb,linetype=2,show.legend=F)+
+        geom_vline(xintercept=(as.numeric(X1)),colour="grey10",size=SIZEb,linetype=2,show.legend=FALSE)+
+        geom_vline(xintercept=(as.numeric(X2)),colour="grey10",size=SIZEb,linetype=2,show.legend=FALSE)+
+        geom_vline(xintercept=(as.numeric(X3)),colour="grey10",size=SIZEb,linetype=2,show.legend=FALSE)+
         guides(color = guide_legend(override.aes = list(size=LEGlineSize)),
                alpha = 'none',
                size  = 'none')
@@ -382,9 +389,9 @@ plotRatio <- function(x,
               panel.grid.minor = element_line(colour="grey40",size=0.1),
               panel.background = element_rect(fill = "white"),
               panel.border = element_rect(linetype="solid",fill=NA))+
-        geom_vline(xintercept=log(as.numeric(X1)),colour="grey10",size=SIZEb,linetype=2,show.legend=F)+
-        geom_vline(xintercept=log(as.numeric(X2)),colour="grey10",size=SIZEb,linetype=2,show.legend=F)+
-        geom_vline(xintercept=log(as.numeric(X3)),colour="grey10",size=SIZEb,linetype=2,show.legend=F)+
+        geom_vline(xintercept=log(as.numeric(X1)),colour="grey10",size=SIZEb,linetype=2,show.legend=FALSE)+
+        geom_vline(xintercept=log(as.numeric(X2)),colour="grey10",size=SIZEb,linetype=2,show.legend=FALSE)+
+        geom_vline(xintercept=log(as.numeric(X3)),colour="grey10",size=SIZEb,linetype=2,show.legend=FALSE)+
         guides(color = guide_legend(override.aes = list(size=LEGlineSize)),
                alpha = 'none',
                size  = 'none')
@@ -405,9 +412,9 @@ plotRatio <- function(x,
               panel.grid.minor = element_line(colour="grey40",size=0.1),
               panel.background = element_rect(fill = "white"),
               panel.border = element_rect(linetype="solid",fill=NA))+
-        geom_vline(xintercept=(as.numeric(X1)),colour="grey10",size=SIZEb,linetype=2,show.legend=F)+
-        geom_vline(xintercept=(as.numeric(X2)),colour="grey10",size=SIZEb,linetype=2,show.legend=F)+
-        geom_vline(xintercept=(as.numeric(X3)),colour="grey10",size=SIZEb,linetype=2,show.legend=F)+
+        geom_vline(xintercept=(as.numeric(X1)),colour="grey10",size=SIZEb,linetype=2,show.legend=FALSE)+
+        geom_vline(xintercept=(as.numeric(X2)),colour="grey10",size=SIZEb,linetype=2,show.legend=FALSE)+
+        geom_vline(xintercept=(as.numeric(X3)),colour="grey10",size=SIZEb,linetype=2,show.legend=FALSE)+
         guides(color = guide_legend(override.aes = list(size=LEGlineSize)),
                alpha = 'none',
                size  = 'none')
@@ -428,9 +435,9 @@ plotRatio <- function(x,
               panel.grid.minor = element_line(colour="grey40",size=0.1),
               panel.background = element_rect(fill = "white"),
               panel.border = element_rect(linetype="solid",fill=NA))+
-        geom_vline(xintercept=log(as.numeric(X1)),colour="grey10",size=SIZEb,linetype=2,show.legend=F)+
-        geom_vline(xintercept=log(as.numeric(X2)),colour="grey10",size=SIZEb,linetype=2,show.legend=F)+
-        geom_vline(xintercept=log(as.numeric(X3)),colour="grey10",size=SIZEb,linetype=2,show.legend=F)+
+        geom_vline(xintercept=log(as.numeric(X1)),colour="grey10",size=SIZEb,linetype=2,show.legend=FALSE)+
+        geom_vline(xintercept=log(as.numeric(X2)),colour="grey10",size=SIZEb,linetype=2,show.legend=FALSE)+
+        geom_vline(xintercept=log(as.numeric(X3)),colour="grey10",size=SIZEb,linetype=2,show.legend=FALSE)+
         guides(color = guide_legend(override.aes = list(size=LEGlineSize)),
                alpha = 'none',
                size  = 'none')

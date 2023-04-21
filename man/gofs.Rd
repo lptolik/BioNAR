@@ -9,6 +9,10 @@ gofs(x, rate, model, sigma2 = NULL, countDATA = TRUE)
 \arguments{
 \item{countDATA}{}
 }
+\value{
+list of \code{\link[stats]{ks.test}} values for each value in
+\code{rate}
+}
 \description{
 Goodnes of fit KS test
 }

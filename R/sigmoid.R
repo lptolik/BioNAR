@@ -58,7 +58,7 @@ highlightRate <- function( rates, val=-2){
 #' @param alg
 #' @param pv
 #'
-#' @return
+#' @return \code{\link[ggplot2]{ggplot}} object with sigmoid fit plot
 #' @export
 plotSigmoid <- function( x, rates, model, alg="", pv=0 ){
 
@@ -173,7 +173,8 @@ addNoise <- function( Y, MN=0, SD=0.05 ){
 #' @param sigma2
 #' @param countDATA
 #'
-#' @return
+#' @return list of \code{\link[stats]{ks.test}} values for each value in
+#'         \code{rate}
 #' @export
 gofs <- function(x, rate, model, sigma2=NULL, countDATA=TRUE ){
 
@@ -183,7 +184,7 @@ gofs <- function(x, rate, model, sigma2=NULL, countDATA=TRUE ){
     R  = length(rate)
     KS = list()
 
-    for( r in 1:R ){
+    for( r in seq_len(R) ){
 
         pp = list(a=0, b=1, c=rate[r], d=round(median(x)) )
         yi = sigmoid(pars=pp, xx=x)
