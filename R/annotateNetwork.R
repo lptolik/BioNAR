@@ -718,6 +718,8 @@ annotateGOont <- function(gg, orgDB = org.Hs.eg.db, keytype = "ENTREZID",
 #'
 #' @param gg graph to update
 #' @param annoF annotation matrix in Pair form
+#' @param idatt optional name of the vertex attribute to map to the
+#'        annotation \code{data.frame} first column
 #'
 #' @return annotated igraph object
 #' @export
@@ -781,6 +783,8 @@ annotateGoMF <- function(gg, annoF,idatt='name') {
 #'
 #' @param gg graph to update
 #' @param annoF annotation matrix in Pair form
+#' @param idatt optional name of the vertex attribute to map to the
+#'        annotation \code{data.frame} first column
 #'
 #' @return annotated igraph object
 #' @export
@@ -831,6 +835,7 @@ annotateGoBP <- function(gg, annoF,idatt='name') {
     }
     return(gg)
 }
+
 #
 #' Add GO CC  annotation to the graph vertices
 #'
@@ -844,6 +849,8 @@ annotateGoBP <- function(gg, annoF,idatt='name') {
 #'
 #' @param gg graph to update
 #' @param annoF annotation matrix in Pair form
+#' @param idatt optional name of the vertex attribute to map to the
+#'        annotation \code{data.frame} first column
 #'
 #' @return annotated igraph object
 #' @export

@@ -168,7 +168,7 @@ addNoise <- function( Y, MN=0, SD=0.05 ){
 #' Goodnes of fit KS test
 #'
 #' @param x steps along the Fe
-#' @param rates parameters of the sigmoid
+#' @param rate parameters of the sigmoid
 #' @param model fitted model
 #' @param sigma2 noise strength
 #' @param countDATA should points to be counted
