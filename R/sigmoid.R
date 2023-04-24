@@ -4,10 +4,10 @@
 ### Sigmoid function ### create a function to generate sigmoid pattern
 sigmoid <- function(pars, xx){
 
-    a = as.numeric(pars[1])#lower asymptote,          ideal == 0
-    b = as.numeric(pars[2])#upper asymptote,          ideal == 1
-    c = as.numeric(pars[3])#gradiant, rate, or slope, ideal == -2
-    d = as.numeric(pars[4])#inflextion point,         ideal == median(xx) = 3
+    a <- as.numeric(pars[1])#lower asymptote,          ideal == 0
+    b <- as.numeric(pars[2])#upper asymptote,          ideal == 1
+    c <- as.numeric(pars[3])#gradiant, rate, or slope, ideal == -2
+    d <- as.numeric(pars[4])#inflextion point,         ideal == median(xx) = 3
 
     return( a + ((b-a)/(1+exp(-c*(xx-d)))) )
 }
@@ -42,7 +42,7 @@ highlightRate <- function( rates, val=-2){
 
     indx <- which(rates==val)
     if( length(indx) == 0 ){
-        indx = -1
+        indx <- -1
     }
 
     return(indx)
@@ -67,8 +67,8 @@ plotSigmoid <- function( x, rates, model, alg="", pv=0 ){
 
     if( !inherits(conf,'try-error') ){
         # adding the 95% confidence interval around the fitted coefficient
-        lower = list(a=conf[1, 1], b=conf[2, 1], c=conf[3, 1], d=conf[4, 1])
-        upper = list(a=conf[1, 2], b=conf[2, 2], c=conf[3, 2], d=conf[4, 2])
+        lower <- list(a=conf[1, 1], b=conf[2, 1], c=conf[3, 1], d=conf[4, 1])
+        upper <- list(a=conf[1, 2], b=conf[2, 2], c=conf[3, 2], d=conf[4, 2])
     }
 
     ## fitted values
@@ -88,16 +88,16 @@ plotSigmoid <- function( x, rates, model, alg="", pv=0 ){
     df <- cbind( rep(alg,length(x)), x, y, yhat, ylower, yupper )
 
     ##--- 'ideal' sigmoid curves, changing the rate values
-    R = length(rates)
-    Rsize = rep(1,R)
-    Rcol  = rep("grey50",R)
-    indx  = highlightRate( rates=rates, val=-2 )
+    R <- length(rates)
+    Rsize <- rep(1,R)
+    Rcol  <- rep("grey50",R)
+    indx  <- highlightRate( rates=rates, val=-2 )
     if( indx != -1 ){
-        Rsize[indx[1]] = 2
-        Rcol[indx[1]]  = "black"
+        Rsize[indx[1]] <- 2
+        Rcol[indx[1]]  <- "black"
     }
     for( r in 1:R ){
-        pp = list(a=0, b=1, c=rates[r], d=round(median(x)) )
+        pp <- list(a=0, b=1, c=rates[r], d=round(median(x)) )
         yi <-  sigmoid(pars=pp, xx=x)
         df <- cbind(df,yi)
     }
@@ -109,21 +109,21 @@ plotSigmoid <- function( x, rates, model, alg="", pv=0 ){
     df <- as.data.frame(df)
 
     ##--- labels
-    qq   = as.vector(quantile(as.numeric(df$x)))
-    xval = qq
-    xlab = as.character(qq)
+    qq   <- as.vector(quantile(as.numeric(df$x)))
+    xval <- qq
+    xlab <- as.character(qq)
 
     ylow <- ifelse( min(y) < 0, min(y), 0)
     yup  <- ifelse( max(y) > 1, max(y), 1)
     ##---
 
     ##--- should we plot the CI
-    plotCI=TRUE
-    if( is.null(conf) ){ plotCI = FALSE }
+    plotCI <- TRUE
+    if( is.null(conf) ){ plotCI <- FALSE }
 
     ##--- p.value from KS test for model against 'ideal' sigmoid with rate value = -2
-    pv = as.numeric(pv)
-    if( is.na(pv) ){ pv = 0 }
+    pv <- as.numeric(pv)
+    if( is.na(pv) ){ pv <- 0 }
     ##---
 
     ##--- build the plot
@@ -178,26 +178,39 @@ addNoise <- function( Y, MN=0, SD=0.05 ){
 #' @export
 gofs <- function(x, rate, model, sigma2=NULL, countDATA=TRUE ){
 
-    y    = model$m$lhs()
-    yhat = fitted(model)
+    y    <- model$m$lhs()
+    yhat <- fitted(model)
 
-    R  = length(rate)
-    KS = list()
+    R  <- length(rate)
+    KS <- list()
 
     for( r in seq_len(R) ){
 
-        pp = list(a=0, b=1, c=rate[r], d=round(median(x)) )
-        yi = sigmoid(pars=pp, xx=x)
+        pp <- list(a=0, b=1, c=rate[r], d=round(median(x)) )
+        yi <- sigmoid(pars=pp, xx=x)
 
-        KS[[r]]      = ks.test(yhat, yi)
-        names(KS)[r] = sprintf("rate_%.1f", rate[r])
+        KS[[r]]      <- ks.test(yhat, yi)
+        names(KS)[r] <- sprintf("rate_%.1f", rate[r])
     }
 
     return(KS)
 
 }
 
-#' Fit Fe distribution to sigmoid function
+#' Fit Fold-enrichment distribution to sigmoid function
+#'
+#' This function calculates fit of the Fold-Enrichment distribution to the
+#' sigmoid function with the levels of noise specidied in \code{SDV} and return
+#' the list in which each element contains result for one of the noise level.
+#'
+#' Results are repersented as a list with five elements:
+#' * gridplot that allow comparison of fitting for different clustering
+#'   algorithms;
+#' * plots the list of individual plots from gridplot;
+#' * fitInfo the data.frame that contains results of fitting, such as
+#'   message, number of iterations and exit code;
+#' * parInfo values and standard deviations for all sigmoid parameters;
+#' * ks table of Kolmogorov-Smirnov test p-values.
 #'
 #' Grid plot is designed in a way to be viewed in the device at least 12 inches
 #' in width and 12 inches in height.
@@ -214,16 +227,16 @@ gofs <- function(x, rate, model, sigma2=NULL, countDATA=TRUE ){
 #' @export
 fitSigmoid<-function(stat,SDv=c(0, 0.05, 0.1, 0.5)){
     df<-stat$SUM3
-    x.range.value  = "6.0"
-    Xmax = match(x.range.value,colnames(df))
-    tt   = df[,1:Xmax]
-    colnames(tt) = colnames(df)[1:Xmax]
-    N = length(colnames(tt))
-    x = as.numeric(colnames(tt)[3:N])
-    SDlab = as.character(SDv)#c("0","0.05","0.1","0.5")
+    x.range.value  <- "6.0"
+    Xmax <- match(x.range.value,colnames(df))
+    tt   <- df[,1:Xmax]
+    colnames(tt) <- colnames(df)[1:Xmax]
+    N <- length(colnames(tt))
+    x <- as.numeric(colnames(tt)[3:N])
+    SDlab <- as.character(SDv)#c("0","0.05","0.1","0.5")
 
     ## test fit against different 'idealised' sigmoid curves using KS gof statistic
-    rates = c(-10, -5, -2, -1, -0.5)
+    rates <- c(-10, -5, -2, -1, -0.5)
 
     resout<-list()
 
@@ -244,11 +257,11 @@ fitSigmoid<-function(stat,SDv=c(0, 0.05, 0.1, 0.5)){
 
         for( i in 1:length(tt[,1]) ){
 
-            y = as.numeric(tt[i,3:N])/as.numeric(tt[i,2])
-            y = BioNAR:::addNoise(y, SD=SDv[s])#add gaussian noise to our data
+            y <- as.numeric(tt[i,3:N])/as.numeric(tt[i,2])
+            y <- BioNAR:::addNoise(y, SD=SDv[s])#add gaussian noise to our data
 
             ## starting parameter values for fit
-            pp = list(a=0, b=round(max(y)), c=-2, d=round(median(x)) )
+            pp <- list(a=0, b=round(max(y)), c=-2, d=round(median(x)) )
 
             ## fit
             m.s <- minpack.lm::nlsLM(y ~ a + ((b - a)/(1 + exp(-c * (x - d)))),
@@ -284,9 +297,9 @@ fitSigmoid<-function(stat,SDv=c(0, 0.05, 0.1, 0.5)){
 
             ks   <- BioNAR:::gofs(x, rates, models[[i]])
             indx <- BioNAR:::highlightRate( rates=rates, val=-2 )
-            PV = as.numeric(ks[[1]]$p.value)
+            PV <- as.numeric(ks[[1]]$p.value)
             if( indx != -1 ){
-                PV = as.numeric(ks[[indx[1]]]$p.value)
+                PV <- as.numeric(ks[[indx[1]]]$p.value)
             }
             tmp <- BioNAR:::plotSigmoid( x=x, rates=rates, model=models[[i]],
                                          alg=names(models)[i], pv=PV)
@@ -298,7 +311,7 @@ fitSigmoid<-function(stat,SDv=c(0, 0.05, 0.1, 0.5)){
             names(GPLOTS)[i] <- names(models)[i]
 
             for(j in 1:length(rates)){
-                oo[i,(j+1)] = ks[[j]]$p.value
+                oo[i,(j+1)] <- ks[[j]]$p.value
             }
         }
 

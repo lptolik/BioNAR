@@ -124,114 +124,114 @@ summaryStats <- function( RES, ALPHA, usePadj=FALSE, FeMAX=0, FcMAX=0 ){
 
     CN <- colnames(RES[[1]])
 
-    ALGi   = which(CN=="alg")[1]
-    Pvi    = which(CN=="pval")[1]
-    PvALTi = which(CN=="palt")[1]
+    ALGi   <- which(CN=="alg")[1]
+    Pvi    <- which(CN=="pval")[1]
+    PvALTi <- which(CN=="palt")[1]
     if( usePadj ){
-        Pvi    = which(CN=="padj")[1]
-        PvALTi = which(CN=="paltadj")[1]
+        Pvi    <- which(CN=="padj")[1]
+        PvALTi <- which(CN=="paltadj")[1]
     }
-    ORi    = which(CN=="OR")[1]
-    CIli   = which(CN=="CIl")[1]
-    Fei    = which(CN=="Fe")[1]
-    Fci    = which(CN=="Fc")[1]
+    ORi    <- which(CN=="OR")[1]
+    CIli   <- which(CN=="CIl")[1]
+    Fei    <- which(CN=="Fe")[1]
+    Fci    <- which(CN=="Fc")[1]
 
-    Ci     = which(CN=="cl")[1]
-    Fli    = which(CN=="FL")[1]
-    Cni    = which(CN=="Cn")[1]
-    Mui    = which(CN=="Mu")[1]
+    Ci     <- which(CN=="cl")[1]
+    Fli    <- which(CN=="FL")[1]
+    Cni    <- which(CN=="Cn")[1]
+    Mui    <- which(CN=="Mu")[1]
 
-    Ni     = which(CN=="N")[1]
-    N      = as.numeric(RES[[1]][1,Ni])
+    Ni     <- which(CN=="N")[1]
+    N      <- as.numeric(RES[[1]][1,Ni])
 
-    hh0  = c("alg","FN","CN","FNxCN","Psig","PALTsig","OR>1",
+    hh0  <- c("alg","FN","CN","FNxCN","Psig","PALTsig","OR>1",
              "ORsig","Psig&ORsig","PALTsig&ORsig","FEsig","Psig&ORsig&FEsig",
              "EnrichedComs(%)","p.value")
-    sum1 = matrix("",ncol=length(hh0),nrow=length(names(RES)))
+    sum1 <- matrix("",ncol=length(hh0),nrow=length(names(RES)))
     colnames(sum1) <- hh0
 
-    cmin = seq(0,10,0.1)
-    hh   = sprintf("Cmin_%.1f&Cmax_%.1f",cmin,10)
-    sum2 = matrix("",nrow=length(names(RES)), ncol=(2+length(hh)) )
-    colnames(sum2) = c("Alg","Psig&ORsig",hh)
+    cmin <- seq(0,10,0.1)
+    hh   <- sprintf("Cmin_%.1f&Cmax_%.1f",cmin,10)
+    sum2 <- matrix("",nrow=length(names(RES)), ncol=(2+length(hh)) )
+    colnames(sum2) <- c("Alg","Psig&ORsig",hh)
 
-    steps = 100
-    hh2i  = round(FeMAX/steps,3)
-    femin = seq(0,ceiling(FeMAX), hh2i)
-    hh2   = sprintf("%.1f",femin)
-    sum3  = matrix("",nrow=length(names(RES)), ncol=(2+length(hh2)) )
-    colnames(sum3) = c("Alg","Psig&ORsig",hh2)
+    steps <- 100
+    hh2i  <- round(FeMAX/steps,3)
+    femin <- seq(0,ceiling(FeMAX), hh2i)
+    hh2   <- sprintf("%.1f",femin)
+    sum3  <- matrix("",nrow=length(names(RES)), ncol=(2+length(hh2)) )
+    colnames(sum3) <- c("Alg","Psig&ORsig",hh2)
 
-    hh3i  = round(FcMAX/steps,3)
-    fcmin = seq(0,ceiling(FcMAX), hh3i)
-    hh3   = sprintf("%.1f",fcmin)
-    sum4  = matrix("",nrow=length(names(RES)), ncol=(2+length(hh3)) )
-    colnames(sum4) = c("Alg","Psig&ORsig",hh3)
+    hh3i  <- round(FcMAX/steps,3)
+    fcmin <- seq(0,ceiling(FcMAX), hh3i)
+    hh3   <- sprintf("%.1f",fcmin)
+    sum4  <- matrix("",nrow=length(names(RES)), ncol=(2+length(hh3)) )
+    colnames(sum4) <- c("Alg","Psig&ORsig",hh3)
 
     for( i in seq_along(RES) ){
 
-        Ncn = length(RES[[i]][,1]) # number of cluste-termID pairs
-        P   = as.numeric(RES[[i]][,Pvi]) # p-val
-        Palt= as.numeric(RES[[i]][,PvALTi]) #p-alt
-        OR  = as.numeric(RES[[i]][,ORi])
-        CI  = as.numeric(RES[[i]][,CIli])
-        FE  = as.numeric(RES[[i]][,Fei])
-        FC  = as.numeric(RES[[i]][,Fci])
+        Ncn <- length(RES[[i]][,1]) # number of cluste-termID pairs
+        P   <- as.numeric(RES[[i]][,Pvi]) # p-val
+        Palt<- as.numeric(RES[[i]][,PvALTi]) #p-alt
+        OR  <- as.numeric(RES[[i]][,ORi])
+        CI  <- as.numeric(RES[[i]][,CIli])
+        FE  <- as.numeric(RES[[i]][,Fei])
+        FC  <- as.numeric(RES[[i]][,Fci])
 
-        CNo = as.numeric(RES[[i]][,Cni])
+        CNo <- as.numeric(RES[[i]][,Cni])
 
-        Cmax = max(as.numeric(RES[[i]][,Ci]))
+        Cmax <- max(as.numeric(RES[[i]][,Ci]))
 
-        sum1[i,1] = as.character(RES[[i]][1,ALGi])
+        sum1[i,1] <- as.character(RES[[i]][1,ALGi])
 
-        sum1[i,2] = Ncn / Cmax
+        sum1[i,2] <- Ncn / Cmax
 
-        sum1[i,3] = Cmax # number of clusters
+        sum1[i,3] <- Cmax # number of clusters
 
-        sum1[i,4] = Ncn # number of cluster-term pairs
+        sum1[i,4] <- Ncn # number of cluster-term pairs
 
-        sum1[i,5] = lsum(P <= ALPHA)
+        sum1[i,5] <- lsum(P <= ALPHA)
 
-        sum1[i,6] = lsum(Palt <= ALPHA)
+        sum1[i,6] <- lsum(Palt <= ALPHA)
 
-        sum1[i,7] =  lsum(OR > 1)
+        sum1[i,7] <-  lsum(OR > 1)
 
-        sum1[i,8] =  lsum(OR > 1 & CI > 1)
+        sum1[i,8] <-  lsum(OR > 1 & CI > 1)
 
-        sum1[i,9] =  lsum(OR > 1 & CI > 1 & P <= ALPHA)
+        sum1[i,9] <-  lsum(OR > 1 & CI > 1 & P <= ALPHA)
 
-        sum1[i,10] =  lsum(OR > 1 & CI > 1 & Palt <= ALPHA)
+        sum1[i,10] <-  lsum(OR > 1 & CI > 1 & Palt <= ALPHA)
 
-        sum1[i,11] = lsum( log2(FE) > 0.5 & log2(FE) < 4.8 )
+        sum1[i,11] <- lsum( log2(FE) > 0.5 & log2(FE) < 4.8 )
 
-        sum1[i,12] = lsum(OR > 1 & CI > 1 & P <= ALPHA &
+        sum1[i,12] <- lsum(OR > 1 & CI > 1 & P <= ALPHA &
                               log2(FE) > 0.5 & log2(FE) < 4.8 )
 
-        sum2[i,1] =  as.character(RES[[i]][1,ALGi])
-        sum2[i,2] =  lsum(OR > 1 & CI > 1 & P <= ALPHA)
+        sum2[i,1] <-  as.character(RES[[i]][1,ALGi])
+        sum2[i,2] <-  lsum(OR > 1 & CI > 1 & P <= ALPHA)
         for( j in seq_along(hh) ){
-            sum2[i,(j+2)] = lsum(OR > 1 & CI > 1 & P <= ALPHA &
+            sum2[i,(j+2)] <- lsum(OR > 1 & CI > 1 & P <= ALPHA &
                                      CNo > ((cmin[j]*N)/100) &
                                      CNo < ((10*N)/100) )
         }
 
-        sum3[i,1] =  as.character(RES[[i]][1,ALGi])
-        sum3[i,2] =  lsum(OR > 1 & CI > 1 & P <= ALPHA)
+        sum3[i,1] <-  as.character(RES[[i]][1,ALGi])
+        sum3[i,2] <-  lsum(OR > 1 & CI > 1 & P <= ALPHA)
         for( j in seq_along(hh2) ){
-            sum3[i,(j+2)] = lsum(OR > 1 & CI > 1 & P <= ALPHA &
+            sum3[i,(j+2)] <- lsum(OR > 1 & CI > 1 & P <= ALPHA &
                                      log2(FE) > femin[j] )
         }
 
-        sum4[i,1] =  as.character(RES[[i]][1,ALGi])
-        sum4[i,2] =  lsum(OR > 1 & CI > 1 & P <= ALPHA)
+        sum4[i,1] <-  as.character(RES[[i]][1,ALGi])
+        sum4[i,2] <-  lsum(OR > 1 & CI > 1 & P <= ALPHA)
         for( j in seq_along(hh3) ){
-            sum4[i,(j+2)] = lsum(OR > 1 & CI > 1 & P <= ALPHA &
+            sum4[i,(j+2)] <- lsum(OR > 1 & CI > 1 & P <= ALPHA &
                                      log2(FC) > fcmin[j] )
         }
 
-        sum1[i,13] = (as.numeric(sum1[i,9]) / as.numeric(sum1[i,4])) * 100
+        sum1[i,13] <- (as.numeric(sum1[i,9]) / as.numeric(sum1[i,4])) * 100
 
-        sum1[i,14] = fisher(as.numeric(sum1[i,12]), as.numeric(sum1[i,9]),
+        sum1[i,14] <- fisher(as.numeric(sum1[i,12]), as.numeric(sum1[i,9]),
                             as.numeric(sum1[i,11]), as.numeric(sum1[i,4]))
 
         #store candidate enriched functional communities
@@ -276,53 +276,53 @@ plotRatio <- function(x,
 
 
     #---For p.values
-    xx  = x$SUM3 #Fe
-    Nxx = length(colnames(xx))
-    df  = data.frame()
+    xx  <- x$SUM3 #Fe
+    Nxx <- length(colnames(xx))
+    df  <- data.frame()
 
     #--- labels
-    xlab = colnames(xx)[3:Nxx]
-    xval = seq(0,(length(xlab)-1),1)
-    xlim = c(0,25,50,75,100)
+    xlab <- colnames(xx)[3:Nxx]
+    xval <- seq(0,(length(xlab)-1),1)
+    xlim <- c(0,25,50,75,100)
 
-    indx = match(xlim,xval)
-    xval = xval[indx]
-    xval = factor(xval)
-    xlab = xlab[indx]
-    brks = as.numeric(xlab)
+    indx <- match(xlim,xval)
+    xval <- xval[indx]
+    xval <- factor(xval)
+    xlab <- xlab[indx]
+    brks <- as.numeric(xlab)
     #---
 
     #--- test intervals
-    X1 = 7
-    X2 = 54
-    X3 = 90
+    X1 <- 7
+    X2 <- 54
+    X3 <- 90
 
     rank <- matrix("",ncol=3,nrow=length(xx[,1]))
 
     for( i in seq_along(xx[,1]) ){
 
-        size  = rep(1.8,length(xx[i,1]))
-        alpha = rep(0.7,length(xx[i,1]))
-        col   = rep("grey", length(xx[i,1]))
-        xlabs = colnames(xx)[3:Nxx]
+        size  <- rep(1.8,length(xx[i,1]))
+        alpha <- rep(0.7,length(xx[i,1]))
+        col   <- rep("grey", length(xx[i,1]))
+        xlabs <- colnames(xx)[3:Nxx]
 
-        tmp = cbind(xx[i,1],seq(1,(Nxx-2),1),
+        tmp <- cbind(xx[i,1],seq(1,(Nxx-2),1),
                     as.numeric(xx[i,3:Nxx])/as.numeric(xx[i,2]),
                     size, alpha, col, xlabs)
 
-        df = rbind(df,tmp)
+        df <- rbind(df,tmp)
 
-        zz0 = as.numeric(as.vector(xx[i,2]))
-        zz  = as.numeric(as.vector(xx[i,3:Nxx]))
+        zz0 <- as.numeric(as.vector(xx[i,2]))
+        zz  <- as.numeric(as.vector(xx[i,3:Nxx]))
 
-        rank[i,1] = xx[i,1]
-        rank[i,2] = ifelse( zz0 == 0, 0, (zz[7]  - zz[54])/zz0)
-        rank[i,3] = ifelse( zz0 == 0, 0, (zz[54] - zz[90])/zz0)
+        rank[i,1] <- xx[i,1]
+        rank[i,2] <- ifelse( zz0 == 0, 0, (zz[7]  - zz[54])/zz0)
+        rank[i,3] <- ifelse( zz0 == 0, 0, (zz[54] - zz[90])/zz0)
 
     }
 
     #---
-    rank = rank[order(as.numeric(rank[,2]),decreasing=TRUE),]
+    rank <- rank[order(as.numeric(rank[,2]),decreasing=TRUE),]
     colnames(rank) <- c("Alg","FracComsEnriched_log2(FE)>0.5_log2(FE)<4.8",
                         "FracComsEnriched_log2(FE)>4.8_log2(FE)<8.0")
     # write.table(rank, sprintf("ranking_%s.csv",desc), sep="\t", row.names=F,
@@ -335,27 +335,27 @@ plotRatio <- function(x,
     df           <- as.data.frame(df)
 
     if( length(which(df$ALG == rank[1,1])) != 0 ){
-        df$COL[df$ALG   == rank[1,1]]="royalblue"#lawngreen"
-            df$ALPHA[df$ALG == rank[1,1]]= 1.0
+        df$COL[df$ALG   == rank[1,1]] <- "royalblue"#lawngreen"
+            df$ALPHA[df$ALG == rank[1,1]] <- 1.0
 
     }
 
     if( length(which(df$ALG == rank[2,1])) != 0 ){
-        df$COL[df$ALG   == rank[2,1]]="green2"
-            df$ALPHA[df$ALG == rank[2,1]]= 1.0
+        df$COL[df$ALG   == rank[2,1]] <- "green2"
+            df$ALPHA[df$ALG == rank[2,1]] <- 1.0
 
     }
 
 
     if( length(which(df$ALG == rank[3,1])) != 0 ){
-        df$COL[df$ALG   == rank[3,1]]="magenta"
-            df$ALPHA[df$ALG == rank[3,1]]= 1.0
+        df$COL[df$ALG   == rank[3,1]] <- "magenta"
+            df$ALPHA[df$ALG == rank[3,1]] <- 1.0
     }
     #---
 
     #---Generate plot
-    SIZEa=2
-    SIZEb=2
+    SIZEa <- 2
+    SIZEb <- 2
 
     #---legend
     #LEGtextSize=0.75 #ALL Algs
@@ -364,7 +364,7 @@ plotRatio <- function(x,
     #LEGlineSize=2    #ALL Algs
     #LEGlineSize=4    #Selected ALgs
 
-    colours = df$COL[match(levels(factor(df$ALG)),df$ALG)]
+    colours <- df$COL[match(levels(factor(df$ALG)),df$ALG)]
     gplot <- ggplot(df,aes(x=(as.numeric(df$X)),y=as.numeric(as.vector(df$Y)),
                            colour=df$ALG))+
         geom_line(size=as.numeric(as.vector(df$LSIZE)),
