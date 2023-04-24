@@ -255,7 +255,7 @@ summaryStats <- function( RES, ALPHA, usePadj=FALSE, FeMAX=0, FcMAX=0 ){
 #'
 #' @return ggplot object
 #' @export
-#' @import viridis
+#' @importFrom viridis scale_color_viridis
 plotRatio <- function(x,
                       desc="", anno="",
                       LEGtextSize=1.5,
