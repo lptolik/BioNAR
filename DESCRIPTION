@@ -1,6 +1,6 @@
 Package: BioNAR
 Title: Biological Network Analysis in R
-Version: 1.1.3
+Version: 1.1.4
 Authors@R: c(
     person("Colin", "Mclean", 
         email="Colin.D.Mclean@ed.ac.uk", role="aut"), 
@@ -24,9 +24,9 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 Depends: R (>= 3.5.0), igraph (>= 1.4.0), poweRlaw, latex2exp, RSpectra, 
     Rdpack
-Imports: stringr, synaptome.db, clusterCons, fgsea, grid, methods, scales, 
+Imports: stringr, viridis, synaptome.db, clusterCons, fgsea, grid, methods,
     AnnotationDbi, dplyr, GO.db, org.Hs.eg.db, rSpectral, WGCNA, ggplot2,
-    ggrepel, minpack.lm, viridis, cowplot, data.table, stats
+    ggrepel, minpack.lm, cowplot, data.table, scales, stats
 RdMacros: Rdpack
 Suggests: 
     knitr, 

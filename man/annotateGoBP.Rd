@@ -10,6 +10,9 @@ annotateGoBP(gg, annoF, idatt = "name")
 \item{gg}{graph to update}
 
 \item{annoF}{annotation matrix in Pair form}
+
+\item{idatt}{optional name of the vertex attribute to map to the
+annotation \code{data.frame} first column}
 }
 \value{
 annotated igraph object
