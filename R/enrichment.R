@@ -78,7 +78,8 @@ clusterORA <- function(g,
 
         res<-as.data.frame(res[,list(alg=alg,cl,FL,N,Fn,Cn,Mu,OR,
                                   CIl=OR-1.96*CIw,CIu=OR+1.96*CIw,
-                               Fe,Fc,pval,padj,palt,paltadj=p.adjust(palt,method = 'BH'),
+                               Fe,Fc,pval,padj,palt,
+                               paltadj=p.adjust(palt,method = 'BH'),
                                overlapGenes)])
 
         return(res)
@@ -116,7 +117,10 @@ lsum<-function(x){
 #' @export
 summaryStats <- function( RES, ALPHA, usePadj=FALSE, FeMAX=0, FcMAX=0 ){
 
-    cand <- data.frame(a=as.character(),b=as.character(),c=as.character(),d=as.character())
+    cand <- data.frame(a=as.character(),
+                       b=as.character(),
+                       c=as.character(),
+                       d=as.character())
 
     CN <- colnames(RES[[1]])
 
@@ -140,7 +144,9 @@ summaryStats <- function( RES, ALPHA, usePadj=FALSE, FeMAX=0, FcMAX=0 ){
     Ni     = which(CN=="N")[1]
     N      = as.numeric(RES[[1]][1,Ni])
 
-    hh0  = c("alg","FN","CN","FNxCN","Psig","PALTsig","OR>1","ORsig","Psig&ORsig","PALTsig&ORsig","FEsig","Psig&ORsig&FEsig","EnrichedComs(%)","p.value")
+    hh0  = c("alg","FN","CN","FNxCN","Psig","PALTsig","OR>1",
+             "ORsig","Psig&ORsig","PALTsig&ORsig","FEsig","Psig&ORsig&FEsig",
+             "EnrichedComs(%)","p.value")
     sum1 = matrix("",ncol=length(hh0),nrow=length(names(RES)))
     colnames(sum1) <- hh0
 
@@ -164,9 +170,9 @@ summaryStats <- function( RES, ALPHA, usePadj=FALSE, FeMAX=0, FcMAX=0 ){
 
     for( i in seq_along(RES) ){
 
-        Ncn = length(RES[[i]][,1])
-        P   = as.numeric(RES[[i]][,Pvi])
-        Palt= as.numeric(RES[[i]][,PvALTi])
+        Ncn = length(RES[[i]][,1]) # number of cluste-termID pairs
+        P   = as.numeric(RES[[i]][,Pvi]) # p-val
+        Palt= as.numeric(RES[[i]][,PvALTi]) #p-alt
         OR  = as.numeric(RES[[i]][,ORi])
         CI  = as.numeric(RES[[i]][,CIli])
         FE  = as.numeric(RES[[i]][,Fei])
@@ -180,9 +186,9 @@ summaryStats <- function( RES, ALPHA, usePadj=FALSE, FeMAX=0, FcMAX=0 ){
 
         sum1[i,2] = Ncn / Cmax
 
-        sum1[i,3] = Cmax
+        sum1[i,3] = Cmax # number of clusters
 
-        sum1[i,4] = Ncn ##
+        sum1[i,4] = Ncn # number of cluster-term pairs
 
         sum1[i,5] = lsum(P <= ALPHA)
 
@@ -198,24 +204,29 @@ summaryStats <- function( RES, ALPHA, usePadj=FALSE, FeMAX=0, FcMAX=0 ){
 
         sum1[i,11] = lsum( log2(FE) > 0.5 & log2(FE) < 4.8 )
 
-        sum1[i,12] = lsum(OR > 1 & CI > 1 & P <= ALPHA & log2(FE) > 0.5 & log2(FE) < 4.8 )
+        sum1[i,12] = lsum(OR > 1 & CI > 1 & P <= ALPHA &
+                              log2(FE) > 0.5 & log2(FE) < 4.8 )
 
         sum2[i,1] =  as.character(RES[[i]][1,ALGi])
         sum2[i,2] =  lsum(OR > 1 & CI > 1 & P <= ALPHA)
         for( j in seq_along(hh) ){
-            sum2[i,(j+2)] = lsum(OR > 1 & CI > 1 & P <= ALPHA & CNo > ((cmin[j]*N)/100) & CNo < ((10*N)/100) )
+            sum2[i,(j+2)] = lsum(OR > 1 & CI > 1 & P <= ALPHA &
+                                     CNo > ((cmin[j]*N)/100) &
+                                     CNo < ((10*N)/100) )
         }
 
         sum3[i,1] =  as.character(RES[[i]][1,ALGi])
         sum3[i,2] =  lsum(OR > 1 & CI > 1 & P <= ALPHA)
         for( j in seq_along(hh2) ){
-            sum3[i,(j+2)] = lsum(OR > 1 & CI > 1 & P <= ALPHA & log2(FE) > femin[j] )
+            sum3[i,(j+2)] = lsum(OR > 1 & CI > 1 & P <= ALPHA &
+                                     log2(FE) > femin[j] )
         }
 
         sum4[i,1] =  as.character(RES[[i]][1,ALGi])
         sum4[i,2] =  lsum(OR > 1 & CI > 1 & P <= ALPHA)
         for( j in seq_along(hh3) ){
-            sum4[i,(j+2)] = lsum(OR > 1 & CI > 1 & P <= ALPHA & log2(FC) > fcmin[j] )
+            sum4[i,(j+2)] = lsum(OR > 1 & CI > 1 & P <= ALPHA &
+                                     log2(FC) > fcmin[j] )
         }
 
         sum1[i,13] = (as.numeric(sum1[i,9]) / as.numeric(sum1[i,4])) * 100
@@ -295,7 +306,9 @@ plotRatio <- function(x,
         col   = rep("grey", length(xx[i,1]))
         xlabs = colnames(xx)[3:Nxx]
 
-        tmp = cbind(xx[i,1],seq(1,(Nxx-2),1),as.numeric(xx[i,3:Nxx])/as.numeric(xx[i,2]), size, alpha, col, xlabs)
+        tmp = cbind(xx[i,1],seq(1,(Nxx-2),1),
+                    as.numeric(xx[i,3:Nxx])/as.numeric(xx[i,2]),
+                    size, alpha, col, xlabs)
 
         df = rbind(df,tmp)
 
@@ -310,8 +323,10 @@ plotRatio <- function(x,
 
     #---
     rank = rank[order(as.numeric(rank[,2]),decreasing=TRUE),]
-    colnames(rank) <- c("Alg","FracComsEnriched_log2(FE)>0.5_log2(FE)<4.8","FracComsEnriched_log2(FE)>4.8_log2(FE)<8.0")
-    #write.table(rank, sprintf("ranking_%s.csv",desc), sep="\t", row.names=F, col.names=T, quote=F)
+    colnames(rank) <- c("Alg","FracComsEnriched_log2(FE)>0.5_log2(FE)<4.8",
+                        "FracComsEnriched_log2(FE)>4.8_log2(FE)<8.0")
+    # write.table(rank, sprintf("ranking_%s.csv",desc), sep="\t", row.names=F,
+    #             col.names=T, quote=F)
 
 
     colnames(df) <- c("ALG","X","Y","LSIZE","ALPHA","COL","XLAB")
@@ -350,15 +365,18 @@ plotRatio <- function(x,
     #LEGlineSize=4    #Selected ALgs
 
     colours = df$COL[match(levels(factor(df$ALG)),df$ALG)]
-    gplot <- ggplot(df,aes(x=(as.numeric(df$X)),y=as.numeric(as.vector(df$Y)),colour=df$ALG))+
-        geom_line(size=as.numeric(as.vector(df$LSIZE)),alpha=as.numeric(as.vector(df$ALPHA)))+
+    gplot <- ggplot(df,aes(x=(as.numeric(df$X)),y=as.numeric(as.vector(df$Y)),
+                           colour=df$ALG))+
+        geom_line(size=as.numeric(as.vector(df$LSIZE)),
+                  alpha=as.numeric(as.vector(df$ALPHA)))+
         labs(x="log2(Fe)",y="Fraction of Enriched Communities",title=anno)+
         theme(axis.title.x=element_text(face="bold",size=rel(1.5)),
               axis.title.y=element_text(face="bold",size=rel(1.5)),
               legend.text=element_text(face="bold",size=rel(LEGtextSize)),
               plot.title=element_text(face="bold",size=rel(1.5)),
               legend.position="bottom")+
-        scale_color_manual("",breaks=c(levels(factor(df$ALG))),values=c(colours))+
+        scale_color_manual("",breaks=c(levels(factor(df$ALG))),
+                           values=c(colours))+
         scale_y_continuous(expand=c(0,0),limits=c(0,1))+
 #        scale_x_discrete(expand=c(0,0), limit=xval, labels=xlab)+
 #        scale_x_continuous(expand=c(0,0), breaks = 2^brks, labels=xlab)+
@@ -366,22 +384,28 @@ plotRatio <- function(x,
               panel.grid.minor = element_line(colour="grey40",size=0.1),
               panel.background = element_rect(fill = "white"),
               panel.border = element_rect(linetype="solid",fill=NA))+
-        geom_vline(xintercept=(as.numeric(X1)),colour="grey10",size=SIZEb,linetype=2,show.legend=FALSE)+
-        geom_vline(xintercept=(as.numeric(X2)),colour="grey10",size=SIZEb,linetype=2,show.legend=FALSE)+
-        geom_vline(xintercept=(as.numeric(X3)),colour="grey10",size=SIZEb,linetype=2,show.legend=FALSE)+
+        geom_vline(xintercept=(as.numeric(X1)),colour="grey10",size=SIZEb,
+                   linetype=2,show.legend=FALSE)+
+        geom_vline(xintercept=(as.numeric(X2)),colour="grey10",size=SIZEb,
+                   linetype=2,show.legend=FALSE)+
+        geom_vline(xintercept=(as.numeric(X3)),colour="grey10",size=SIZEb,
+                   linetype=2,show.legend=FALSE)+
         guides(color = guide_legend(override.aes = list(size=LEGlineSize)),
                alpha = 'none',
                size  = 'none')
 
-    gplot2 <- ggplot(df,aes(x=log(as.numeric(df$X)),y=as.numeric(as.vector(df$Y)),colour=df$ALG))+
-        geom_line(size=as.numeric(as.vector(df$LSIZE)),alpha=as.numeric(as.vector(df$ALPHA)))+
+    gplot2 <- ggplot(df,aes(x=log(as.numeric(df$X)),
+                            y=as.numeric(as.vector(df$Y)),colour=df$ALG))+
+        geom_line(size=as.numeric(as.vector(df$LSIZE)),
+                  alpha=as.numeric(as.vector(df$ALPHA)))+
         labs(x="log(log2(Fe))",y="Fraction of Enriched Communities",title=anno)+
         theme(axis.title.x=element_text(face="bold",size=rel(1.5)),
               axis.title.y=element_text(face="bold",size=rel(1.5)),
               legend.text=element_text(face="bold",size=rel(LEGtextSize)),
               plot.title=element_text(face="bold",size=rel(1.5)),
               legend.position="bottom")+
-        scale_color_manual("",breaks=c(levels(factor(df$ALG))),values=c(colours))+
+        scale_color_manual("",breaks=c(levels(factor(df$ALG))),
+                           values=c(colours))+
         scale_y_continuous(expand=c(0,0),limits=c(0,1))+
 #        scale_x_discrete(expand=c(0,0), limit=xval, labels=xlab)+
         scale_x_continuous(expand=c(0,0), breaks = brks, labels=xlab)+
@@ -389,15 +413,20 @@ plotRatio <- function(x,
               panel.grid.minor = element_line(colour="grey40",size=0.1),
               panel.background = element_rect(fill = "white"),
               panel.border = element_rect(linetype="solid",fill=NA))+
-        geom_vline(xintercept=log(as.numeric(X1)),colour="grey10",size=SIZEb,linetype=2,show.legend=FALSE)+
-        geom_vline(xintercept=log(as.numeric(X2)),colour="grey10",size=SIZEb,linetype=2,show.legend=FALSE)+
-        geom_vline(xintercept=log(as.numeric(X3)),colour="grey10",size=SIZEb,linetype=2,show.legend=FALSE)+
+        geom_vline(xintercept=log(as.numeric(X1)),colour="grey10",size=SIZEb,
+                   linetype=2,show.legend=FALSE)+
+        geom_vline(xintercept=log(as.numeric(X2)),colour="grey10",size=SIZEb,
+                   linetype=2,show.legend=FALSE)+
+        geom_vline(xintercept=log(as.numeric(X3)),colour="grey10",size=SIZEb,
+                   linetype=2,show.legend=FALSE)+
         guides(color = guide_legend(override.aes = list(size=LEGlineSize)),
                alpha = 'none',
                size  = 'none')
 
-    gplot3 <- ggplot(df,aes(x=(as.numeric(df$X)),y=as.numeric(as.vector(df$Y)),colour=df$ALG))+
-        geom_line(size=as.numeric(as.vector(df$LSIZE)),alpha=as.numeric(as.vector(df$ALPHA)))+
+    gplot3 <- ggplot(df,aes(x=(as.numeric(df$X)),y=as.numeric(as.vector(df$Y)),
+                            colour=df$ALG))+
+        geom_line(size=as.numeric(as.vector(df$LSIZE)),
+                  alpha=as.numeric(as.vector(df$ALPHA)))+
         labs(x="log2(Fe)",y="Fraction of Enriched Communities",title=anno)+
         theme(axis.title.x=element_text(face="bold",size=rel(1.5)),
               axis.title.y=element_text(face="bold",size=rel(1.5)),
@@ -412,15 +441,20 @@ plotRatio <- function(x,
               panel.grid.minor = element_line(colour="grey40",size=0.1),
               panel.background = element_rect(fill = "white"),
               panel.border = element_rect(linetype="solid",fill=NA))+
-        geom_vline(xintercept=(as.numeric(X1)),colour="grey10",size=SIZEb,linetype=2,show.legend=FALSE)+
-        geom_vline(xintercept=(as.numeric(X2)),colour="grey10",size=SIZEb,linetype=2,show.legend=FALSE)+
-        geom_vline(xintercept=(as.numeric(X3)),colour="grey10",size=SIZEb,linetype=2,show.legend=FALSE)+
+        geom_vline(xintercept=(as.numeric(X1)),colour="grey10",size=SIZEb,
+                   linetype=2,show.legend=FALSE)+
+        geom_vline(xintercept=(as.numeric(X2)),colour="grey10",size=SIZEb,
+                   linetype=2,show.legend=FALSE)+
+        geom_vline(xintercept=(as.numeric(X3)),colour="grey10",size=SIZEb,
+                   linetype=2,show.legend=FALSE)+
         guides(color = guide_legend(override.aes = list(size=LEGlineSize)),
                alpha = 'none',
                size  = 'none')
 
-    gplot4 <- ggplot(df,aes(x=log(as.numeric(df$X)),y=as.numeric(as.vector(df$Y)),colour=df$ALG))+
-        geom_line(size=as.numeric(as.vector(df$LSIZE)),alpha=as.numeric(as.vector(df$ALPHA)))+
+    gplot4 <- ggplot(df,aes(x=log(as.numeric(df$X)),
+                            y=as.numeric(as.vector(df$Y)),colour=df$ALG))+
+        geom_line(size=as.numeric(as.vector(df$LSIZE)),
+                  alpha=as.numeric(as.vector(df$ALPHA)))+
         labs(x="log(log2(Fe))",y="Fraction of Enriched Communities",title=anno)+
         theme(axis.title.x=element_text(face="bold",size=rel(1.5)),
               axis.title.y=element_text(face="bold",size=rel(1.5)),
@@ -435,9 +469,12 @@ plotRatio <- function(x,
               panel.grid.minor = element_line(colour="grey40",size=0.1),
               panel.background = element_rect(fill = "white"),
               panel.border = element_rect(linetype="solid",fill=NA))+
-        geom_vline(xintercept=log(as.numeric(X1)),colour="grey10",size=SIZEb,linetype=2,show.legend=FALSE)+
-        geom_vline(xintercept=log(as.numeric(X2)),colour="grey10",size=SIZEb,linetype=2,show.legend=FALSE)+
-        geom_vline(xintercept=log(as.numeric(X3)),colour="grey10",size=SIZEb,linetype=2,show.legend=FALSE)+
+        geom_vline(xintercept=log(as.numeric(X1)),colour="grey10",size=SIZEb,
+                   linetype=2,show.legend=FALSE)+
+        geom_vline(xintercept=log(as.numeric(X2)),colour="grey10",size=SIZEb,
+                   linetype=2,show.legend=FALSE)+
+        geom_vline(xintercept=log(as.numeric(X3)),colour="grey10",size=SIZEb,
+                   linetype=2,show.legend=FALSE)+
         guides(color = guide_legend(override.aes = list(size=LEGlineSize)),
                alpha = 'none',
                size  = 'none')
