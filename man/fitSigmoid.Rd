@@ -2,7 +2,7 @@
 % Please edit documentation in R/sigmoid.R
 \name{fitSigmoid}
 \alias{fitSigmoid}
-\title{Fit Fe distribution to sigmoid function}
+\title{Fit Fold-enrichment distribution to sigmoid function}
 \usage{
 fitSigmoid(stat, SDv = c(0, 0.05, 0.1, 0.5))
 }
@@ -15,6 +15,22 @@ fitSigmoid(stat, SDv = c(0, 0.05, 0.1, 0.5))
 list of fitted functions tables and plots
 }
 \description{
+This function calculates fit of the Fold-Enrichment distribution to the
+sigmoid function with the levels of noise specidied in \code{SDV} and return
+the list in which each element contains result for one of the noise level.
+}
+\details{
+Results are repersented as a list with five elements:
+\itemize{
+\item gridplot that allow comparison of fitting for different clustering
+algorithms;
+\item plots the list of individual plots from gridplot;
+\item fitInfo the data.frame that contains results of fitting, such as
+message, number of iterations and exit code;
+\item parInfo values and standard deviations for all sigmoid parameters;
+\item ks table of Kolmogorov-Smirnov test p-values.
+}
+
 Grid plot is designed in a way to be viewed in the device at least 12 inches
 in width and 12 inches in height.
 }

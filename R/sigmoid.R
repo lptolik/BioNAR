@@ -104,7 +104,8 @@ plotSigmoid <- function( x, rates, model, alg="", pv=0 ){
     ##---
 
     ##--- data.frame to plot
-    colnames(df) <- c("alg", "x", "y", "yhat", "ylower", "yupper", sprintf("yiR%.0f", seq(1,R,1)))
+    colnames(df) <- c("alg", "x", "y", "yhat", "ylower", "yupper",
+                      sprintf("yiR%.0f", seq(1,R,1)))
     #cat(format(Sys.time(), "%b %d %X"),colnames(df),'\n')
     df <- as.data.frame(df)
 
@@ -121,7 +122,8 @@ plotSigmoid <- function( x, rates, model, alg="", pv=0 ){
     plotCI <- TRUE
     if( is.null(conf) ){ plotCI <- FALSE }
 
-    ##--- p.value from KS test for model against 'ideal' sigmoid with rate value = -2
+    ##--- p.value from KS test for model against 'ideal' sigmoid
+    ## with rate value = -2
     pv <- as.numeric(pv)
     if( is.na(pv) ){ pv <- 0 }
     ##---
@@ -129,16 +131,26 @@ plotSigmoid <- function( x, rates, model, alg="", pv=0 ){
     ##--- build the plot
     gplot <- ggplot(df, aes(as.numeric(x)))+
         geom_point(aes(y=as.numeric(as.vector(y))),   shape=1, size=2.5)+
-        geom_line(aes(y=as.numeric(as.vector(yhat))), linetype="dashed", color="red", size=2)+
-        geom_line(aes(y=as.numeric(as.vector(yiR1))), linetype="solid", color=Rcol[1], size=Rsize[1])+
-        geom_line(aes(y=as.numeric(as.vector(yiR2))), linetype="solid", color=Rcol[2], size=Rsize[2])+
-        geom_line(aes(y=as.numeric(as.vector(yiR3))), linetype="solid", color=Rcol[3], size=Rsize[3])+
-        geom_line(aes(y=as.numeric(as.vector(yiR4))), linetype="solid", color=Rcol[4], size=Rsize[4])+
-        geom_line(aes(y=as.numeric(as.vector(yiR5))), linetype="solid", color=Rcol[5], size=Rsize[5])+
-        #geom_line(aes(y=as.numeric(as.vector(df$yiR6))), linetype="solid", color=Rcol[6], size=Rsize[6])+
-        {if(plotCI)geom_line(aes(y=as.numeric(as.vector(ylower))), linetype="dashed", color="blue", size=2)}+
-        {if(plotCI)geom_line(aes(y=as.numeric(as.vector(yupper))), linetype="dashed", color="blue", size=2)}+
-        labs(x="log2(Fe)",y="Fraction of Enriched Communities",title=sprintf("%s, KS GoF = %3.e", alg, pv))+
+        geom_line(aes(y=as.numeric(as.vector(yhat))), linetype="dashed",
+                  color="red", size=2)+
+        geom_line(aes(y=as.numeric(as.vector(yiR1))), linetype="solid",
+                  color=Rcol[1], size=Rsize[1])+
+        geom_line(aes(y=as.numeric(as.vector(yiR2))), linetype="solid",
+                  color=Rcol[2], size=Rsize[2])+
+        geom_line(aes(y=as.numeric(as.vector(yiR3))), linetype="solid",
+                  color=Rcol[3], size=Rsize[3])+
+        geom_line(aes(y=as.numeric(as.vector(yiR4))), linetype="solid",
+                  color=Rcol[4], size=Rsize[4])+
+        geom_line(aes(y=as.numeric(as.vector(yiR5))), linetype="solid",
+                  color=Rcol[5], size=Rsize[5])+
+        #geom_line(aes(y=as.numeric(as.vector(df$yiR6))), linetype="solid",
+        #color=Rcol[6], size=Rsize[6])+
+        {if(plotCI)geom_line(aes(y=as.numeric(as.vector(ylower))),
+                             linetype="dashed", color="blue", size=2)}+
+        {if(plotCI)geom_line(aes(y=as.numeric(as.vector(yupper))),
+                             linetype="dashed", color="blue", size=2)}+
+        labs(x="log2(Fe)",y="Fraction of Enriched Communities",
+             title=sprintf("%s, KS GoF = %3.e", alg, pv))+
         theme(axis.title.x=element_text(face="bold",size=rel(1.1)),
               axis.title.y=element_text(face="bold",size=rel(1.1)),
               legend.text=element_text(face="bold",size=rel(1.5)),
@@ -166,6 +178,8 @@ addNoise <- function( Y, MN=0, SD=0.05 ){
 
 ##goodness of fit test, KS
 #' Goodnes of fit KS test
+#'
+#' This is internal function and do not suppose to be called by user.
 #'
 #' @param x steps along the Fe
 #' @param rate parameters of the sigmoid
@@ -235,7 +249,8 @@ fitSigmoid<-function(stat,SDv=c(0, 0.05, 0.1, 0.5)){
     x <- as.numeric(colnames(tt)[3:N])
     SDlab <- as.character(SDv)#c("0","0.05","0.1","0.5")
 
-    ## test fit against different 'idealised' sigmoid curves using KS gof statistic
+    ## test fit against different 'idealised' sigmoid curves
+    ## using KS gof statistic
     rates <- c(-10, -5, -2, -1, -0.5)
 
     resout<-list()
@@ -247,8 +262,9 @@ fitSigmoid<-function(stat,SDv=c(0, 0.05, 0.1, 0.5)){
         gof    <- list()
 
         ## save the fit infomation for each run
-        CNfit             <- c("alg", "isConv", "finTol", "stopCode", "stopMessage")
-        #fitInfo           <- matrix("", ncol=length(CNfit), nrow=length(tt[,1]))
+        CNfit             <- c("alg", "isConv", "finTol",
+                               "stopCode", "stopMessage")
+        #fitInfo          <- matrix("", ncol=length(CNfit), nrow=length(tt[,1]))
         #colnames(fitInfo) <- CNfit
         #fitInfo[,1]       <- tt[,1]
 
@@ -274,18 +290,31 @@ fitSigmoid<-function(stat,SDv=c(0, 0.05, 0.1, 0.5)){
 
             rm(m.s)
 
-            fitInfo <- rbind(fitInfo, BioNAR:::storeFitInfo( names(models)[i], unlist(models[[i]]$convInfo) ) )
+            fitInfo <- rbind(fitInfo,
+                             storeFitInfo( names(models)[i],
+                                           unlist(models[[i]]$convInfo) ) )
 
-            parInfo <- rbind(parInfo, BioNAR:::storeParInfo( names(models)[i], unlist(summary(models[[i]])$parameters[,1:2]) ))
+            parInfo <- rbind(parInfo,
+                             storeParInfo( names(models)[i],
+                            unlist(summary(models[[i]])$parameters[,1:2]) ))
 
         }
 
         ##---save the fit infomation
-        colnames(fitInfo) <- c("alg", "isConv", "finIter", "finTol", "stopCode", "stopMessage")
-        #write.table(fitInfo, sprintf("%s/FitInfo_sd_%s.csv",plotDIR, SDlab[s]), sep="\t", col.names=T, row.names=F, quote=F)
+        colnames(fitInfo) <- c("alg", "isConv", "finIter", "finTol",
+                               "stopCode", "stopMessage")
+        fitInfo$finIter<-as.numeric(fitInfo$finIter)
+        fitInfo$finTol<- as.numeric(fitInfo$finTol)
+        # write.table(fitInfo, sprintf("%s/FitInfo_sd_%s.csv",plotDIR,SDlab[s]),
+        #             sep="\t", col.names=T, row.names=F, quote=F)
 
-        colnames(parInfo) <- c("alg", c(rbind(names(models[[1]]$m$getPars()),sprintf("sd_%s",names(models[[1]]$m$getPars())))))
-        #write.table(parInfo, sprintf("%s/parInfo_sd_%s.csv",plotDIR, SDlab[s]), sep="\t", col.names=T, row.names=F, quote=F)
+        colnames(parInfo) <- c("alg",
+                               c(rbind(
+                                   names(models[[1]]$m$getPars()),
+                                   sprintf("sd_%s",
+                                           names(models[[1]]$m$getPars())))))
+        # write.table(parInfo, sprintf("%s/parInfo_sd_%s.csv",plotDIR,SDlab[s]),
+        #             sep="\t", col.names=T, row.names=F, quote=F)
 
         ##---print KS test results for each rate and noisy study here
         CN <- c("alg", sprintf("Rate_%.1f",rates))
@@ -316,11 +345,22 @@ fitSigmoid<-function(stat,SDv=c(0, 0.05, 0.1, 0.5)){
         }
 
         p <- cowplot::plot_grid(plotlist=GPLOTS,
-                                labels = "AUTO", label_size=20, label_fontface="bold")
-        #ggsave(sprintf("%s/Fitting_%s.png",plotDIR,SDlab[s]), p, width=20, height=20, device="png")
-
-        #write.table(oo, sprintf("%s/ks_pv_sd_%s.csv",plotDIR, SDlab[s]), sep="\t", col.names=T, row.names=F, quote=F)
-        resout[[SDlab[s]]]<-list(gridplot=p,plots=GPLOTS,fitInfo=fitInfo,parInfo=parInfo,ks=oo)
+                                labels = "AUTO", label_size=20,
+                                label_fontface="bold")
+        # ggsave(sprintf("%s/Fitting_%s.png",plotDIR,SDlab[s]), p,
+        #        width=20, height=20, device="png")
+        #
+        # write.table(oo, sprintf("%s/ks_pv_sd_%s.csv",plotDIR, SDlab[s]),
+        #             sep="\t", col.names=T, row.names=F, quote=F)
+        ooks<-as.data.frame(oo)
+        ooks[-1]<-lapply(ooks[-1],as.numeric)
+        pinf<-as.data.frame(parInfo)
+        pinf[-1]<-lapply(pinf[-1],as.numeric)
+        resout[[SDlab[s]]]<-list(gridplot=p,
+                                 plots=GPLOTS,
+                                 fitInfo=fitInfo,
+                                 parInfo=pinf,
+                                 ks=ooks)
         rm(models, GPLOTS, gof)
 
     }

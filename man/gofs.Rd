@@ -22,5 +22,5 @@ list of \code{\link[stats]{ks.test}} values for each value in
 \code{rate}
 }
 \description{
-Goodnes of fit KS test
+This is internal function and do not suppose to be called by user.
 }
