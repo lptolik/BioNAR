@@ -246,8 +246,12 @@ summaryStats <- function( RES, ALPHA, usePadj=FALSE, FeMAX=0, FcMAX=0 ){
     }
 
     colnames(cand) <- c("ALG","Fn","C","Mu")
+    sm1<-as.data.frame(sum1)
+    sm1[-1]<-lapply(sm1[-1],as.numeric)
+    # sm2<-as.data.frame(sum2)
+    # sm2[-1]<-lapply(sm2[-1],as.numeric)
 
-    return(list(SUM=sum1,
+    return(list(SUM=sm1,
                SUM2=sum2,
                SUM3=sum3,
                SUM4=sum4,
@@ -479,9 +483,12 @@ plotRatio <- function(x,
                alpha = 'none',
                size  = 'none')
 
-if(is.null(type)){
-    return(list(p1=gplot,p2=gplot2,p3=gplot3,p4=gplot4,ranktable=rank))
-        }else if(type==1){
+    if(is.null(type)){
+        rt<-as.data.frame(rank)
+        rt[-1]<-lapply(rt[-1],as.numeric)
+
+        return(list(p1=gplot,p2=gplot2,p3=gplot3,p4=gplot4,ranktable=rt))
+    }else if(type==1){
 
         return(gplot)
 
@@ -492,6 +499,6 @@ if(is.null(type)){
         return(gplot3)
     }else if(type == 4){
         return(gplot4)
-}
+    }
 }
 
