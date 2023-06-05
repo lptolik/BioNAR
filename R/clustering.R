@@ -224,6 +224,7 @@ getClustering <- function(gg,
 #'
 #' Function to calculate basic summary statistics after apply clustering
 #' algorithm:
+#' * N -- number of vertices in the graph \code{\link[igraph]{vcount}}
 #' * mod -- clustering modularity \code{\link[igraph]{modularity}}, the ratio
 #' of edges found within communities to the number of edges found between
 #' communities, relative to a randomised model
@@ -261,6 +262,7 @@ clusteringSummary <- function(gg,
                                       'sgG5',
                                       'spectral')) {
     attN <- vertex_attr_names(gg)
+    N <- vcount(gg)
     idx <- match(attN, att)
     clusterings <- attN[!is.na(idx)]
     res <- list()
@@ -280,8 +282,8 @@ clusteringSummary <- function(gg,
                    mem = cmem)
         ug <- disjoint_union(sgraphs)
         mu <- 1 - ecount(ug) / ecount(gg)
-        r1 <- c(mod, C, Cn1, Cn100, mu)
-        names(r1) <- c('mod', 'C', 'Cn1', 'Cn100', 'mu')
+        r1 <- c(N,mod, C, Cn1, Cn100, mu)
+        names(r1) <- c('N','mod', 'C', 'Cn1', 'Cn100', 'mu')
         res[[c]] <- c(r1, s)
     }
     return(makeDataFrame(do.call(rbind, res)))

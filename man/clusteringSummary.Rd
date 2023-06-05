@@ -21,6 +21,7 @@ matrix of clustering characteristics
 Function to calculate basic summary statistics after apply clustering
 algorithm:
 \itemize{
+\item N -- number of vertices in the graph \code{\link[igraph]{vcount}}
 \item mod -- clustering modularity \code{\link[igraph]{modularity}}, the ratio
 of edges found within communities to the number of edges found between
 communities, relative to a randomised model

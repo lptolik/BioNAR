@@ -24,7 +24,7 @@ test_that('clustering',{
     set.seed(100)
     g1<-calcAllClustering(karate)
     df<-clusteringSummary(g1)
-    expect_equal(dim(df),c(9,11))
+    expect_equal(dim(df),c(9,12))
 })
 
 test_that('spinglass on disconnected graph',{
