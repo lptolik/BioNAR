@@ -13,17 +13,9 @@
 #' summary(lcc)
 findLCC <- function(GG){
 
-    dec <- decompose.graph(GG)
-    d <- 1
-    CC <- length(V(dec[[1]]))
-    for( i in seq_along(dec) ){
-    if(length(V(dec[[i]])) > CC){
-        d <- i
-        CC <- length(V(dec[[i]]))
-    }
-    }
-
-    GG  <- decompose.graph(GG)[[d]]
+    dec <- decompose.graph(GG,mode = 'weak')
+    vc<-sapply(dec,vcount)
+    resG<-dec[[which.max(vc)]]
     return(GG)
 
 }
