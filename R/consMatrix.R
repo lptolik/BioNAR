@@ -73,7 +73,7 @@ matrixDiv <- function(x, y) {
 #' @param N number of perturbation steps
 #' @param mask percentage of elements to perturbe
 #' @param alg clustering alg.
-#' @param type edges=>1 or nodes=>2  to mask
+#' @param type edges (1) or nodes (2)  to mask
 #' @param reclust logical to decide wether to invoke reclustering via
 #'        \code{\link{recluster}}
 #' @param Cnmax maximus size of the cluster in \code{mem} that will not be

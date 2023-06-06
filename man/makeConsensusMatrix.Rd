@@ -23,7 +23,7 @@ makeConsensusMatrix(
 
 \item{alg}{clustering alg.}
 
-\item{type}{edges=>1 or nodes=>2  to mask}
+\item{type}{edges (1) or nodes (2)  to mask}
 
 \item{reclust}{logical to decide wether to invoke reclustering via
 \code{\link{recluster}}}
