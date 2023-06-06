@@ -142,7 +142,7 @@ getBridgeness <- function(gg, alg, conmat) {
 #' gg<-calcBridgeness(gg, alg = 'louvain', cnmat)
 #' hist(V(gg)$BRIDGENESS.louvain)
 calcBridgeness <- function(gg, alg, conmat) {
-    br<-getBridgeness(gg, alg = 'louvain', conmat)
+    br<-getBridgeness(gg, alg = alg, conmat)
     agg<-applpMatrixToGraph(gg,br[,grep('(ID|BRDIDGENESS.+)',names(br))])
     return(agg)
 }
