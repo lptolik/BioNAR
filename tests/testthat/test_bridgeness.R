@@ -9,7 +9,7 @@ test_that('Scale',{
                  c(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0))
 })
 
-test_that('Karate Bridgenes',{
+test_that('Karate getBridgenes',{
     data(karate, package='igraphdata')
     set.seed(100)
     g <- calcClustering(karate, 'louvain')
@@ -44,6 +44,17 @@ test_that('Karate Bridgenes',{
                                                ymax = 1,
                                                baseColor="royalblue2",
                                                SPColor="royalblue2"))
+})
+
+
+test_that('Karate calcBridgenes',{
+    data(karate, package='igraphdata')
+    set.seed(100)
+    g <- calcClustering(karate, 'lec')
+    cnmat <- makeConsensusMatrix(g, N=10, alg = 'lec', type = 2, mask = 10)
+    agg<-calcBridgeness(g, alg = 'lec', cnmat)
+    expect_true(any(grepl('lec',vertex_attr_names(agg))))
+    expect_true(any(grepl('BRIDGENESS.lec',vertex_attr_names(agg))))
 })
 
 test_that('Presynaptic Bridgenes',{
