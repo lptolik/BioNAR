@@ -16,7 +16,7 @@ findLCC <- function(GG){
     dec <- decompose.graph(GG,mode = 'weak')
     vc<-sapply(dec,vcount)
     resG<-dec[[which.max(vc)]]
-    return(GG)
+    return(resG)
 
 }
 
