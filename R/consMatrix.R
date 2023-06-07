@@ -19,8 +19,8 @@ buildConsensusMatrix <- function(lcc) {
     for (i in seq_along(lcc)) {
         tb <- lcc[[i]]
         ## make sure node id == -1 if node com == -1
-        indx <- tb[, 3] == -1
-        tb[indx, 2] <- -1
+        indx <- tb$membership == -1
+        tb$rname[indx] <- NA
 
         if (initM) {
             N <- dim(tb)[1]
@@ -95,6 +95,9 @@ makeConsensusMatrix <- function(gg,
                                 type,
                                 reclust = FALSE,
                                 Cnmax = 10) {
+    if(mask>50){
+        warning('You are trying to remove more than 50% of graph elements.\n')
+    }
     lcc <- lapply(seq_len(N), function(.x)
         sampleGraphClust(
             gg = gg,
@@ -122,26 +125,26 @@ calculateConsensusMat <- function(data = NULL) {
         tempM <- matrix(0, nrow = N, ncol = N)
 
         for (i in seq_len(N)) {
-            comi <- as.numeric(data[i, 3])
-            keyi <- data[i, 2]
+            comi <- data$membership[i]
+            keyi <- data$rname[i]
             jj <- seq(i, N, 1)
-            if (keyi != '-1') {
-                comj <- as.numeric(data[jj, 3])
-                keyj <- data[jj, 2]
+            if (!is.na(keyi)) {
+                comj <- data$membership[jj]
+                keyj <- data$rname[jj]
 
                 ## I
-                indxJ <- jj[keyj != '-1']
+                indxJ <- jj[!is.na(keyj)]
                 Nindx <- length(indxJ)
 
-                tempI[i, indxJ] <- as.numeric(rep(1, Nindx))
-                tempI[i, i] <- as.numeric(0.5)
+                tempI[i, indxJ] <- rep(1, Nindx)
+                tempI[i, i] <- 0.5
 
                 ## M
                 indxC <- jj[comj != -1 & comi == comj]
                 Nindx <- length(indxC)
 
-                tempM[i, indxC] <- as.numeric(rep(1, Nindx))
-                tempM[i, i] <- as.numeric(0.5)
+                tempM[i, indxC] <- rep(1, Nindx)
+                tempM[i, i] <- 0.5
 
             }
         }

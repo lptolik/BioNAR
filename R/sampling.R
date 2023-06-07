@@ -450,9 +450,11 @@ sampleGraphClust <-
         ggLCC <- findLCC(ggM)
         #---
         #---build consensus file
-        cc       <- matrix(-1, ncol = 3, nrow = length(V(gg)))
-        cc[, 1]   <- V(gg)$name
-        cc[, 2]   <- ifelse(cc[, 1] %in% V(ggLCC)$name, cc[, 1], -1)
+        #cc       <- matrix(-1, ncol = 3, nrow = length(V(gg)))
+        #cc[, 1]   <- V(gg)$name
+        cc<-data.frame(name=V(gg)$name,rname=NA,membership=-1)
+        idx<-match(V(ggLCC)$name,cc$name)
+        cc$rname[idx]<-V(ggLCC)$name
         cl <- getClustering(ggLCC, alg)
         if (reclust) {
             ggLCC <-
@@ -460,10 +462,12 @@ sampleGraphClust <-
                                              cl$membership)
             oo <- recluster(ggLCC, alg, Cnmax)
             if (!is.null(oo)) {
-                cc[, 3]   <- ifelse(cc[, 2] %in% oo[, 1], oo[, 4], -1)
+                cc$membership   <- ifelse(cc$rname %in% oo[, 1],
+                                          as.numeric(oo[, 4]), -1)
             }
         } else{
-            cc[, 3]   <- ifelse(cc[, 2] %in% cl$names, cl$membership, -1)
+            idx<-match(cl$names,cc$name)
+            cc$membership[idx]   <- cl$membership
         }
         return(cc)
     }
