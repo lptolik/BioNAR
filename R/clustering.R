@@ -187,6 +187,24 @@ getClustering <- function(gg,
                                   'sgG5',
                                   'spectral')) {
     alg <- match.arg(alg)
+    #TODO: make a proper fix of disconnected graph clustering
+    #c<-components(gg)
+    if(vcount(gg)==1){
+        algname<- switch(
+            alg,
+            lec = "leading eigenvector",
+            wt = 'walktrap',
+            fc = "fast greedy",
+            infomap = 'infomap',
+            louvain = "multi level",
+            sgG1 = "spinglass",
+            sgG2 = "spinglass",
+            sgG5 = "spinglass",
+            spectral = "spectral"
+        )
+        cl<-make_clusters(gg,membership = c(1),algorithm = algname)
+        return(cl)
+    }else{
     lec <- function(gg) {
         ugg <- as.undirected(gg,mode = 'collapse')
         lec     <- igraph::leading.eigenvector.community(ugg)
@@ -218,6 +236,7 @@ getClustering <- function(gg,
         return(NULL)
     }
     return(cl)
+    }
 }
 
 #' Matrix of cluster characteristics
