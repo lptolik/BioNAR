@@ -22,11 +22,17 @@ Wrapper function for calculation of clustering for predefined set of ten
 algorithms:
 \itemize{
 \item lec -- leading eigenvector community (version of
-\code{\link[igraph]{leading.eigenvector.community}});
+\code{\link[igraph]{leading.eigenvector.community}}),
+directed graph will be converted to undirected by
+\code{\link[igraph]{as.undirected}} with mode \code{collapse};
 \item wt -- walktrap community \code{\link[igraph]{walktrap.community}};
-\item fc -- fastgreedy community \code{\link[igraph]{fastgreedy.community}};
+\item fc -- fastgreedy community \code{\link[igraph]{fastgreedy.community}},
+directed graph will be converted to undirected by
+\code{\link[igraph]{as.undirected}} with mode \code{collapse};
 \item infomap -- infomap community \code{\link[igraph]{cluster_infomap}};
-\item louvain -- cluster_louvain \code{\link[igraph]{cluster_louvain}};
+\item louvain -- cluster_louvain \code{\link[igraph]{cluster_louvain}},
+directed graph will be converted to undirected by
+\code{\link[igraph]{as.undirected}} with mode \code{collapse};
 \item sgG1 -- spin-glass model and simulated annealing clustering (version of
 \code{\link[igraph]{spinglass.community}} with spins=500 and gamma=1);
 \item sgG2 -- spin-glass model and simulated annealing clustering (version of

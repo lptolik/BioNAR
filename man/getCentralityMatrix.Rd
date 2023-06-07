@@ -10,15 +10,21 @@ getCentralityMatrix(gg)
 \item{gg}{igraph object}
 }
 \value{
-matrix with following columns:
+data.frame with following columns:
 \itemize{
-\item ID - vertex ID
-\item DEG - degree
-\item BET - betweenness
-\item CC - clustering coefficient
-\item SL - semilocal centrality
+\item ID   - vertex ID
+\item DEG  - degree
+\item iDEG - in-degree (directed graph only)
+\item oDEG - out-degree (directed graph only)
+\item BET  - betweenness for undirected graph
+\item dBET - betweenness when directionality is taken into account
+(directed graph only)
+\item CC   - clustering coefficient
+\item SL   - semilocal centrality
 \item mnSP - mean shortest path
-\item PR - page rank
+\item PR   - page rank  for undirected graph
+\item dPR  - page rank when directionality is taken into account
+(directed graph only)
 \item sdSP - standard deviation of the shortest path
 }
 }

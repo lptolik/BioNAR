@@ -4,7 +4,7 @@
 \alias{annotateVertex}
 \title{Generic annotation function}
 \usage{
-annotateVertex(gg, name, values)
+annotateVertex(gg, name, values, idatt = "name")
 }
 \arguments{
 \item{gg}{igraph object to annotate}
@@ -12,6 +12,9 @@ annotateVertex(gg, name, values)
 \item{name}{name of the attribute}
 
 \item{values}{annotation data.frame}
+
+\item{idatt}{optional name of the vertex attribute to map to the
+annotation \code{data.frame} first column}
 }
 \value{
 igraph object where vertex attribute \code{name} contains

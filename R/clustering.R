@@ -139,11 +139,17 @@ calcClustering <- function(gg, alg) {
 #' Wrapper function for calculation of clustering for predefined set of ten
 #' algorithms:
 #' * lec -- leading eigenvector community (version of
-#' \code{\link[igraph]{leading.eigenvector.community}});
+#' \code{\link[igraph]{leading.eigenvector.community}}),
+#' directed graph will be converted to undirected by
+#' \code{\link[igraph]{as.undirected}} with mode \code{collapse};
 #' * wt -- walktrap community \code{\link[igraph]{walktrap.community}};
-#' * fc -- fastgreedy community \code{\link[igraph]{fastgreedy.community}};
+#' * fc -- fastgreedy community \code{\link[igraph]{fastgreedy.community}},
+#' directed graph will be converted to undirected by
+#' \code{\link[igraph]{as.undirected}} with mode \code{collapse};
 #' * infomap -- infomap community \code{\link[igraph]{cluster_infomap}};
-#' * louvain -- cluster_louvain \code{\link[igraph]{cluster_louvain}};
+#' * louvain -- cluster_louvain \code{\link[igraph]{cluster_louvain}},
+#' directed graph will be converted to undirected by
+#' \code{\link[igraph]{as.undirected}} with mode \code{collapse};
 #' * sgG1 -- spin-glass model and simulated annealing clustering (version of
 #' \code{\link[igraph]{spinglass.community}} with spins=500 and gamma=1);
 #' * sgG2 -- spin-glass model and simulated annealing clustering (version of
@@ -182,17 +188,18 @@ getClustering <- function(gg,
                                   'spectral')) {
     alg <- match.arg(alg)
     lec <- function(gg) {
-        lec     <- igraph::leading.eigenvector.community(gg)
+        ugg <- as.undirected(gg,mode = 'collapse')
+        lec     <- igraph::leading.eigenvector.community(ugg)
         ll      <-
-            igraph::leading.eigenvector.community(gg, start = membership(lec))
+            igraph::leading.eigenvector.community(ugg, start = membership(lec))
     }
     cl <- try(switch(
         alg,
         lec = lec(gg),
         wt = igraph::walktrap.community(gg),
-        fc = igraph::fastgreedy.community(gg),
+        fc = igraph::fastgreedy.community(as.undirected(gg,mode = 'collapse')),
         infomap = igraph::cluster_infomap(gg),
-        louvain = igraph::cluster_louvain(gg),
+        louvain = igraph::cluster_louvain(as.undirected(gg,mode = 'collapse')),
         sgG1 = igraph::spinglass.community(gg,
                                            spins = as.numeric(500), gamma =
                                                1),
@@ -217,6 +224,7 @@ getClustering <- function(gg,
 #'
 #' Function to calculate basic summary statistics after apply clustering
 #' algorithm:
+#' * N -- number of vertices in the graph \code{\link[igraph]{vcount}}
 #' * mod -- clustering modularity \code{\link[igraph]{modularity}}, the ratio
 #' of edges found within communities to the number of edges found between
 #' communities, relative to a randomised model
@@ -254,6 +262,7 @@ clusteringSummary <- function(gg,
                                       'sgG5',
                                       'spectral')) {
     attN <- vertex_attr_names(gg)
+    N <- vcount(gg)
     idx <- match(attN, att)
     clusterings <- attN[!is.na(idx)]
     res <- list()
@@ -273,8 +282,8 @@ clusteringSummary <- function(gg,
                    mem = cmem)
         ug <- disjoint_union(sgraphs)
         mu <- 1 - ecount(ug) / ecount(gg)
-        r1 <- c(mod, C, Cn1, Cn100, mu)
-        names(r1) <- c('mod', 'C', 'Cn1', 'Cn100', 'mu')
+        r1 <- c(N,mod, C, Cn1, Cn100, mu)
+        names(r1) <- c('N','mod', 'C', 'Cn1', 'Cn100', 'mu')
         res[[c]] <- c(r1, s)
     }
     return(makeDataFrame(do.call(rbind, res)))

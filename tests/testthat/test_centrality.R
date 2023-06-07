@@ -4,10 +4,19 @@ file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
 gg <- igraph::read.graph(file, format="gml")
 louvain4<-induced_subgraph(gg,V(gg)[V(gg)$louvain==4])
 data(karate,package='igraphdata')
+data(macaque,package='igraphdata')
 
 test_that('calcCentrality',{
     gc<-calcCentrality(louvain4)
     idx<-match(c("DEG", "BET", "CC", "SL", "mnSP", "PR", "sdSP"),
+               vertex_attr_names(gc))
+    expect_false(any(is.na(idx)))
+})
+
+test_that('calcDirectedCentrality',{
+    gc<-calcCentrality(macaque)
+    idx<-match(c("DEG", "iDEG", "oDEG", "BET", "dBET", "CC", "SL",
+                 "mnSP", "PR", "dPR", "sdSP"),
                vertex_attr_names(gc))
     expect_false(any(is.na(idx)))
 })
@@ -18,9 +27,10 @@ test_that('Apply matrix',{
     m<-cbind(ID=letters[1:10],capital=LETTERS[1:10])
     g2<-applpMatrixToGraph(g1,m)
     expect_equal(V(g2)$capital,LETTERS[1:10])
-    m<-cbind(ID=letters[3:10],partial=LETTERS[1:8])
+    m<-data.frame(ID=letters[3:10],partial=LETTERS[1:8],digits=1:8)
     g3<-applpMatrixToGraph(g2,m)
     expect_equal(length(which(is.na(V(g3)$partial))),2)
+    expect_equal(V(g3)$digits[3],1)
 })
 
 test_that('Errors and warnings',{
@@ -34,7 +44,7 @@ test_that('Random centrality',{
     set.seed(100)
     cm<-getCentralityMatrix(karate)
     m<-getRandomGraphCentrality(karate,'pa',threads=1)
-    expect_equal(m[1,2],'33',ignore_attr = TRUE)
+    expect_equal(m[1,2],33,ignore_attr = TRUE)
     set.seed(100)
     pFit <- fitDegree( as.vector(igraph::degree(graph=karate)),
                        Nsim=10, plot=FALSE,threads=1)

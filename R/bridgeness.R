@@ -142,7 +142,7 @@ getBridgeness <- function(gg, alg, conmat) {
 #' gg<-calcBridgeness(gg, alg = 'louvain', cnmat)
 #' hist(V(gg)$BRIDGENESS.louvain)
 calcBridgeness <- function(gg, alg, conmat) {
-    br<-getBridgeness(gg, alg = 'louvain', conmat)
+    br<-getBridgeness(gg, alg = alg, conmat)
     agg<-applpMatrixToGraph(gg,br[,grep('(ID|BRDIDGENESS.+)',names(br))])
     return(agg)
 }
@@ -230,9 +230,9 @@ plotBridgeness<-function(gg,alg,VIPs,
                          baseColor="royalblue2",
                          SPColor="royalblue2"){
     #VIPs=c('8495','22999','8927','8573','26059','8497','27445','8499')
-    # VIPs=c('81876','10890','51552','5874','5862','11021','54734','5865','5864',
+    #VIPs=c('81876','10890','51552','5874','5862','11021','54734','5865','5864',
     #        '9522','192683','10067','10396','9296','527','9114','537','535',
-    #        '528','51382','534','51606','523','80331','114569','127262','57084',
+    #       '528','51382','534','51606','523','80331','114569','127262','57084',
     #        '57030','388662','6853','6854','8224','9900','9899','9145','9143',
     #        '6855','132204','6857','127833','6861','529','526','140679','7781',
     #        '81615','6844','6843')
@@ -291,7 +291,7 @@ plotBridgeness<-function(gg,alg,VIPs,
                          point.padding=NA,label.padding=0.15,
                          segment.color='black',
                          force=1,size=rel(3.8),show.legend=FALSE,
-                         max.overlaps=200)+
+                         max.overlaps=300)+
         labs(x=Xlab,y=Ylab,title=sprintf("%s",alg))+
         scale_x_continuous(expand = c(0, 0), limits = c(xmin, xmax)) +
         scale_y_continuous(expand = c(0, 0), limits = c(ymin, ymax))+
@@ -301,13 +301,13 @@ plotBridgeness<-function(gg,alg,VIPs,
             legend.title=element_text(face="bold",size=rel(1.5)),
             legend.text=element_text(face="bold",size=rel(1.5)),
             legend.key=element_blank())+
-        theme(panel.grid.major = element_line(colour="grey40",size=0.2),
-              panel.grid.minor = element_line(colour="grey40",size=0.1),
+        theme(panel.grid.major = element_line(colour="grey40",linewidth=0.2),
+              panel.grid.minor = element_line(colour="grey40",linewidth=0.1),
               panel.background = element_rect(fill="white"),
               panel.border = element_rect(linetype="solid",fill=NA))+
-        geom_vline(xintercept=0.5,colour="grey40",size=MainDivSize,
+        geom_vline(xintercept=0.5,colour="grey40",linewidth=MainDivSize,
                    linetype=2,show.legend=FALSE)+
-        geom_hline(yintercept=0.5,colour="grey40",size=MainDivSize,
+        geom_hline(yintercept=0.5,colour="grey40",linewidth=MainDivSize,
                    linetype=2,show.legend=FALSE)
     return(g)
 }

@@ -4,12 +4,14 @@
 \alias{annotatePresynaptic}
 \title{Add presynaptic functional groups}
 \usage{
-annotatePresynaptic(gg, anno)
+annotatePresynaptic(gg, anno, idatt = "name")
 }
 \arguments{
 \item{gg}{graph to update}
 
 \item{anno}{annotation matrix in Pair form}
+
+\item{idatt}{optional name of the vertex attributes that contains Entrez IDs}
 }
 \value{
 annotated igraph object

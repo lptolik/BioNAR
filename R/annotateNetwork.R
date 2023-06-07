@@ -129,6 +129,22 @@ getDiseases <- function() {
     return(disn)
 }
 
+#' Utility function to get vertex ids from vertex attributes
+#' The function obtain attribute values and check duplicates in it.
+#' It fails if any duplicate found.
+#'
+#' @param gg graph
+#' @param idatt attribute name
+#'
+#' @return \code{idatt} attribute values
+getIDs <- function(gg,idatt){
+    ids <- get.vertex.attribute(gg,idatt)
+    if(any(duplicated(ids))){
+        stop("ID attribute ('",idatt,"') should be unique ",
+             "for the graph nodes.\n")
+    }
+    return(ids)
+}
 #' Generic annotation function
 #'
 #' Function to build and fill a vertex attribute given an igraph object. Where
@@ -142,6 +158,8 @@ getDiseases <- function() {
 #' @param gg igraph object to annotate
 #' @param name name of the attribute
 #' @param values annotation data.frame
+#' @param idatt optional name of the vertex attribute to map to the
+#'        annotation \code{data.frame} first column
 #'
 #' @return igraph object where vertex attribute \code{name} contains
 #' annotation terms separated by semicolon.
@@ -155,12 +173,9 @@ getDiseases <- function() {
 #' data.frame(ID=letters[1:10], terms=LETTERS[1:10]))
 #' g2<-annotateVertex(g1, name='cap', values=m)
 #' V(g2)$cap
-annotateVertex <- function(gg, name, values) {
-    ggm <- removeVertexTerm(gg, name)
-    ggm <- set.vertex.attribute(graph = ggm,
-                                name = name,
-                                value = '')
-    ids <- V(ggm)$name
+annotateVertex <- function(gg, name, values, idatt='name') {
+    #ids <- V(ggm)$name
+    ids <- getIDs(gg,idatt)
     vids <- as.character(values[, 1])
     idx <- match(vids, ids)
     nidx <- which(!is.na(idx))
@@ -172,6 +187,10 @@ annotateVertex <- function(gg, name, values) {
                    function(.x)
                        paste(unique(val[vids == .x]), collapse = COLLAPSE),
                    c(ann = ''))
+    ggm <- removeVertexTerm(gg, name)
+    ggm <- set.vertex.attribute(graph = ggm,
+                                name = name,
+                                value = '')
     ggm <- set.vertex.attribute(
         graph = ggm,
         name = name,
@@ -338,6 +357,7 @@ getAnnotationList <- function(annVec,
 #'
 #' @param gg igraph object to annotate
 #' @param dis annotation matrix in Pairs form
+#' @param idatt optional name of the vertex attributes that contains Entrez IDs
 #'
 #' @return annotated igraph object
 #' @export
@@ -354,8 +374,9 @@ getAnnotationList <- function(annVec,
 #' dis    <- read.table(afile, sep="\t", skip=1, header=FALSE,
 #' strip.white=TRUE, quote="")
 #' agg<-annotateTopOntoOVG(gg, dis)
-annotateTopOntoOVG <- function(gg, dis) {
-    ids <- V(gg)$name
+annotateTopOntoOVG <- function(gg, dis, idatt='name') {
+    #ids <- V(gg)$name
+    ids <- getIDs(gg,idatt)
     gg <- removeVertexTerm(gg, "TopOnto_OVG")
     gg <- removeVertexTerm(gg, "TopOnto_OVG_HDO_ID")
     #--- Set Disease (geneRIF db) attributes in .gml graph
@@ -419,6 +440,7 @@ annotateTopOntoOVG <- function(gg, dis) {
 #'
 #' @param gg igraph object to annotate
 #' @param anno annotation matrix in Pairs form
+#' @param idatt optional name of the vertex attributes that contains Entrez IDs
 #'
 #' @return annotated igraph object
 #' @export
@@ -433,8 +455,9 @@ annotateTopOntoOVG <- function(gg, dis) {
 #' dis    <- read.table(afile, sep="\t", skip=1, header=FALSE,
 #' strip.white=TRUE, quote="")
 #' agg<-annotateSCHanno(gg, dis)
-annotateSCHanno <- function(gg, anno) {
-    ids <- V(gg)$name
+annotateSCHanno <- function(gg, anno,idatt='name') {
+    #ids <- V(gg)$name
+    ids <- getIDs(gg,idatt)
     gg <- removeVertexTerm(gg, "SCHanno")
     #--- Set Family attributes in .gml graph
     set.vertex.attribute(gg, "SCHanno", V(gg), "")
@@ -468,6 +491,7 @@ annotateSCHanno <- function(gg, anno) {
 #'
 #' @param gg graph to update
 #' @param anno annotation matrix in Pair form
+#' @param idatt optional name of the vertex attributes that contains Entrez IDs
 #'
 #'
 #' @return annotated igraph object
@@ -480,8 +504,9 @@ annotateSCHanno <- function(gg, anno) {
 #' sfile<-system.file("extdata", "PresynAn.csv", package = "BioNAR")
 #' pres <- read.csv(sfile,skip=1,header=FALSE,strip.white=TRUE,quote="")
 #' gg <- annotatePresynaptic(gg, pres)
-annotatePresynaptic <- function(gg, anno) {
-    ids <- V(gg)$name
+annotatePresynaptic <- function(gg, anno,idatt='name') {
+    #ids <- V(gg)$name
+    ids <- getIDs(gg,idatt)
     gg <- removeVertexTerm(gg, "PRESYNAPTIC")
     #--- Set Family attributes in .gml graph
     set.vertex.attribute(gg, "PRESYNAPTIC", V(gg), "")
@@ -518,13 +543,15 @@ annotatePresynaptic <- function(gg, anno) {
 #' @param gg graph to update
 #' @param annoF family annotation matrix in Pair form
 #' @param annoD domain  annotation matrix in Pair form
+#' @param idatt optional name of the vertex attributes that contains Entrez IDs
 #'
 #' @return annotated igraph object
 #' @export
 #'
 #' @seealso getAnnotationVertexList
-annotateInterpro <- function(gg, annoF, annoD) {
-    ids <- V(gg)$name
+annotateInterpro <- function(gg, annoF, annoD,idatt='name') {
+    #ids <- V(gg)$name
+    ids <- getIDs(gg,idatt)
     gg <- removeVertexTerm(gg, "InterPro_Family_ID")
     gg <- removeVertexTerm(gg, "InterPro_Family")
     gg <- removeVertexTerm(gg, "InterPro_Domain_ID")
@@ -608,6 +635,8 @@ annotateInterpro <- function(gg, annoF, annoD) {
 #'         \code{\link[org.Hs.eg.db]{org.Hs.eg.db}}
 #' @param keytype type of IDs stored in the \code{name} vertex attribute,
 #'         by default \code{ENTREZID} is assumed.
+#' @param idatt optional name of the vertex attributes that contains IDs
+#'        matching the \code{keytype}
 #'
 #' @return igraph object with new vertex attribute \code{GeneName}
 #' @export
@@ -619,11 +648,13 @@ annotateInterpro <- function(gg, annoF, annoD) {
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
 #' gg <- igraph::read.graph(file, format="gml")
 #' ggGO <- annotateGOont(gg)
-annotateGOont <- function(gg, orgDB = org.Hs.eg.db, keytype = "ENTREZID") {
+annotateGOont <- function(gg, orgDB = org.Hs.eg.db, keytype = "ENTREZID",
+                          idatt = 'name') {
     if (!inherits(orgDB, 'OrgDb')) {
-
+        stop('orgDB suppose to be subclass of OrgDb.')
     }
-    ids <- V(gg)$name
+    #ids <- V(gg)$name
+    ids <- getIDs(gg,idatt)
     on <- suppressMessages(AnnotationDbi::select(orgDB,
                                 ids,
                                 columns = c("GO", 'ONTOLOGY'),
@@ -632,7 +663,7 @@ annotateGOont <- function(gg, orgDB = org.Hs.eg.db, keytype = "ENTREZID") {
     mf <- on %>% dplyr::filter(ONTOLOGY == 'MF') %>%
         dplyr::select(!c(EVIDENCE)) %>% unique
     mfid <- mf[, c(keytype, 'GO')]
-    gg <- annotateVertex(gg, "GO_MF_ID", mfid)
+    gg <- annotateVertex(gg, "GO_MF_ID", mfid,idatt)
     res <- suppressMessages(AnnotationDbi::select(
         GO.db,
         unique(mf$GO),
@@ -640,13 +671,13 @@ annotateGOont <- function(gg, orgDB = org.Hs.eg.db, keytype = "ENTREZID") {
         keytype = 'GOID'
     ))
     mft <- merge(mf, res, by.x = 'GO', by.y = 'GOID')[, c(keytype, 'TERM')]
-    gg <- annotateVertex(gg, "GO_MF", mft)
+    gg <- annotateVertex(gg, "GO_MF", mft, idatt)
 
     ###### BP annotation ######
     bp <- on %>% dplyr::filter(ONTOLOGY == 'BP') %>%
         dplyr::select(!c(EVIDENCE)) %>% unique
     bpid <- bp[, c(keytype, 'GO')]
-    gg <- annotateVertex(gg, "GO_BP_ID", bpid)
+    gg <- annotateVertex(gg, "GO_BP_ID", bpid,idatt)
     res <- suppressMessages(AnnotationDbi::select(
         GO.db,
         unique(bp$GO),
@@ -654,13 +685,13 @@ annotateGOont <- function(gg, orgDB = org.Hs.eg.db, keytype = "ENTREZID") {
         keytype = 'GOID'
     ))
     bpt <- merge(bp, res, by.x = 'GO', by.y = 'GOID')[, c(keytype, 'TERM')]
-    gg <- annotateVertex(gg, "GO_BP", bpt)
+    gg <- annotateVertex(gg, "GO_BP", bpt,idatt)
 
     ###### CC annotation ######
     cc <- on %>% dplyr::filter(ONTOLOGY == 'CC') %>%
         dplyr::select(!c(EVIDENCE)) %>% unique
     ccid <- cc[, c(keytype, 'GO')]
-    gg <- annotateVertex(gg, "GO_CC_ID", ccid)
+    gg <- annotateVertex(gg, "GO_CC_ID", ccid,idatt)
     res <- suppressMessages(AnnotationDbi::select(
         GO.db,
         unique(cc$GO),
@@ -668,7 +699,7 @@ annotateGOont <- function(gg, orgDB = org.Hs.eg.db, keytype = "ENTREZID") {
         keytype = 'GOID'
     ))
     cct <- merge(cc, res, by.x = 'GO', by.y = 'GOID')[, c(keytype, 'TERM')]
-    gg <- annotateVertex(gg, "GO_CC", cct)
+    gg <- annotateVertex(gg, "GO_CC", cct, idatt)
 
     return(gg)
 }
@@ -687,6 +718,8 @@ annotateGOont <- function(gg, orgDB = org.Hs.eg.db, keytype = "ENTREZID") {
 #'
 #' @param gg graph to update
 #' @param annoF annotation matrix in Pair form
+#' @param idatt optional name of the vertex attribute to map to the
+#'        annotation \code{data.frame} first column
 #'
 #' @return annotated igraph object
 #' @export
@@ -699,8 +732,9 @@ annotateGOont <- function(gg, orgDB = org.Hs.eg.db, keytype = "ENTREZID") {
 #' goMF <- read.table(sfile, sep="\t", skip=1, header=FALSE,
 #' strip.white=TRUE, quote="")
 #' sgg <- annotateGoMF(gg, goMF)
-annotateGoMF <- function(gg, annoF) {
-    ids <- V(gg)$name
+annotateGoMF <- function(gg, annoF,idatt='name') {
+    #ids <- V(gg)$name
+    ids <- getIDs(gg,idatt)
     gg <- removeVertexTerm(gg, "GO_MF")
     gg <- removeVertexTerm(gg, "GO_MF_ID")
     #--- Set Disease (geneRIF db) attributes in .gml graph
@@ -739,16 +773,19 @@ annotateGoMF <- function(gg, annoF) {
 #
 #' Add GO BP annotation to the graph vertices
 #'
-#' The function loads an annotation data matrix called \code{annoF}, which contains
-#' three columns; the first containing gene Entrez IDs, the second gene GO BP
-#' ID terms, the third gene GO BP description terms. The function then performs
-#' a many-to-one mapping of each matrix row to a network vertex using matching
-#' Entrez IDs, filling the vertices attributes \code{GO_BP_ID} and \code{GO_BP}.
+#' The function loads an annotation data matrix called \code{annoF}, which
+#' contains three columns; the first containing gene Entrez IDs, the second
+#' gene GO BP ID terms, the third gene GO BP description terms. The function
+#' then performs a many-to-one mapping of each matrix row to a network vertex
+#' using matching Entrez IDs, filling the vertices attributes \code{GO_BP_ID}
+#' and \code{GO_BP}.
 #'
 #'
 #'
 #' @param gg graph to update
 #' @param annoF annotation matrix in Pair form
+#' @param idatt optional name of the vertex attribute to map to the
+#'        annotation \code{data.frame} first column
 #'
 #' @return annotated igraph object
 #' @export
@@ -761,8 +798,9 @@ annotateGoMF <- function(gg, annoF) {
 #' goBP <- read.table(sfile, sep="\t", skip=1, header=FALSE,
 #' strip.white=TRUE, quote="")
 #' sgg <- annotateGoBP(gg, goBP)
-annotateGoBP <- function(gg, annoF) {
-    ids <- V(gg)$name
+annotateGoBP <- function(gg, annoF,idatt='name') {
+    #ids <- V(gg)$name
+    ids <- getIDs(gg,idatt)
     gg <- removeVertexTerm(gg, "GO_BP")
     gg <- removeVertexTerm(gg, "GO_BP_ID")
     #--- Set Disease (geneRIF db) attributes in .gml graph
@@ -798,6 +836,7 @@ annotateGoBP <- function(gg, annoF) {
     }
     return(gg)
 }
+
 #
 #' Add GO CC  annotation to the graph vertices
 #'
@@ -811,6 +850,8 @@ annotateGoBP <- function(gg, annoF) {
 #'
 #' @param gg graph to update
 #' @param annoF annotation matrix in Pair form
+#' @param idatt optional name of the vertex attribute to map to the
+#'        annotation \code{data.frame} first column
 #'
 #' @return annotated igraph object
 #' @export
@@ -823,11 +864,12 @@ annotateGoBP <- function(gg, annoF) {
 #' goCC <- read.table(sfile, sep="\t", skip=1, header=FALSE,
 #' strip.white=TRUE, quote="")
 #' sgg <- annotateGoCC(gg, goCC)
-annotateGoCC <- function(gg, annoF) {
-    ids <- V(gg)$name
+annotateGoCC <- function(gg, annoF,idatt='name') {
+    #ids <- V(gg)$name
+    ids <- getIDs(gg,idatt)
     gg <- removeVertexTerm(gg, "GO_CC")
     gg <- removeVertexTerm(gg, "GO_CC_ID")
-    #--- Set Disease (geneRIF db) attributes in .gml graph
+
     set.vertex.attribute(gg, "GO_CC", V(gg), "")
     set.vertex.attribute(gg, "GO_CC_ID", V(gg), "")
     annoFIDS <- as.character(annoF[, 3])

@@ -4,12 +4,15 @@
 \alias{annotateGoCC}
 \title{Add GO CC  annotation to the graph vertices}
 \usage{
-annotateGoCC(gg, annoF)
+annotateGoCC(gg, annoF, idatt = "name")
 }
 \arguments{
 \item{gg}{graph to update}
 
 \item{annoF}{annotation matrix in Pair form}
+
+\item{idatt}{optional name of the vertex attribute to map to the
+annotation \code{data.frame} first column}
 }
 \value{
 annotated igraph object

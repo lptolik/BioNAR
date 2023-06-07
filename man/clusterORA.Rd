@@ -4,7 +4,7 @@
 \alias{clusterORA}
 \title{Calculate annotation enrichment for clusters in the graph}
 \usage{
-clusterORA(g, alg, name, vid = "name", alpha = 0.1, col = COLLAPSE)
+clusterORA(g, alg, name, vid = "name", alpha = 1, col = COLLAPSE)
 }
 \arguments{
 \item{g}{graph to get annotation from}
@@ -49,6 +49,6 @@ anL<-getAnnotationVertexList(g, 'TopOntoOVGHDOID')
 res<-clusterORA(g, alg='louvain', name='TopOntoOVGHDOID', vid='name')
 andf<-unique(data.frame(ID=get.vertex.attribute(g, 'TopOntoOVGHDOID'),
 Term=get.vertex.attribute(g, 'TopOntoOVG')))
-rr<-merge(andf, res, by.y='pathway', by.x='ID')
+rr<-merge(andf, res, by.y='FL', by.x='ID')
 rr[order(rr$cl), ]
 }

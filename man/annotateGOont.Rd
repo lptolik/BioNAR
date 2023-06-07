@@ -4,7 +4,7 @@
 \alias{annotateGOont}
 \title{Annotate nodes with GO terms}
 \usage{
-annotateGOont(gg, orgDB = org.Hs.eg.db, keytype = "ENTREZID")
+annotateGOont(gg, orgDB = org.Hs.eg.db, keytype = "ENTREZID", idatt = "name")
 }
 \arguments{
 \item{gg}{igraph object to annotate}
@@ -14,6 +14,9 @@ annotateGOont(gg, orgDB = org.Hs.eg.db, keytype = "ENTREZID")
 
 \item{keytype}{type of IDs stored in the \code{name} vertex attribute,
 by default \code{ENTREZID} is assumed.}
+
+\item{idatt}{optional name of the vertex attributes that contains IDs
+matching the \code{keytype}}
 }
 \value{
 igraph object with new vertex attribute \code{GeneName}

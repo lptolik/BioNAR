@@ -362,7 +362,8 @@ calcDiseasePairs <- function(gg,
         oo <- oo[gda != "",]
     }
     oo<-as.data.frame(oo)
-    oo[,-c(1:2)]<-suppressWarnings(lapply(oo[,-c(1:2)],as.numeric))
+    iidx<- c(1,2)
+    oo[,-iidx]<-suppressWarnings(lapply(oo[,-iidx],as.numeric))
     res<-as.data.frame(res)
     res[,-1]<-suppressWarnings(lapply(res[,-1],as.numeric))
     return(

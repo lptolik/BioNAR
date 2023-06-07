@@ -57,7 +57,7 @@ calShorestPaths <- function(gg) {
     N    <- vcount(gg)
     meas <- matrix(0, nrow = N, ncol = 3)
     for (i in seq_len(N)) {
-        sp <- as.numeric(igraph::shortest.paths(gg, i))
+        sp <- as.numeric(igraph::shortest.paths(gg, i,mode='all'))
         sp <- sp[-i]
         sp <- sp[!sp == Inf]
         meas[i, 1] <- min(sp)
@@ -164,18 +164,25 @@ MAD <- function(X) {
     MAD <- stats::median(abs(X - Xmd))
     return(MAD)
 }
+
 #' Calculate centrality measures for graph nodes.
 #'
 #' @param gg igraph object
 #'
-#' @return matrix with following columns:
-#' * ID - vertex ID
-#' * DEG - degree
-#' * BET - betweenness
-#' * CC - clustering coefficient
-#' * SL - semilocal centrality
+#' @return data.frame with following columns:
+#' * ID   - vertex ID
+#' * DEG  - degree
+#' * iDEG - in-degree (directed graph only)
+#' * oDEG - out-degree (directed graph only)
+#' * BET  - betweenness for undirected graph
+#' * dBET - betweenness when directionality is taken into account
+#'          (directed graph only)
+#' * CC   - clustering coefficient
+#' * SL   - semilocal centrality
 #' * mnSP - mean shortest path
-#' * PR - page rank
+#' * PR   - page rank  for undirected graph
+#' * dPR  - page rank when directionality is taken into account
+#'          (directed graph only)
 #' * sdSP - standard deviation of the shortest path
 #' @export
 #'
@@ -193,26 +200,41 @@ getCentralityMatrix <- function(gg) {
 makeCentralityMatrix <- function(gg) {
     ID <- V(gg)$name
     N  <- length(ID)
-    CN  <- c("ID", "DEG", "BET", "CC", "SL", "mnSP", "PR", "sdSP")
+    if(is.directed(gg)){
+        CN  <- c("ID", "DEG", "iDEG", "oDEG", "BET", "dBET", "CC", "SL",
+                 "mnSP", "PR", "dPR", "sdSP")
+    }else{
+        CN  <- c("ID", "DEG", "BET", "CC", "SL", "mnSP", "PR", "sdSP")
+    }
     tmp <- matrix(0, nrow = N, ncol = length(CN))
     colnames(tmp) <- CN
-    tmp[, 1] <- ID
-    tmp[, 2] <- as.vector(igraph::degree(graph = gg))
-    tmp[, 3] <- as.character(round(betweenness(gg), 3))
-    tmp[, 4] <- as.character(round(transitivity(gg, "local"), 3))
+    tmp <- as.data.frame(tmp)
+    tmp$ID <- ID
+    tmp$DEG <- igraph::degree(graph = gg,mode = 'total')
+    if(is.directed(gg)){
+        tmp$iDEG <- igraph::degree(graph = gg,mode = 'in')
+        tmp$oDEG <- igraph::degree(graph = gg,mode = 'out')
+        tmp$dBET <- betweenness(gg,directed = TRUE)
+        tmp$dPR  <- page.rank(
+            graph = gg,
+            vids = V(gg),
+            directed = TRUE,
+            options = igraph.arpack.default
+        )$vector
+    }
+    tmp$BET <- betweenness(gg,directed = FALSE)
+    tmp$CC <- transitivity(gg, "local")
     sl <- fSemilocal(gg)
-    tmp[, 5] <- as.character(round(sl, 3))
+    tmp$SL <- sl
     res <- calShorestPaths(gg)
-    tmp[, 6]  <- as.character(res[, 2])
-    tmp[, 7]  <- as.character(round(as.vector(
-        page.rank(
+    tmp$mnSP  <- res[, 2]
+    tmp$PR  <- page.rank(
             graph = gg,
             vids = V(gg),
             directed = FALSE,
             options = igraph.arpack.default
         )$vector
-    ), 6))
-    tmp[, 8]  <- as.character(res[, 3])
+    tmp$sdSP  <- as.character(res[, 3])
     return(tmp)
 }
 
