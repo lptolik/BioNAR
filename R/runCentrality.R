@@ -447,7 +447,7 @@ getGNP <- function(gg, ...) {
 #' data(karate,package='igraphdata')
 #' vcount(karate)
 #' ecount(karate)
-#' rg<- getPA(karate)
+#' rg<- getPA(karate,1.25)
 #' vcount(rg)
 #' ecount(rg)
 getPA <- function(gg, pwr, ...) {
