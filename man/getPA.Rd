@@ -28,7 +28,7 @@ graph \code{gg}.
 data(karate,package='igraphdata')
 vcount(karate)
 ecount(karate)
-rg<- getPA(karate)
+rg<- getPA(karate,pwr=1.25)
 vcount(rg)
 ecount(rg)
 }
