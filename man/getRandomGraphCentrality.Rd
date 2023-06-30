@@ -8,6 +8,7 @@ getRandomGraphCentrality(
   gg,
   type = c("gnp", "pa", "cgnp", "rw"),
   power = NULL,
+  weights = NULL,
   ...
 )
 }
@@ -22,6 +23,9 @@ getRandomGraphCentrality(
 dding/removing edges (\code{\link[igraph]{sample_correlated_gnp}})
 \item rw -- new random graph from a given graph by rewiring 25\% of
 edges preserving the degree distribution
+\code{\link[igraph]{sample_gnp}},
+\code{\link[igraph]{sample_correlated_gnp}}, and
+\code{\link[igraph]{sample_pa}}
 }}
 
 \item{power}{optional argument of the power of the preferential attachment
@@ -29,10 +33,12 @@ to be passed to \code{\link[igraph]{sample_pa}}. If \code{power} is
 \code{NULL} the power of the preferential attachment will be estimated
 from \code{\link{fitDegree}} function.}
 
-\item{...}{other parameters passed to random graph generation functions
-\code{\link[igraph]{sample_gnp}},
-\code{\link[igraph]{sample_correlated_gnp}}, and
-\code{\link[igraph]{sample_pa}}}
+\item{weights}{Possibly a numeric vector giving edge weights. If this is
+NULL and the graph has a weight edge attribute, then the attribute
+is used. If this is NA then no weights are used (even if the graph
+has a weight attribute).}
+
+\item{...}{other parameters passed to random graph generation functions}
 }
 \value{
 matrix of random graph vertices centrality measure.
@@ -52,4 +58,9 @@ pFit <- fitDegree( as.vector(igraph::degree(graph=karate)),
 Nsim=10, plot=FALSE,threads=1)
 pwr <- slot(pFit,'alpha')
 m<-getRandomGraphCentrality(karate,'pa',power=pwr)
+lpa<-lapply(1:5,getRandomGraphCentrality,gg=karate,type='pa',
+            power=pwr,weights = NULL)
+}
+\seealso{
+\code{\link[=getCentralityMatrix]{getCentralityMatrix()}} for explanation of the use of \code{weights}.
 }

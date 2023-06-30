@@ -74,6 +74,14 @@ matrixDiv <- function(x, y) {
 #' @param mask percentage of elements to perturbe
 #' @param alg clustering alg.
 #' @param type edges (1) or nodes (2)  to mask
+#' @param weights The weights of the edges. It must be a positive numeric
+#'        vector, NULL or NA. If it is NULL and the input graph has a ‘weight’
+#'        edge attribute, then that attribute will be used. If NULL and no such
+#'        attribute is present, then the edges will have equal weights. Set
+#'        this to NA if the graph was a ‘weight’ edge attribute, but you don't
+#'        want to use it for community detection. A larger edge weight means a
+#'        stronger connection for this function. The weights value is ignored
+#'        for the \code{spectral} clustering.
 #' @param reclust logical to decide wether to invoke reclustering via
 #'        \code{\link{recluster}}
 #' @param Cnmax maximus size of the cluster in \code{mem} that will not be
@@ -93,6 +101,7 @@ makeConsensusMatrix <- function(gg,
                                 mask = 20,
                                 alg,
                                 type,
+                                weights=NULL,
                                 reclust = FALSE,
                                 Cnmax = 10) {
     lcc <- lapply(seq_len(N), function(.x)
@@ -101,6 +110,7 @@ makeConsensusMatrix <- function(gg,
             mask = mask,
             alg = alg,
             type = type,
+            weights=weights,
             reclust = reclust,
             Cnmax = Cnmax
         ))
