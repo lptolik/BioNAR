@@ -4,10 +4,15 @@
 \alias{getCentralityMatrix}
 \title{Calculate centrality measures for graph nodes.}
 \usage{
-getCentralityMatrix(gg)
+getCentralityMatrix(gg, weights = NULL)
 }
 \arguments{
 \item{gg}{igraph object}
+
+\item{weights}{Possibly a numeric vector giving edge weights. If this is
+NULL and the graph has a weight edge attribute, then the attribute
+is used. If this is NA then no weights are used (even if the graph
+has a weight attribute).}
 }
 \value{
 data.frame with following columns:
@@ -30,6 +35,19 @@ data.frame with following columns:
 }
 \description{
 Calculate centrality measures for graph nodes.
+}
+\details{
+The edge attribute \code{weights} treated differently by different functions
+calculating centrality measures. For example,
+\code{\link[igraph]{betweenness}} use \code{weights} as an edge length,
+while in \code{\link[igraph]{page.rank}} "an edge with a larger weight is
+more likely to be selected by the surfer", which infer the opposite meaning.
+Taking into account that all methods in \code{\link{getClustering}} treat
+edge \code{weights} in the same way as \code{\link[igraph]{page.rank}}, we
+calculate the \code{distance}=1/\code{weights} as edge weights for
+\code{BET}, \code{dBET}, \code{mnSP}, and \code{sdSP} values. So we treat
+\code{weights} in the package consistently as the strength and closiness of
+vertices, rather the distance between them.
 }
 \examples{
 library(synaptome.db)

@@ -2,26 +2,38 @@
 % Please edit documentation in R/runCentrality.R
 \name{calcCentrality}
 \alias{calcCentrality}
-\title{Calculate the vertex centrality measures (degree, betweenness, closeness,
-semi-local, etc....) for each graph vertex and store each result as
-new vertex attribute in the graph.}
+\title{Calculate the vertex centrality measures}
 \usage{
-calcCentrality(gg)
+calcCentrality(gg, weights = NULL)
 }
 \arguments{
 \item{gg}{igraph object}
+
+\item{weights}{Possibly a numeric vector giving edge weights. If this is
+NULL and the graph has a weight edge attribute, then the attribute
+is used. If this is NA then no weights are used (even if the graph
+has a weight attribute).}
 }
 \value{
 modified igraph object
 }
 \description{
+Calculate the vertex centrality measures (degree, betweenness, closeness,
+semi-local, etc....) for each graph vertex and store each result as
+new vertex attribute in the graph.
+}
+\details{
 A wrapper function that first calls \code{\link{getCentralityMatrix}}, to
 calculate all vertex centrality measures, and then
 \code{\link{applpMatrixToGraph}} to store each centrality result as a new
-vertex attribute in the graph.
+vertex attribute in the graph. The use of \code{weights} explained in
+details in \code{\link{getCentralityMatrix}}.
 }
 \examples{
 data(karate,package='igraphdata')
 ggm<-calcCentrality(karate)
 V(ggm)$DEG
+}
+\seealso{
+\code{\link[=getCentralityMatrix]{getCentralityMatrix()}}
 }
