@@ -379,6 +379,7 @@ calcCentrality <- function(gg,weights = NULL) {
     ggm <- applpMatrixToGraph(gg, m)
     return(ggm)
 }
+
 #get centrality measures for random graph
 #' Centrality measures for random graphs induced by input one
 #'
@@ -445,6 +446,27 @@ getRandomGraphCentrality <- function(gg,
     options(op)
     return(m)
 }
+
+#' Generate random graph from reference
+#'
+#' Function generates random G(n,p) Erdos-Renyi graph
+#' (\code{\link[igraph]{sample_gnp}}) with the same number of vertices and
+#' edges as in in the reference graph \code{gg}.
+#'
+#' @param gg reference graph
+#' @param ... additional arguments to be passed to
+#'          \code{\link[igraph]{sample_gnp}}
+#'
+#' @return new instance of the random graph.
+#' @export
+#'
+#' @examples
+#' data(karate,package='igraphdata')
+#' vcount(karate)
+#' ecount(karate)
+#' rg<- getGNP(karate)
+#' vcount(rg)
+#' ecount(rg)
 getGNP <- function(gg, ...) {
     nv <- vcount(gg)
     ne <- ecount(gg)
@@ -453,6 +475,29 @@ getGNP <- function(gg, ...) {
     return(g)
 }
 
+#' Generate random graph from reference
+#'
+#' The function generates random Barabasi-Albert graph
+#' (\code{\link[igraph]{sample_pa}}) with the same vertex number as in the
+#' reference graph \code{gg} and the power specified by parameter \code{pwr}.
+#' If pwr is missing, we are trying to estimate pwr from the reference
+#' graph \code{gg}.
+#'
+#' @param gg reference graph
+#' @param pwr the power parameter for the \code{\link[igraph]{sample_pa}}
+#' @param ... additional parameters to be passed to the
+#'          \code{\link[igraph]{sample_pa}}
+#'
+#' @return new instance of the random graph.
+#' @export
+#'
+#' @examples
+#' data(karate,package='igraphdata')
+#' vcount(karate)
+#' ecount(karate)
+#' rg<- getPA(karate)
+#' vcount(rg)
+#' ecount(rg)
 getPA <- function(gg, pwr, ...) {
     nv <- vcount(gg)
     args <- list(...)
