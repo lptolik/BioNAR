@@ -1,10 +1,33 @@
 #' Calculate annotation enrichment for clusters in the graph
 #'
 #' Calculate the cluster enrichment of a graph given a clustering algorithm
-#' 'alg' and vertex annotation attribute 'name'. Function generates an
-#' enrichment table, one row for each cluster, containing: the cluster ID, the
-#' cluster size, overlap of annotation terms in cluster, p.value of enrichment
-#' using the Hypergeometric test, adjusted p.value Bonferroni correction (BH).
+#' \code{alg} and vertex annotation attribute 'name'. Function generates an
+#' enrichment table, one row for each cluster, containing: size of the cluster 
+#' (\code{Cn}), number of annotated vertices in the graph \eqn{F_n} (\code{Fn}), 
+#' number of annotated vertices in the cluster \eqn{\mu} (\code{Mu}), odds ratio 
+#' (\code{OR}) and its 95% Confidence interval \eqn{[CI_l,CI_u]} (\code{CIl} and 
+#' \code{CIu}), two fold enrichment
+#' values \eqn{F_e} (\code{Fe}) and \eqn{F_c} (\code{Fc}). We also provide 
+#' the list of vertices from the cluster that contribute 
+#' to the annotation term, 
+#' p.value of enrichment 
+#' (\code{pval}) and depletion (\code{palt})
+#' using the Hypergeometric test, adjusted p.values using Benjamini and Yekutieli
+#' correction (BY).
+#' 
+#' Given the enrichment results, we can calculate the log of the Odds Ratio 
+#' (\code{OR}) as:
+#' \deqn{\ln(OR)=\ln(\frac{\mu(N-F_n+\mu-C_n)}{(C_n-\mu)(F_n-\mu)})}{\ln(OR)=\ln(Mu(N-Fn+Mu-C_n)/((Cn-Mu)(Fn-Mu))}
+#' and it’s upper and lower 95% Confidence Interval:
+#' \deqn{CI(\ln(OR))=\ln(OR)\pm 1.96\sqrt{\frac{1}{\mu}+\frac{1}{C_n-\mu}+\frac{1}{F_n-\mu}+\frac{1}{N-F_n+\mu-C_n}}}{CI(\ln(OR))=\ln(OR) \pm 1.96(1/Mu+1/(Cn-Mu)+1/(Fn-Mu)+1/(N-Fn+Mu-Cn))^0.5}
+#' 
+#' Using the odds ratio allows us to distinguish 
+#' functionally enriched communities relative to functionally depleted 
+#' communities. 
+#' 
+#' Two types of fold enrichment values calculated as follow:
+#' \deqn{F_e=\frac{(\frac{\mu}{F_n})}{(\frac{C_n}{N})}}{F_e=(Mu/Fn)/(Cn/N)}
+#' \deqn{F_c=\frac{(\frac{\mu}{C_n})}{(\frac{C_n}{N})}}{F_c=(Mu/Cn)/(Cn/N)}
 #'
 #' @param g graph to get annotation from
 #' @param alg cluster algorithm and membership attribute name
@@ -18,13 +41,23 @@
 #' Each row corresponds to a tested annotation in particular cluster.
 #' The columns are the following:
 #' \itemize{
-#'   \item pathway – name of the enriched term as in 'names(pathway)';
+#'   \item alg – name of the clustering algorithm;
+#'   \item cl – cluster ID;
+#'   \item Fl – name of the enriched term;
+#'   \item N – number vertices in the network;
+#'   \item Fn – number of vertices in the graph annotated by term \code{Fl} (\eqn{F_n});
+#'   \item Cu – size of the cluster;
+#'   \item Mu – number of vertices in the cluster annotated by term \code{Fl} (\eqn{\mu});
+#'   \item OR – odds ratio ;
+#'   \item CIl – odds ratio 95% confidence interval lower bound (\eqn{CI_l});
+#'   \item CIu – odds ratio 95% confidence interval upper bound(\eqn{CI_u});
+#'   \item Fe – fold enrichment \eqn{F_e};
+#'   \item Fc – fold enrichment \eqn{F_c};
 #'   \item pval – an enrichment p-value from hypergeometric test;
-#'   \item padj – a BH-adjusted p-value;
-#'   \item overlap – size of the overlap;
-#'   \item size – size of the gene set;
-#'   \item leadingEdge – vector with overlapping genes.
-#'   \item cl – cluster ID
+#'   \item padj – a BY-adjusted p-value;
+#'   \item palt – an depletion p-value from hypergeometric test;
+#'   \item paltadj – a BY-adjusted depletion p-value;
+#'   \item overlapGenes – vector with overlapping genes.
 #'   }
 #' @export
 #' @import data.table
