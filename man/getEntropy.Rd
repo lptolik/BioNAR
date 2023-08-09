@@ -9,7 +9,8 @@ getEntropy(gg, maxSr = NULL, exVal = NULL)
 \arguments{
 \item{gg}{igraph object}
 
-\item{maxSr}{maxSr value, if NULL \code{getEntropyRate} will be called.}
+\item{maxSr}{the maximum entropy rate \eqn{maxSR}, if NULL
+\code{getEntropyRate} will be called.}
 
 \item{exVal}{expression values boundaries.
 Two columns are expected: \code{xx} and \code{lambda}.
@@ -17,11 +18,32 @@ If NULL default values \code{c(2,14)} and \code{c(-14,14)} will
 be used for \code{xx} and \code{lambda} respectively.}
 }
 \value{
-matrix containing Gene: Entrez ID, Name, Degree and Graph Entropy
-values when gene is expressed up and down.
+matrix containing for each Gene:
+\itemize{
+\item Entrez ID,
+\item Name,
+\item Degree,
+\item UP -- Graph Entropy values when gene is expressed up,
+\item DOWN -- Graph Entropy values when gene is expressed down.
+}
 }
 \description{
-Calculates vertex perturbation graph entropy.
+According to Teschendorf et al., 2010, network entropy measure quantifies
+the degree of randomness in the local pattern information flux around single
+genes. For instance, in metastatic cancer this measure was found
+significantly higher than in non-metastatic and helped to identify genes
+and entire pathways involved on metastasis. However, for the assessment of
+scale-free structure we do not actually require gene expression data as it
+based solely on the network topology.
+
+In this function, following procedure described in
+(Teschendorff et al., 2015), all vertexes are artificially assigned a
+uniform weight then sequentially perturbed with the global entropy rate
+(SR) after each protein’s perturbation being calculated and plotted
+against the log of the protein’s degree. In case of scale-free or
+approximate scale-free topologies, we see a clear bi-modal response
+between over-weighted vertices and their degree and an opposing bi-phasic
+response in under-weighted vertices and their degrees.
 }
 \examples{
 library(synaptome.db)
@@ -31,3 +53,10 @@ gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
 gg<-annotateGeneNames(gg)
 e<- getEntropy(gg)
 }
+\seealso{
+Other {Entropy Functions}: 
+\code{\link{calcEntropy}()},
+\code{\link{getEntropyRate}()},
+\code{\link{plotEntropy}()}
+}
+\concept{{Entropy Functions}}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/perturbationEntropy.R
 \name{getEntropyRate}
 \alias{getEntropyRate}
-\title{Calculate parameters for Entropy plot and calculations.}
+\title{Calculate the maximum entropy rate and initial entropy rate .}
 \usage{
 getEntropyRate(gg)
 }
@@ -13,9 +13,32 @@ getEntropyRate(gg)
 list with values of maxSr and SRo
 }
 \description{
-Calculates vertex perturbed graph entropy values and parameters.
+This function calculates the maximum entropy rate \eqn{maxSR} (\code{maxSr})
+and initial entropy rate \eqn{SR_0} (\code{SRo}) given a connected network.
+}
+\details{
+The maximum entropy rate being calculated from the network’s
+adjacency matrix:
+\deqn{maxSR = \sum_{i,j} p_{ij} = \frac{A_{ij}\nu_j}{\lambda\nu_i}}{maxSR = \Sigma p_ij = ({A_ij \nu_j)/(\lambda\nu_i})}
+where \eqn{\nu} and \eqn{\lambda} are the leading eigenvector and eigenvalue
+of the network adjacency matrix \eqn{A} respectively.
+
+The initial configuration occurs when the entropy for each node is maximal.
+This can be calculated by setting the expression value for each gene/node
+in the network to be the same, and thus the maximal node entropy is
+dependent only on the node’s degree k:
+\deqn{SR_0 = \frac{1}{N\bar{k}} \sum_j k_j \log k_i}{SR_0 = 1/(N k_bar) \Sigma k_j log(k_i)}
+where N here is the number of nodes and \eqn{\bar{k}}{k_bar} the average
+node degree found in the network.
 }
 \examples{
 data(karate, package='igraphdata')
 ent <- getEntropyRate(karate)
 }
+\seealso{
+Other {Entropy Functions}: 
+\code{\link{calcEntropy}()},
+\code{\link{getEntropy}()},
+\code{\link{plotEntropy}()}
+}
+\concept{{Entropy Functions}}
