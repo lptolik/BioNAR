@@ -10,7 +10,8 @@ calcEntropy(gg, maxSr = NULL, exVal = NULL)
 \arguments{
 \item{gg}{igraph object}
 
-\item{maxSr}{maxSr value, if NULL \code{getEntropyRate} will be called.}
+\item{maxSr}{the maximum entropy rate \eqn{maxSR}, if NULL
+\code{getEntropyRate} will be called.}
 
 \item{exVal}{expression values boundaries.
 Two columns are expected: \code{xx} and \code{lambda}. If NULL
@@ -22,11 +23,18 @@ graph with SR_UP and SR_DOWN vertex attributes storing the graph
 entropy values with over- or under-expressing each vertex.
 }
 \description{
-Calculate the graph entropy for each perturbed vertex, and save the results
-as new vertex attributes in the graph. Given a PPI network, the function will
-calculate the graph entropy for each vertex over- and under-expressed, where
-the user can set what over- and under-expressed values each vertex takes
-(Teschendorff et al, 2014).
+This function calculate the graph entropy for each perturbed vertex by
+calling \code{\link{getEntropy}}, and save the results as new vertex
+attributes SR_UP and SR_DOWN in the graph.
+}
+\details{
+According to Teschendorf et al., 2010, network entropy measure quantifies
+the degree of randomness in the local pattern information flux around single
+genes. For instance, in metastatic cancer this measure was found
+significantly higher than in non-metastatic and helped to identify genes
+and entire pathways involved on metastasis. However, for the assessment of
+scale-free structure we do not actually require gene expression data as it
+based solely on the network topology.
 }
 \examples{
 library(synaptome.db)
@@ -36,3 +44,12 @@ gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
 gg<-annotateGeneNames(gg)
 gg<- calcEntropy(gg)
 }
+\seealso{
+\code{\link[=getEntropy]{getEntropy()}}
+
+Other {Entropy Functions}: 
+\code{\link{getEntropyRate}()},
+\code{\link{getEntropy}()},
+\code{\link{plotEntropy}()}
+}
+\concept{{Entropy Functions}}
