@@ -43,3 +43,8 @@ conmat<-makeConsensusMatrix(gg, N=100, mask = 10, alg = alg, type = 2)
 clrob<-getRobustness(gg, alg = alg, conmat)
 clrob
 }
+\seealso{
+Other {Robustness functions}: 
+\code{\link{makeConsensusMatrix}()}
+}
+\concept{{Robustness functions}}
