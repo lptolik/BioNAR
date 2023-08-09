@@ -50,9 +50,7 @@ SRprime <- getEntropy(gg, maxSr = NULL)
 plotEntropy(SRprime, subTIT = "Entropy", SRo = ent$SRo, maxSr = ent$maxSr)
 }
 \seealso{
-getEntropy
-
-calcEntropy
+\code{\link[=getEntropy]{getEntropy()}}
 
 Other {Entropy Functions}: 
 \code{\link{calcEntropy}()},
