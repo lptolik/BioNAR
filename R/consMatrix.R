@@ -1,11 +1,21 @@
 
-#' Build a consensus matrix from list of resampled clustering matrices outputted
-#' from the function sampleGraphClust
+#' Build a consensus matrix from list of membership matrices
 #'
-#' @param lcc list of clustering matrices obtained from the
+#' @details
+#'
+#' Function build a consensus matrix from list of membership matrices, which
+#' are a three column matrix: the first column contains the vertex IDs of
+#' input network; the second column the vertex IDs of the subsampled network,
+#' or -1 if the vertex has been masked; the third column the cluster membership
+#' of subsampled network, or -1 if vertex has been masked.
+#' The randomised resampled membership matrices could be obtained from the
+#' function \code{\link{sampleGraphClust}}.
+#'
+#' @param lcc list of membership matrices obtained from the
 #' \code{\link{sampleGraphClust}}
 #'
-#' @return consensus matrix
+#' @return consensus matrix of Nvert X Nvert
+#' @export
 buildConsensusMatrix <- function(lcc) {
     N <- NULL
     I <- NULL
@@ -57,7 +67,9 @@ matrixDiv <- function(x, y) {
     return(res)
 }
 
-#' Function to build consensus matrix in memory
+#' Function to make random resampling consensus matrix in memory
+#'
+#' @details
 #'
 #' Function to assess the robustness of network clustering. A randomisation
 #' study is performed apply the same clustering algorithm to N perturbed
@@ -84,7 +96,7 @@ matrixDiv <- function(x, y) {
 #'        for the \code{spectral} clustering.
 #' @param reclust logical to decide wether to invoke reclustering via
 #'        \code{\link{recluster}}
-#' @param Cnmax maximus size of the cluster in \code{mem} that will not be
+#' @param Cnmax maximum size of the cluster in \code{mem} that will not be
 #'        processed if reclustering is invoked
 #'
 #' @return consensus matrix of Nvert X Nvert

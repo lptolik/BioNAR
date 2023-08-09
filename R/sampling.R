@@ -414,6 +414,7 @@ recluster <- function(GG, ALGN, CnMAX,weights = NULL) {
 #mask  <- as.numeric(args[3]) #number of edges/nodes to mask
 #Cnmin <- as.numeric(args[4]) #Cn min for Spectral algorithm
 #Cnmax <- as.numeric(args[5]) #Cn max for reclustering algorithms
+
 #' Perturbe graph and calculate its clustering
 #'
 #' Function will mask \code{mask} a percentage of edges (\code{type=1}) or

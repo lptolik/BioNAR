@@ -1,6 +1,7 @@
 # BioNAR 1.3
 
-* Take into account edge weights in clustering algorithms.
+* Take into account edge weights in clustering algorithms and centrality measure
+  calculations.
 
 # BioNAR 1.2.1
 
