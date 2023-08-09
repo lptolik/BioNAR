@@ -1,10 +1,10 @@
 
 #' Build a consensus matrix from list of resampled clustering matrices outputted
-#' from the function sampleGraphClust
+#' from the function \code{\link{sampleGraphClust}}
 #'
 #' @param lcc list of clustering matrices obtained from the
 #' \code{\link{sampleGraphClust}}
-#'
+#' @keywords internal
 #' @return consensus matrix
 buildConsensusMatrix <- function(lcc) {
     N <- NULL
@@ -81,7 +81,7 @@ matrixDiv <- function(x, y) {
 #'
 #' @return consensus matrix of Nvert X Nvert
 #' @export
-#'
+#' @family {Robustness functions}
 #' @examples
 #' data(karate, package='igraphdata')
 #' alg<-'louvain'

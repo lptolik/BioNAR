@@ -3,7 +3,7 @@
 \name{buildConsensusMatrix}
 \alias{buildConsensusMatrix}
 \title{Build a consensus matrix from list of resampled clustering matrices outputted
-from the function sampleGraphClust}
+from the function \code{\link{sampleGraphClust}}}
 \usage{
 buildConsensusMatrix(lcc)
 }
@@ -16,5 +16,6 @@ consensus matrix
 }
 \description{
 Build a consensus matrix from list of resampled clustering matrices outputted
-from the function sampleGraphClust
+from the function \code{\link{sampleGraphClust}}
 }
+\keyword{internal}
