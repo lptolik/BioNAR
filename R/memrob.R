@@ -25,6 +25,7 @@
 #' 
 #' @export
 #' @import clusterCons
+#' @family {Robustness functions}
 #'
 #' @examples
 #' data(karate, package='igraphdata')
