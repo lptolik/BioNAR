@@ -29,12 +29,12 @@
 #' Used the normalised network modularity value
 #' Qm based on the previous studies by Parter et al., 2007, Takemoto, 2012,
 #' Takemoto, 2013, Takemoto and Borjigin, 2011, which was defined as:
-#' Qm = (Qreal-Qrand)/(Qmax-Qrand)
-#' Where Qreal is the network modularity of a real-world signalling
-#' network and, Qrand is the average network modularity value obtained
+#' \deqn{Q_m = \frac{Q_{real}-Q_{rand}}{Q_{max}-Q_{rand}}}{Qm = (Qreal-Qrand)/(Qmax-Qrand)}
+#' Where \eqn{Q_{real}}{Qreal} is the network modularity of a real-world signalling
+#' network and, \eqn{Q_{rand}}{Qrand} is the average network modularity value obtained
 #' from 10,000 randomised networks constructed from its real-world network.
-#' Qmax was estimated as: 1 - 1/M, where M is the number of modules
-#' in the real network.
+#' \eqn{Q_{max}}{Qmax} was estimated as: 1 - 1/M, where M is the number of 
+#' modules in the real network.
 #'
 #' Randomised networks were generated from a real-world network using the
 #' edge-rewiring algorithm (Maslov and Sneppen, 2002).
