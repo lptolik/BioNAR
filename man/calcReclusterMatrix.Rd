@@ -4,7 +4,14 @@
 \alias{calcReclusterMatrix}
 \title{Hierarchical graph clustering}
 \usage{
-calcReclusterMatrix(gg, mem, alg, CnMAX = 10, keepSplit = FALSE)
+calcReclusterMatrix(
+  gg,
+  mem,
+  alg,
+  CnMAX = 10,
+  weights = NULL,
+  keepSplit = FALSE
+)
 }
 \arguments{
 \item{gg}{graph to cluster}
@@ -15,6 +22,15 @@ calcReclusterMatrix(gg, mem, alg, CnMAX = 10, keepSplit = FALSE)
 
 \item{CnMAX}{maximus size of the cluster in \code{mem} that will not be
 processed}
+
+\item{weights}{The weights of the edges. It must be a positive numeric
+vector, NULL or NA. If it is NULL and the input graph has a ‘weight’
+edge attribute, then that attribute will be used. If NULL and no such
+attribute is present, then the edges will have equal weights. Set
+this to NA if the graph was a ‘weight’ edge attribute, but you don't
+want to use it for community detection. A larger edge weight means a
+stronger connection for this function. The weights value is ignored
+for the \code{spectral} clustering.}
 
 \item{keepSplit}{logical, wether to keep previous membership in the output
 matrix}

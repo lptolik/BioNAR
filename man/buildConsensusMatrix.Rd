@@ -2,19 +2,26 @@
 % Please edit documentation in R/consMatrix.R
 \name{buildConsensusMatrix}
 \alias{buildConsensusMatrix}
-\title{Build a consensus matrix from list of resampled clustering matrices outputted
-from the function sampleGraphClust}
+\title{Build a consensus matrix from list of membership matrices}
 \usage{
 buildConsensusMatrix(lcc)
 }
 \arguments{
-\item{lcc}{list of clustering matrices obtained from the
+\item{lcc}{list of membership matrices obtained from the
 \code{\link{sampleGraphClust}}}
 }
 \value{
 consensus matrix
 }
 \description{
-Build a consensus matrix from list of resampled clustering matrices outputted
-from the function sampleGraphClust
+Build a consensus matrix from list of membership matrices
+}
+\details{
+Function build a consensus matrix from list of membership matrices, which
+are a three column matrix: the first column contains the vertex IDs of
+input network; the second column the vertex IDs of the subsampled network,
+or -1 if the vertex has been masked; the third column the cluster membership
+of subsampled network, or -1 if vertex has been masked.
+The randomised resampled membership matrices could be obtained from the
+function \code{\link{sampleGraphClust}}.
 }

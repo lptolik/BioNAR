@@ -1,3 +1,8 @@
+# BioNAR 1.3
+
+* Take into account edge weights in clustering algorithms and centrality measure
+  calculations.
+
 # BioNAR 1.2.1
 
 * Allow analysis of directed graphs and add four new centrality measures specific 

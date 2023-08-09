@@ -7,6 +7,14 @@
 #'
 #' @param gg igraph object to cluster
 #' @param alg algorithm name
+#' @param weights The weights of the edges. It must be a positive numeric
+#'        vector, NULL or NA. If it is NULL and the input graph has a ‘weight’
+#'        edge attribute, then that attribute will be used. If NULL and no such
+#'        attribute is present, then the edges will have equal weights. Set
+#'        this to NA if the graph was a ‘weight’ edge attribute, but you don't
+#'        want to use it for community detection. A larger edge weight means a
+#'        stronger connection for this function. The weights value is ignored
+#'        for the \code{spectral} clustering.
 #'
 #' @return data.frame with columns \code{names} and \code{membership}
 #' @export
@@ -25,9 +33,10 @@ calcMembership <- function(gg,
                                    'sgG1',
                                    'sgG2',
                                    'sgG5',
-                                   'spectral')) {
+                                   'spectral'),
+                           weights = NULL) {
     ids <- V(gg)$name
-    cl <- getClustering(gg, alg)
+    cl <- getClustering(gg, alg,weights=weights)
     if (!is.null(cl)) {
         cc       <- data.frame(names = cl$names,
                                membership = cl$membership)
@@ -46,6 +55,14 @@ calcMembership <- function(gg,
 #' graph.
 #'
 #' @param gg graph for analysis
+#' @param weights The weights of the edges. It must be a positive numeric
+#'        vector, NULL or NA. If it is NULL and the input graph has a ‘weight’
+#'        edge attribute, then that attribute will be used. If NULL and no such
+#'        attribute is present, then the edges will have equal weights. Set
+#'        this to NA if the graph was a ‘weight’ edge attribute, but you don't
+#'        want to use it for community detection. A larger edge weight means a
+#'        stronger connection for this function. The weights value is ignored
+#'        for the \code{spectral} clustering.
 #'
 #' @return new graph object with all membership results stored as a vertex
 #'         attribute.
@@ -57,7 +74,7 @@ calcMembership <- function(gg,
 #' V(g1)$name <- letters[1:10]
 #' g1<-calcAllClustering(g1)
 #' clusteringSummary(g1)
-calcAllClustering <- function(gg) {
+calcAllClustering <- function(gg,weights = NULL) {
     ids <- V(gg)$name
     cnames <- c('ID',
                 'lec',
@@ -73,7 +90,7 @@ calcAllClustering <- function(gg) {
     l[[cnames[1]]] <- ids
     for (ai in 2:length(cnames)) {
         an <- cnames[ai]
-        cm <- calcMembership(gg, an)
+        cm <- calcMembership(gg, an,weights=weights)
         if (dim(cm)[1] > 0) {
             l[[an]] <- as.character(cm$membership)
             mod <- modularity(gg, cm$membership)
@@ -105,6 +122,14 @@ calcAllClustering <- function(gg) {
 #'
 #' @param gg igraph object to cluster
 #' @param alg algorithm to apply
+#' @param weights The weights of the edges. It must be a positive numeric
+#'        vector, NULL or NA. If it is NULL and the input graph has a ‘weight’
+#'        edge attribute, then that attribute will be used. If NULL and no such
+#'        attribute is present, then the edges will have equal weights. Set
+#'        this to NA if the graph was a ‘weight’ edge attribute, but you don't
+#'        want to use it for community detection. A larger edge weight means a
+#'        stronger connection for this function. The weights value is ignored
+#'        for the \code{spectral} clustering.
 #'
 #' @seealso getClustering
 #'
@@ -117,8 +142,8 @@ calcAllClustering <- function(gg) {
 #' g<-calcClustering(karate, 'louvain')
 #' vertex_attr_names(g)
 #' graph_attr(g, 'louvain')
-calcClustering <- function(gg, alg) {
-    cl <- getClustering(gg, alg)
+calcClustering <- function(gg, alg,weights = NULL) {
+    cl <- getClustering(gg, alg,weights=weights)
     if (!is.null(cl)) {
         ids <- V(gg)$name
         m      <- matrix(NA, ncol = 2, nrow = length(ids))
@@ -165,8 +190,17 @@ calcClustering <- function(gg, alg) {
 #' Algorithm names are verified with \code{\link[base]{match.arg}}.
 #'
 #' @md
+#'
 #' @param gg igraph object to cluster
 #' @param alg clustering algorithm name
+#' @param weights The weights of the edges. It must be a positive numeric
+#'        vector, NULL or NA. If it is NULL and the input graph has a ‘weight’
+#'        edge attribute, then that attribute will be used. If NULL and no such
+#'        attribute is present, then the edges will have equal weights. Set
+#'        this to NA if the graph was a ‘weight’ edge attribute, but you don't
+#'        want to use it for community detection. A larger edge weight means a
+#'        stronger connection for this function. The weights value is ignored
+#'        for the \code{spectral} clustering.
 #'
 #' @return \code{\link[igraph]{communities}} object or NULL if algorithm failed.
 #' @export
@@ -185,7 +219,8 @@ getClustering <- function(gg,
                                   'sgG1',
                                   'sgG2',
                                   'sgG5',
-                                  'spectral')) {
+                                  'spectral'),
+                          weights = NULL) {
     alg <- match.arg(alg)
     #TODO: make a proper fix of disconnected graph clustering
     #c<-components(gg)
@@ -207,26 +242,29 @@ getClustering <- function(gg,
     }else{
     lec <- function(gg) {
         ugg <- as.undirected(gg,mode = 'collapse')
-        lec     <- igraph::leading.eigenvector.community(ugg)
+        lec     <- igraph::leading.eigenvector.community(ugg,weights=weights)
         ll      <-
-            igraph::leading.eigenvector.community(ugg, start = membership(lec))
+            igraph::leading.eigenvector.community(ugg, start = membership(lec),
+                                                  weights=weights)
     }
     cl <- try(switch(
         alg,
         lec = lec(gg),
-        wt = igraph::walktrap.community(gg),
-        fc = igraph::fastgreedy.community(as.undirected(gg,mode = 'collapse')),
-        infomap = igraph::cluster_infomap(gg),
-        louvain = igraph::cluster_louvain(as.undirected(gg,mode = 'collapse')),
+        wt = igraph::walktrap.community(gg,weights=weights),
+        fc = igraph::fastgreedy.community(as.undirected(gg,mode = 'collapse'),
+                                          weights=weights),
+        infomap = igraph::cluster_infomap(gg,e.weights=weights),
+        louvain = igraph::cluster_louvain(as.undirected(gg,mode = 'collapse'),
+                                          weights=weights),
         sgG1 = igraph::spinglass.community(gg,
-                                           spins = as.numeric(500), gamma =
-                                               1),
+                                           spins = as.numeric(500),
+                                           weights=weights, gamma = 1),
         sgG2 = igraph::spinglass.community(gg,
-                                           spins = as.numeric(500), gamma =
-                                               2),
+                                           spins = as.numeric(500),
+                                           weights=weights, gamma = 2),
         sgG5 = igraph::spinglass.community(gg,
-                                           spins = as.numeric(500), gamma =
-                                               5),
+                                           spins = as.numeric(500),
+                                           weights=weights, gamma = 5),
         spectral = rSpectral::spectral_igraph_communities(gg)
     ),silent = TRUE)
     if (inherits(cl, "try-error")) {

@@ -206,6 +206,14 @@ getCommunityGraph <- function(gg, membership) {
 #'        processed
 #' @param keepSplit logical, wether to keep previous membership in the output
 #'        matrix
+#' @param weights The weights of the edges. It must be a positive numeric
+#'        vector, NULL or NA. If it is NULL and the input graph has a ‘weight’
+#'        edge attribute, then that attribute will be used. If NULL and no such
+#'        attribute is present, then the edges will have equal weights. Set
+#'        this to NA if the graph was a ‘weight’ edge attribute, but you don't
+#'        want to use it for community detection. A larger edge weight means a
+#'        stronger connection for this function. The weights value is ignored
+#'        for the \code{spectral} clustering.
 #'
 #' @return remembership matrix, that contains vertex ID membership and
 #'         result of reclustering
@@ -220,6 +228,7 @@ calcReclusterMatrix <- function(gg,
                                 mem,
                                 alg,
                                 CnMAX = 10,
+                                weights = NULL,
                                 keepSplit = FALSE) {
     if (is.matrix(mem)) {
         mem <- as.data.frame(mem)
@@ -237,7 +246,7 @@ calcReclusterMatrix <- function(gg,
         edCC <- intraEdgesM(gg, mem, cc[i], INTRA = TRUE)
         if (!is.null(edCC)) {
             ggLCC    <- graph_from_data_frame(d = edCC, directed = FALSE)
-            res <- getClustering(ggLCC, alg)
+            res <- getClustering(ggLCC, alg,weights=weights)
             oo       <-
                 data.frame(names = res$names,
                            membership = res$membership)
@@ -315,6 +324,14 @@ calcReclusterMatrix <- function(gg,
 #' @param ALGN algorithm to apply
 #' @param CnMAX maximum size of the cluster in \code{mem} that will not be
 #'        processed
+#' @param weights The weights of the edges. It must be a positive numeric
+#'        vector, NULL or NA. If it is NULL and the input graph has a ‘weight’
+#'        edge attribute, then that attribute will be used. If NULL and no such
+#'        attribute is present, then the edges will have equal weights. Set
+#'        this to NA if the graph was a ‘weight’ edge attribute, but you don't
+#'        want to use it for community detection. A larger edge weight means a
+#'        stronger connection for this function. The weights value is ignored
+#'        for the \code{spectral} clustering.
 #'
 #' @return remembership matrix, that contains vertex ID membership and
 #'         result of reclustering
@@ -325,7 +342,7 @@ calcReclusterMatrix <- function(gg,
 #' alg<-'louvain'
 #' mem<-calcMembership(karate,alg = alg)
 #' remem<-calcReclusterMatrix(karate,mem,alg,10)
-recluster <- function(GG, ALGN, CnMAX) {
+recluster <- function(GG, ALGN, CnMAX,weights = NULL) {
     if (!is.null(igraph::get.vertex.attribute(GG, ALGN))) {
         #--- algorithm clustering 1
         ALG1 <- get.vertex.attribute(GG, ALGN, V(GG))
@@ -338,7 +355,7 @@ recluster <- function(GG, ALGN, CnMAX) {
             edCC <- intraEdges(GG, ALGN, cc[i], INTRA = TRUE)
             if (!is.null(edCC)) {
                 ggLCC    <- graph_from_data_frame(d = edCC, directed = FALSE)
-                res <- getClustering(ggLCC, ALGN)
+                res <- getClustering(ggLCC, ALGN,weights=weights)
                 oo       <- cbind(res$names, res$membership)
                 RES[[k]]      <- oo
                 names(RES)[k] <- cc[i]
@@ -397,6 +414,7 @@ recluster <- function(GG, ALGN, CnMAX) {
 #mask  <- as.numeric(args[3]) #number of edges/nodes to mask
 #Cnmin <- as.numeric(args[4]) #Cn min for Spectral algorithm
 #Cnmax <- as.numeric(args[5]) #Cn max for reclustering algorithms
+
 #' Perturbe graph and calculate its clustering
 #'
 #' Function will mask \code{mask} a percentage of edges (\code{type=1}) or
@@ -417,6 +435,14 @@ recluster <- function(GG, ALGN, CnMAX) {
 #'        \code{\link{recluster}}
 #' @param Cnmax maximum size of the cluster in \code{mem} that will not be
 #'        processed if reclustering is invoked
+#' @param weights The weights of the edges. It must be a positive numeric
+#'        vector, NULL or NA. If it is NULL and the input graph has a ‘weight’
+#'        edge attribute, then that attribute will be used. If NULL and no such
+#'        attribute is present, then the edges will have equal weights. Set
+#'        this to NA if the graph was a ‘weight’ edge attribute, but you don't
+#'        want to use it for community detection. A larger edge weight means a
+#'        stronger connection for this function. The weights value is ignored
+#'        for the \code{spectral} clustering.
 #'
 #' @return list of Nx3 matrices
 #'
@@ -431,6 +457,7 @@ sampleGraphClust <-
              mask = 20,
              alg,
              type,
+             weights = NULL,
              reclust = FALSE,
              Cnmax = 10) {
         IDS <- V(gg)$name
@@ -455,12 +482,12 @@ sampleGraphClust <-
         cc<-data.frame(name=V(gg)$name,rname=NA,membership=-1)
         idx<-match(V(ggLCC)$name,cc$name)
         cc$rname[idx]<-V(ggLCC)$name
-        cl <- getClustering(ggLCC, alg)
+        cl <- getClustering(ggLCC, alg,weights=weights)
         if (reclust) {
             ggLCC <-
                 igraph::set.vertex.attribute(ggLCC, alg, V(ggLCC),
                                              cl$membership)
-            oo <- recluster(ggLCC, alg, Cnmax)
+            oo <- recluster(ggLCC, alg, Cnmax,weights=weights)
             if (!is.null(oo)) {
                 cc$membership   <- ifelse(cc$rname %in% oo[, 1],
                                           as.numeric(oo[, 4]), -1)

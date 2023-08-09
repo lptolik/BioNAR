@@ -50,7 +50,8 @@ test_that('Random centrality',{
                        Nsim=10, plot=FALSE,threads=1)
     pwr <- slot(pFit,'alpha')
     set.seed(100)
-    lpa<-lapply(1:5,getRandomGraphCentrality,gg=karate,type='pa',power=pwr)
+    lpa<-lapply(1:5,getRandomGraphCentrality,gg=karate,type='pa',
+                power=pwr,weights = NULL)
     iDlpa<-calcCentralityInternalDistances(lpa)
     eDlpa<-calcCentralityExternalDistances(cm,lpa)
     sigPA<-evalCentralitySignificance(iDlpa,eDlpa)

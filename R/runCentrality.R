@@ -53,11 +53,11 @@ fSemilocal <- function(gg) {
     return(as.numeric(meas[, 3]))
 }
 ##calculate the mean and sd of the shortest paths for each gene
-calShorestPaths <- function(gg) {
+calShorestPaths <- function(gg,distL = NULL) {
     N    <- vcount(gg)
     meas <- matrix(0, nrow = N, ncol = 3)
     for (i in seq_len(N)) {
-        sp <- as.numeric(igraph::shortest.paths(gg, i,mode='all'))
+        sp <- as.numeric(igraph::shortest.paths(gg, i,mode='all'),weights=distL)
         sp <- sp[-i]
         sp <- sp[!sp == Inf]
         meas[i, 1] <- min(sp)
@@ -167,7 +167,24 @@ MAD <- function(X) {
 
 #' Calculate centrality measures for graph nodes.
 #'
+#' @details
+#' The edge attribute \code{weights} treated differently by different functions
+#' calculating centrality measures. For example,
+#' \code{\link[igraph]{betweenness}} use \code{weights} as an edge length,
+#' while in \code{\link[igraph]{page.rank}} "an edge with a larger weight is
+#' more likely to be selected by the surfer", which infer the opposite meaning.
+#' Taking into account that all methods in \code{\link{getClustering}} treat
+#' edge \code{weights} in the same way as \code{\link[igraph]{page.rank}}, we
+#' calculate the \code{distance}=1/\code{weights} as edge weights for
+#' \code{BET}, \code{dBET}, \code{mnSP}, and \code{sdSP} values. So we treat
+#' \code{weights} in the package consistently as the strength and closiness of
+#' vertices, rather the distance between them.
+#'
 #' @param gg igraph object
+#' @param weights Possibly a numeric vector giving edge weights. If this is
+#'        NULL and the graph has a weight edge attribute, then the attribute
+#'        is used. If this is NA then no weights are used (even if the graph
+#'        has a weight attribute).
 #'
 #' @return data.frame with following columns:
 #' * ID   - vertex ID
@@ -192,12 +209,24 @@ MAD <- function(X) {
 #' t<-getAllGenes4Compartment(cid)
 #' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
 #' m<-getCentralityMatrix(gg)
-getCentralityMatrix <- function(gg) {
-    tmp <- makeDataFrame(makeCentralityMatrix(gg))
+getCentralityMatrix <- function(gg,weights = NULL) {
+    tmp <- makeDataFrame(makeCentralityMatrix(gg,weights = weights))
     return(tmp)
 }
 
-makeCentralityMatrix <- function(gg) {
+makeCentralityMatrix <- function(gg,weights = NULL) {
+    if (is.null(weights) && "weight" %in% edge_attr_names(gg)) {
+        distL <- 1/E(gg)$weight
+        weights  <- E(gg)$weight
+    }
+    if (!is.null(weights) && any(!is.na(weights))) {
+        distL <- 1/as.numeric(weights)
+        weights <- as.numeric(weights)
+    }
+    else {
+        distL <- NA
+        weights <- NA
+    }
     ID <- V(gg)$name
     N  <- length(ID)
     if(is.directed(gg)){
@@ -214,24 +243,26 @@ makeCentralityMatrix <- function(gg) {
     if(is.directed(gg)){
         tmp$iDEG <- igraph::degree(graph = gg,mode = 'in')
         tmp$oDEG <- igraph::degree(graph = gg,mode = 'out')
-        tmp$dBET <- betweenness(gg,directed = TRUE)
+        tmp$dBET <- betweenness(gg,directed = TRUE,weights = distL)
         tmp$dPR  <- page.rank(
             graph = gg,
             vids = V(gg),
             directed = TRUE,
+            weights = weights,
             options = igraph.arpack.default
         )$vector
     }
-    tmp$BET <- betweenness(gg,directed = FALSE)
+    tmp$BET <- betweenness(gg,directed = FALSE,weights = distL)
     tmp$CC <- transitivity(gg, "local")
     sl <- fSemilocal(gg)
     tmp$SL <- sl
-    res <- calShorestPaths(gg)
+    res <- calShorestPaths(gg,distL = distL)
     tmp$mnSP  <- res[, 2]
     tmp$PR  <- page.rank(
             graph = gg,
             vids = V(gg),
             directed = FALSE,
+            weights = weights,
             options = igraph.arpack.default
         )$vector
     tmp$sdSP  <- as.character(res[, 3])
@@ -314,30 +345,41 @@ applpMatrixToGraph <- function(gg, m) {
     }
     return(ggm)
 }
+#' Calculate the vertex centrality measures
+#'
+#' @description
 #' Calculate the vertex centrality measures (degree, betweenness, closeness,
 #' semi-local, etc....) for each graph vertex and store each result as
 #' new vertex attribute in the graph.
 #'
+#' @details
 #' A wrapper function that first calls \code{\link{getCentralityMatrix}}, to
 #' calculate all vertex centrality measures, and then
 #' \code{\link{applpMatrixToGraph}} to store each centrality result as a new
-#' vertex attribute in the graph.
+#' vertex attribute in the graph. The use of \code{weights} explained in
+#' details in \code{\link{getCentralityMatrix}}.
 #'
 #'
 #' @param gg igraph object
+#' @param weights Possibly a numeric vector giving edge weights. If this is
+#'        NULL and the graph has a weight edge attribute, then the attribute
+#'        is used. If this is NA then no weights are used (even if the graph
+#'        has a weight attribute).
 #'
 #' @return modified igraph object
 #' @export
+#' @seealso [getCentralityMatrix()]
 #'
 #' @examples
 #' data(karate,package='igraphdata')
 #' ggm<-calcCentrality(karate)
 #' V(ggm)$DEG
-calcCentrality <- function(gg) {
-    m <- makeCentralityMatrix(gg)
+calcCentrality <- function(gg,weights = NULL) {
+    m <- makeCentralityMatrix(gg,weights = weights)
     ggm <- applpMatrixToGraph(gg, m)
     return(ggm)
 }
+
 #get centrality measures for random graph
 #' Centrality measures for random graphs induced by input one
 #'
@@ -355,7 +397,6 @@ calcCentrality <- function(gg) {
 #' dding/removing edges (\code{\link[igraph]{sample_correlated_gnp}})
 #' * rw -- new random graph from a given graph by rewiring 25% of
 #' edges preserving the degree distribution
-#' @param ... other parameters passed to random graph generation functions
 #' \code{\link[igraph]{sample_gnp}},
 #' \code{\link[igraph]{sample_correlated_gnp}}, and
 #' \code{\link[igraph]{sample_pa}}
@@ -363,9 +404,15 @@ calcCentrality <- function(gg) {
 #' to be passed to \code{\link[igraph]{sample_pa}}. If \code{power} is
 #' \code{NULL} the power of the preferential attachment will be estimated
 #' from \code{\link{fitDegree}} function.
+#' @param weights Possibly a numeric vector giving edge weights. If this is
+#'        NULL and the graph has a weight edge attribute, then the attribute
+#'        is used. If this is NA then no weights are used (even if the graph
+#'        has a weight attribute).
+#' @param ... other parameters passed to random graph generation functions
 #'
 #' @return matrix of random graph vertices centrality measure.
 #' @export
+#' @seealso [getCentralityMatrix()] for explanation of the use of \code{weights}.
 #'
 #' @examples
 #' data(karate,package='igraphdata')
@@ -376,9 +423,11 @@ calcCentrality <- function(gg) {
 #' Nsim=10, plot=FALSE,threads=1)
 #' pwr <- slot(pFit,'alpha')
 #' m<-getRandomGraphCentrality(karate,'pa',power=pwr)
+#' lpa<-lapply(1:5,getRandomGraphCentrality,gg=karate,type='pa',
+#'             power=pwr,weights = NULL)
 getRandomGraphCentrality <- function(gg,
                                      type = c('gnp', 'pa', 'cgnp', 'rw'),
-                                     power = NULL,
+                                     power = NULL,weights = NULL,
                                      ...) {
     op <- options(warn = -1)
     type <- match.arg(type)
@@ -393,10 +442,31 @@ getRandomGraphCentrality <- function(gg,
         rw = rewire(gg, keeping_degseq(niter = 0.25 * ne))
     )
     V(rg)$name <- V(gg)$name
-    m <- makeCentralityMatrix(rg)
+    m <- makeCentralityMatrix(rg,weights = weights)
     options(op)
     return(m)
 }
+
+#' Generate random graph from reference
+#'
+#' Function generates random G(n,p) Erdos-Renyi graph
+#' (\code{\link[igraph]{sample_gnp}}) with the same number of vertices and
+#' edges as in in the reference graph \code{gg}.
+#'
+#' @param gg reference graph
+#' @param ... additional arguments to be passed to
+#'          \code{\link[igraph]{sample_gnp}}
+#'
+#' @return new instance of the random graph.
+#' @export
+#'
+#' @examples
+#' data(karate,package='igraphdata')
+#' vcount(karate)
+#' ecount(karate)
+#' rg<- getGNP(karate)
+#' vcount(rg)
+#' ecount(rg)
 getGNP <- function(gg, ...) {
     nv <- vcount(gg)
     ne <- ecount(gg)
@@ -405,6 +475,29 @@ getGNP <- function(gg, ...) {
     return(g)
 }
 
+#' Generate random graph from reference
+#'
+#' The function generates random Barabasi-Albert graph
+#' (\code{\link[igraph]{sample_pa}}) with the same vertex number as in the
+#' reference graph \code{gg} and the power specified by parameter \code{pwr}.
+#' If pwr is missing, we are trying to estimate pwr from the reference
+#' graph \code{gg}.
+#'
+#' @param gg reference graph
+#' @param pwr the power parameter for the \code{\link[igraph]{sample_pa}}
+#' @param ... additional parameters to be passed to the
+#'          \code{\link[igraph]{sample_pa}}
+#'
+#' @return new instance of the random graph.
+#' @export
+#'
+#' @examples
+#' data(karate,package='igraphdata')
+#' vcount(karate)
+#' ecount(karate)
+#' rg<- getPA(karate,pwr=1.25)
+#' vcount(rg)
+#' ecount(rg)
 getPA <- function(gg, pwr, ...) {
     nv <- vcount(gg)
     args <- list(...)
