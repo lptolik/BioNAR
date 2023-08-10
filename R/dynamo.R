@@ -12,7 +12,7 @@
 #' its sparse nature. This function convert sparse matrix into triplet
 #' \code{data.frame} with row and column indices and names, and cell value.
 #'
-#' @param Msprince_dir_sign
+#' @param sparceM sparce matrix to convert into triplet \code{data.frame}
 #'
 #' @import Matrix
 #' @return \code{data.frame} with three colums:
@@ -27,8 +27,8 @@
 #' Ws <- as_adjacency_matrix(karate,type='both',attr='weight',sparse = TRUE)
 #' mdf<-metlMatrix(Ws)
 #' head(mdf)
-metlMatrix<-function(Msprince_dir_sign){
-    m <- as(Msprince_dir_sign, "TsparseMatrix")
+metlMatrix<-function(sparceM){
+    m <- as(sparceM, "TsparseMatrix")
     d <- data.frame(
         i = m@i + 1,  # m@i is 0-based, not 1-based like everything else in R
         j = m@j + 1,  # m@j is 0-based, not 1-based like everything else in R

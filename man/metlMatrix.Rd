@@ -4,10 +4,10 @@
 \alias{metlMatrix}
 \title{Convert sparce matrix into triplet \code{data.frame}.}
 \usage{
-metlMatrix(Msprince_dir_sign)
+metlMatrix(sparceM)
 }
 \arguments{
-\item{Msprince_dir_sign}{}
+\item{sparceM}{sparce matrix to convert into triplet \code{data.frame}}
 }
 \value{
 \code{data.frame} with three colums:
