@@ -2,7 +2,8 @@
 % Please edit documentation in R/consMatrix.R
 \name{buildConsensusMatrix}
 \alias{buildConsensusMatrix}
-\title{Build a consensus matrix from list of membership matrices}
+\title{Build a consensus matrix from list of resampled clustering matrices outputted
+from the function \code{\link{sampleGraphClust}}}
 \usage{
 buildConsensusMatrix(lcc)
 }
@@ -11,10 +12,11 @@ buildConsensusMatrix(lcc)
 \code{\link{sampleGraphClust}}}
 }
 \value{
-consensus matrix
+consensus matrix of Nvert X Nvert
 }
 \description{
-Build a consensus matrix from list of membership matrices
+Build a consensus matrix from list of resampled clustering matrices outputted
+from the function \code{\link{sampleGraphClust}}
 }
 \details{
 Function build a consensus matrix from list of membership matrices, which
@@ -25,3 +27,4 @@ of subsampled network, or -1 if vertex has been masked.
 The randomised resampled membership matrices could be obtained from the
 function \code{\link{sampleGraphClust}}.
 }
+\keyword{internal}

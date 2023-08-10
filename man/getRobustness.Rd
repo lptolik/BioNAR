@@ -14,12 +14,26 @@ getRobustness(gg, alg, conmat)
 \item{conmat}{consensus matrix}
 }
 \value{
-data.frame that for each cluster \code{C} shows its size \code{Cn},
-robustness \code{Crob} and robustness scaled to range between 0 and 1.
-\code{CrobScaled}.
+data.frame that for each cluster \code{C} shows
+\itemize{
+\item its size \eqn{C_n} (\code{Cn}),
+\item robustness \eqn{C_{rob}} (\code{Crob}) and
+\item robustness scaled to range between 0 and 1 (\code{CrobScaled}).
+}
 }
 \description{
-Calculate cluster robustness from consensus matrix
+This function takes as argument a network (\code{gg}), the name of a
+clustering algorithm (\code{alg}) which can be found in the network, and
+a consensus matrix (\code{conmat}) generated from the clustering network.
+The function uses the consensus matrix to generate a measure of cluster
+robustness \eqn{C_{rob}} (\code{Crob}) for  each cluster (\code{C}) using the R function
+\code{\link[clusterCons]{clrob}}.
+Briefly, this is done by summing elements of the consensus matrix that
+are found in the same cluster, and dividing this by the total number of
+entries in the matrix:
+\deqn{C_{rob}=\frac{2}{C_n(C_n-1)} \sum_{i,j \in I_C \atop i \le j} conmat_{i,j}}{Crob=(2/(C_n(C_n-1)))\Sigma conmat_ij; i<j, i,j \in I_C}
+where \eqn{I_C} -- indices of vertices of the cluster \eqn{C},
+\eqn{C_n} is the number of nodes found inside the cluster \eqn{C}.
 }
 \examples{
 data(karate, package='igraphdata')
@@ -29,3 +43,8 @@ conmat<-makeConsensusMatrix(gg, N=100, mask = 10, alg = alg, type = 2)
 clrob<-getRobustness(gg, alg = alg, conmat)
 clrob
 }
+\seealso{
+Other {Robustness functions}: 
+\code{\link{makeConsensusMatrix}()}
+}
+\concept{{Robustness functions}}

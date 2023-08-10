@@ -16,18 +16,32 @@ maxLSi <- function(XX, BASE = 0) {
 
 }
 
-#' Calculate parameters for Entropy plot and calculations.
+#' Calculate the maximum entropy rate and initial entropy rate .
 #'
 #'
-#' Calculates vertex perturbed graph entropy values and parameters.
-#'
-#'
+#' This function calculates the maximum entropy rate \eqn{maxSR} (\code{maxSr}) 
+#' and initial entropy rate \eqn{SR_0} (\code{SRo}) given a connected network. 
+#' 
+#' The maximum entropy rate being calculated from the network’s 
+#' adjacency matrix: 
+#' \deqn{maxSR = \sum_{i,j} p_{ij} = \frac{A_{ij}\nu_j}{\lambda\nu_i}}{maxSR = \Sigma p_ij = ({A_ij \nu_j)/(\lambda\nu_i})}
+#' where \eqn{\nu} and \eqn{\lambda} are the leading eigenvector and eigenvalue 
+#' of the network adjacency matrix \eqn{A} respectively.
+#' 
+#' The initial configuration occurs when the entropy for each node is maximal. 
+#' This can be calculated by setting the expression value for each gene/node 
+#' in the network to be the same, and thus the maximal node entropy is 
+#' dependent only on the node’s degree k:
+#' \deqn{SR_0 = \frac{1}{N\bar{k}} \sum_j k_j \log k_i}{SR_0 = 1/(N k_bar) \Sigma k_j log(k_i)}
+#' where N here is the number of nodes and \eqn{\bar{k}}{k_bar} the average 
+#' node degree found in the network.
+#' 
 #' @param gg igroph object
 #'
 #' @return list with values of maxSr and SRo
 #' @export
 #' @import RSpectra
-#'
+#' @family {Entropy Functions}
 #' @examples
 #' data(karate, package='igraphdata')
 #' ent <- getEntropyRate(karate)
@@ -65,15 +79,22 @@ getEntropyRate <- function(gg) {
 
 #' Calculate the graph entropy for each perturbed vertex, and save the results
 #' as new vertex attributes in the graph.
-#'
-#' Calculate the graph entropy for each perturbed vertex, and save the results
-#' as new vertex attributes in the graph. Given a PPI network, the function will
-#' calculate the graph entropy for each vertex over- and under-expressed, where
-#' the user can set what over- and under-expressed values each vertex takes
-#' (Teschendorff et al, 2014).
+#' 
+#' This function calculate the graph entropy for each perturbed vertex by 
+#' calling \code{\link{getEntropy}}, and save the results as new vertex 
+#' attributes SR_UP and SR_DOWN in the graph. 
+#' 
+#' According to Teschendorf et al., 2010, network entropy measure quantifies 
+#' the degree of randomness in the local pattern information flux around single 
+#' genes. For instance, in metastatic cancer this measure was found 
+#' significantly higher than in non-metastatic and helped to identify genes 
+#' and entire pathways involved on metastasis. However, for the assessment of 
+#' scale-free structure we do not actually require gene expression data as it
+#' based solely on the network topology. 
 #'
 #' @param gg igraph object
-#' @param maxSr maxSr value, if NULL \code{getEntropyRate} will be called.
+#' @param maxSr the maximum entropy rate \eqn{maxSR}, if NULL 
+#'            \code{getEntropyRate} will be called.
 #' @param exVal expression values boundaries.
 #' Two columns are expected: \code{xx} and \code{lambda}. If NULL
 #' default values \code{c(2,14)} and \code{c(-14,14)} will be used
@@ -82,7 +103,8 @@ getEntropyRate <- function(gg) {
 #' @return graph with SR_UP and SR_DOWN vertex attributes storing the graph
 #' entropy values with over- or under-expressing each vertex.
 #' @export
-#'
+#' @seealso [getEntropy()]
+#' @family {Entropy Functions}
 #' @examples
 #' library(synaptome.db)
 #' cid<-match('Presynaptic', getCompartments()$Name)
@@ -100,17 +122,39 @@ calcEntropy <- function(gg, maxSr = NULL, exVal = NULL) {
 
 #' Calculates vertex perturbation graph entropy.
 #'
+#' According to Teschendorf et al., 2010, network entropy measure quantifies 
+#' the degree of randomness in the local pattern information flux around single 
+#' genes. For instance, in metastatic cancer this measure was found 
+#' significantly higher than in non-metastatic and helped to identify genes 
+#' and entire pathways involved on metastasis. However, for the assessment of 
+#' scale-free structure we do not actually require gene expression data as it
+#' based solely on the network topology. 
+#'  
+#' In this function, following procedure described in 
+#' (Teschendorff et al., 2015), all vertexes are artificially assigned a 
+#' uniform weight then sequentially perturbed with the global entropy rate 
+#' (SR) after each protein’s perturbation being calculated and plotted 
+#' against the log of the protein’s degree. In case of scale-free or 
+#' approximate scale-free topologies, we see a clear bi-modal response 
+#' between over-weighted vertices and their degree and an opposing bi-phasic 
+#' response in under-weighted vertices and their degrees.
+#' 
 #' @param gg igraph object
-#' @param maxSr maxSr value, if NULL \code{getEntropyRate} will be called.
+#' @param maxSr the maximum entropy rate \eqn{maxSR}, if NULL 
+#'            \code{getEntropyRate} will be called.
 #' @param exVal expression values boundaries.
 #' Two columns are expected: \code{xx} and \code{lambda}.
 #' If NULL default values \code{c(2,14)} and \code{c(-14,14)} will
 #' be used for \code{xx} and \code{lambda} respectively.
 #'
-#' @return matrix containing Gene: Entrez ID, Name, Degree and Graph Entropy
-#' values when gene is expressed up and down.
+#' @return matrix containing for each Gene: 
+#' * Entrez ID, 
+#' * Name, 
+#' * Degree, 
+#' * UP -- Graph Entropy values when gene is expressed up, 
+#' * DOWN -- Graph Entropy values when gene is expressed down.
 #' @export
-#'
+#' @family {Entropy Functions}
 #' @examples
 #' library(synaptome.db)
 #' cid<-match('Presynaptic', getCompartments()$Name)
@@ -237,18 +281,36 @@ getEntropyOverExpressed <- function(SRprime, perc = 1) {
 }
 
 #' Plot graph entropy values versus vertex degree for each perturbed vertex value.
-#'
+#' 
+#' Following procedure described in 
+#'  (Teschendorff et al., 2015), all vertexes are artificially assigned a 
+#'  uniform weight then sequentially perturbed with the global entropy rate 
+#'  (\code{SRprime}) after each protein’s perturbation being calculated by 
+#'  \code{\link{getEntropy}} function. 
+#'  
+#' This function plot \code{SRprime} against the log of the protein’s degree. 
+#' In case of scale-free or approximate scale-free topologies, we see a clear 
+#' bi-modal response between over-weighted vertices and their degree and an 
+#' opposing bi-phasic response in under-weighted vertices and their degrees.
+#' 
+#' @details If \code{maxSr} or \code{SRo} is set to their default value 
+#' \code{NULL} \code{\link{getEntropyRate}} will be called and returned values
+#' will be used in the following calculations. As \code{maxSr} is required for
+#' \code{SRprime} calculation by \code{\link{getEntropy}} using explicit values
+#' could save some time in the case of large network. 
+#' 
 #' @param SRprime results of \code{\link{getEntropy}} invocation
 #' @param subTIT entropy axis label
-#' @param maxSr first element of results of
+#' @param maxSr the maximum entropy rate \eqn{maxSR}, results of
 #'            \code{\link{getEntropyRate}} invocation
-#' @param SRo second element of results of
+#' @param SRo initial entropy rate \eqn{SR_0}, results of
 #'            \code{\link{getEntropyRate}} invocation
 #'
 #' @return ggplot2 object with diagram
 #' @export
 #' @import ggplot2
-#'
+#' @seealso [getEntropy()]
+#' @family {Entropy Functions}
 #' @examples
 #' library(synaptome.db)
 #' cid<-match('Presynaptic',getCompartments()$Name)

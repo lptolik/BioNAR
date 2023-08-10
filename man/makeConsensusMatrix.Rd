@@ -2,7 +2,7 @@
 % Please edit documentation in R/consMatrix.R
 \name{makeConsensusMatrix}
 \alias{makeConsensusMatrix}
-\title{Function to build consensus matrix in memory}
+\title{Function to make random resampling consensus matrix in memory}
 \usage{
 makeConsensusMatrix(
   gg,
@@ -38,13 +38,16 @@ for the \code{spectral} clustering.}
 \item{reclust}{logical to decide wether to invoke reclustering via
 \code{\link{recluster}}}
 
-\item{Cnmax}{maximus size of the cluster in \code{mem} that will not be
+\item{Cnmax}{maximum size of the cluster in \code{mem} that will not be
 processed if reclustering is invoked}
 }
 \value{
 consensus matrix of Nvert X Nvert
 }
 \description{
+Function to make random resampling consensus matrix in memory
+}
+\details{
 Function to assess the robustness of network clustering. A randomisation
 study is performed apply the same clustering algorithm to N perturbed
 networks, and which returns the consensus matrix where each vertex pair is
@@ -60,3 +63,8 @@ gg<-calcClustering(karate, alg = alg)
 conmat<-makeConsensusMatrix(gg, N=100, mask = 10, alg = alg, type = 2)
 dim(conmat)
 }
+\seealso{
+Other {Robustness functions}: 
+\code{\link{getRobustness}()}
+}
+\concept{{Robustness functions}}

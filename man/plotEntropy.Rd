@@ -11,17 +11,33 @@ plotEntropy(SRprime, subTIT = "Entropy", SRo = NULL, maxSr = NULL)
 
 \item{subTIT}{entropy axis label}
 
-\item{SRo}{second element of results of
+\item{SRo}{initial entropy rate \eqn{SR_0}, results of
 \code{\link{getEntropyRate}} invocation}
 
-\item{maxSr}{first element of results of
+\item{maxSr}{the maximum entropy rate \eqn{maxSR}, results of
 \code{\link{getEntropyRate}} invocation}
 }
 \value{
 ggplot2 object with diagram
 }
 \description{
-Plot graph entropy values versus vertex degree for each perturbed vertex value.
+Following procedure described in
+(Teschendorff et al., 2015), all vertexes are artificially assigned a
+uniform weight then sequentially perturbed with the global entropy rate
+(\code{SRprime}) after each protein’s perturbation being calculated by
+\code{\link{getEntropy}} function.
+
+This function plot \code{SRprime} against the log of the protein’s degree.
+In case of scale-free or approximate scale-free topologies, we see a clear
+bi-modal response between over-weighted vertices and their degree and an
+opposing bi-phasic response in under-weighted vertices and their degrees.
+}
+\details{
+If \code{maxSr} or \code{SRo} is set to their default value
+\code{NULL} \code{\link{getEntropyRate}} will be called and returned values
+will be used in the following calculations. As \code{maxSr} is required for
+\code{SRprime} calculation by \code{\link{getEntropy}} using explicit values
+could save some time in the case of large network.
 }
 \examples{
 library(synaptome.db)
@@ -33,3 +49,12 @@ ent <- getEntropyRate(gg)
 SRprime <- getEntropy(gg, maxSr = NULL)
 plotEntropy(SRprime, subTIT = "Entropy", SRo = ent$SRo, maxSr = ent$maxSr)
 }
+\seealso{
+\code{\link[=getEntropy]{getEntropy()}}
+
+Other {Entropy Functions}: 
+\code{\link{calcEntropy}()},
+\code{\link{getEntropyRate}()},
+\code{\link{getEntropy}()}
+}
+\concept{{Entropy Functions}}
