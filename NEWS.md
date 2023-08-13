@@ -2,6 +2,8 @@
 
 * Take into account edge weights in clustering algorithms and centrality measure
   calculations.
+* Add calcylation of the DYNAMO perturbation pattern from signed weight directed
+  networks proposed in Santolini,M. and Barabasi,A.-L. (2018) PNAS 169, 201720589
 
 # BioNAR 1.2.1
 
