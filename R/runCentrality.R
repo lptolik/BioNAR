@@ -514,7 +514,7 @@ getRandomGraphCentrality <- function(gg,N,
         toStop <- TRUE
     }
     l<-bplapply(seq_len(N),makeRanomMatrix,gg=gg,type=type,power=power,
-                ne=ne,weights=weights,BPparam0=BPparam,BPPARAM = BPparam)
+                ne=ne,weights=weights,BPPARAM = BPparam)
     if(toStop) bpstop(BPparam)
     options(op)
     return(l)

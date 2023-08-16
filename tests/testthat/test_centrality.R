@@ -4,6 +4,9 @@ library(BiocParallel)
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
 gg <- igraph::read.graph(file, format="gml")
 louvain4<-induced_subgraph(gg,V(gg)[V(gg)$louvain==4])
+if(.Platform$OS.type=="windows"){
+  register(SerialParam(),default = TRUE)
+}
 mnSP<-c(3.939, 5, 5.091, 5.667, 6.545, 6.576, 6.515, 5.485, 5.03, 5.242, 5.697,
         6.848, 4.879, 5.242, 5.848, 7.273, 9.212, 5.182, 5.333, 4.03, 4.909,
         5.667, 6.303, 7.212, 6.333, 8.091, 5.909, 6.394, 4.939, 5.727, 5.758,
@@ -73,7 +76,7 @@ test_that('SP centrality',{
 test_that('Random centrality',{
     cm<-getCentralityMatrix(karate)
     set.seed(100)
-    m<-getRandomGraphCentrality(gg=karate,N=1,type='pa',threads=1,
+    m<-getRandomGraphCentrality(gg=karate,N=1,type='pa',
                                 BPparam=SerialParam(RNGseed = 100))[[1]]
     expect_equal(m[1,2],4,ignore_attr = TRUE)
     set.seed(100)
