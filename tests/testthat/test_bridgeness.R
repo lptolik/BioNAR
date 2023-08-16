@@ -3,6 +3,8 @@ library(testthat)
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
 gg <- igraph::read.graph(file, format="gml")
 louvainG<-induced_subgraph(gg,V(gg)[V(gg)$louvain%in%c(4,8,10,12)])
+cnmatK <- readRDS(test_path('fixtures','karate_conmat.rds'))
+cnmatL <- readRDS(test_path('fixtures','louvainG_conmat.rds'))
 
 test_that('Scale',{
     expect_equal(BioNAR:::scale(1:11),
@@ -13,18 +15,18 @@ test_that('Karate getBridgenes',{
     data(karate, package='igraphdata')
     set.seed(100)
     g <- calcClustering(karate, 'louvain')
-    cnmat <- makeConsensusMatrix(g, N=10, alg = 'louvain', type = 2, mask = 10)
-    br<-getBridgeness(g, alg = 'louvain', cnmat)
+    #cnmat <- makeConsensusMatrix(g, N=10, alg = 'louvain', type = 2, mask = 10)
+    br<-getBridgeness(g, alg = 'louvain', cnmatK)
     expect_equal(dim(br),c(34,2))
-    expect_equal(br$BRIDGENESS.louvain[br$ID=='John A'],0.2407267,
+    expect_equal(br$BRIDGENESS.louvain[br$ID=='John A'],0.182174,
                  tolerance = 0.01)
-    agg<-calcBridgeness(g, alg = 'louvain', cnmat)
+    agg<-calcBridgeness(g, alg = 'louvain', cnmatK)
     expect_true(any(grepl('louvain',vertex_attr_names(agg))))
     expect_true(any(grepl('BRIDGENESS.louvain',vertex_attr_names(agg))))
     idx<-match(br$ID,V(agg)$name)
     expect_false(any(is.na(idx)))
     expect_equal(br$BRIDGENESS.louvain,V(agg)$BRIDGENESS.louvain[idx])
-    expect_error(getBridgeness(louvainG, alg = 'lec',cnmat),
+    expect_error(getBridgeness(louvainG, alg = 'lec',cnmatL),
                  '.*calcClustering.*')
     expect_error(plotBridgeness(agg, alg = 'lec',VIPs=c("Mr Hi","John A")),
                  '.*SL.*')
@@ -51,21 +53,21 @@ test_that('Karate calcBridgenes',{
     data(karate, package='igraphdata')
     set.seed(100)
     g <- calcClustering(karate, 'lec')
-    cnmat <- makeConsensusMatrix(g, N=10, alg = 'lec', type = 2, mask = 10)
-    agg<-calcBridgeness(g, alg = 'lec', cnmat)
+    # cnmat <- makeConsensusMatrix(g, N=10, alg = 'lec', type = 2, mask = 10)
+    agg<-calcBridgeness(g, alg = 'lec', cnmatK)
     expect_true(any(grepl('lec',vertex_attr_names(agg))))
     expect_true(any(grepl('BRIDGENESS.lec',vertex_attr_names(agg))))
 })
 
 test_that('Presynaptic Bridgenes',{
     set.seed(100)
-    cnmat <- makeConsensusMatrix(louvainG, N=10, alg = 'louvain',
-                                 type = 2, mask = 10)
-    br<-getBridgeness(louvainG, alg = 'louvain', cnmat)
+    # cnmat <- makeConsensusMatrix(louvainG, N=10, alg = 'louvain',
+    #                              type = 2, mask = 10)
+    br<-getBridgeness(louvainG, alg = 'louvain', cnmatL)
     expect_equal(dim(br),c(212,3))
-    expect_equal(br$BRIDGENESS.louvain[br$GENE.NAME == 'ACTN2'],0.2385256,
+    expect_equal(br$BRIDGENESS.louvain[br$GENE.NAME == 'ACTN2'],0.3995962,
                  tolerance = 0.01)
-    agg<-calcBridgeness(louvainG, alg = 'louvain', cnmat)
+    agg<-calcBridgeness(louvainG, alg = 'louvain', cnmatL)
     expect_true(any(grepl('louvain',vertex_attr_names(agg))))
     expect_true(any(grepl('BRIDGENESS.louvain',vertex_attr_names(agg))))
     idx<-match(br$ID,V(agg)$name)
