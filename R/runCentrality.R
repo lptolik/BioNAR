@@ -53,18 +53,19 @@ fSemilocal <- function(gg) {
     return(as.numeric(meas[, 3]))
 }
 ##calculate the mean and sd of the shortest paths for each gene
-calShorestPaths <- function(gg,distL = NULL) {
+calShorestPaths <- function(gg,distL = NULL,BPparam=bpparam()) {
     N    <- vcount(gg)
-    meas <- matrix(0, nrow = N, ncol = 3)
-    for (i in seq_len(N)) {
+    getSPstat<-function(i,gg,distL){
         sp <- as.numeric(igraph::shortest.paths(gg, i,mode='all'),weights=distL)
         sp <- sp[-i]
         sp <- sp[!sp == Inf]
-        meas[i, 1] <- min(sp)
-        meas[i, 2] <- round(mean(sp), 3)
-        meas[i, 3] <- round(stats::sd(sp), 3)
+        res<-c(i,round(min(sp),3),round(mean(sp), 3),round(stats::sd(sp), 3))
+        return(res)
     }
-    return(meas)
+    measL<-bplapply(seq_len(N),getSPstat,gg,distL)
+    meas<-do.call(rbind,measL)
+    meas<-meas[order(meas[,1]),]
+    return(meas[,-1])
 }
 #
 # filterZeroDegree <- function( DIR, SUB ){
@@ -295,9 +296,9 @@ makeCentralityMatrix <- function(gg,weights = NULL,BPparam=bpparam()) {
                     BPPARAM = BPparam)
     tmp<-as.data.frame(centL)
     tmp<-tmp[,CN]
-    res <- calShorestPaths(gg,distL = distL)
+    res <- calShorestPaths(gg,distL = distL,BPparam=BPparam)
     tmp$mnSP  <- res[, 2]
-    tmp$sdSP  <- as.character(res[, 3])
+    tmp$sdSP  <- res[, 3]
     return(tmp)
 }
 
