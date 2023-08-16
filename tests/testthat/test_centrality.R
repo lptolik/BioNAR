@@ -1,5 +1,6 @@
 library(BioNAR)
 library(testthat)
+library(BiocParallel)
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
 gg <- igraph::read.graph(file, format="gml")
 louvain4<-induced_subgraph(gg,V(gg)[V(gg)$louvain==4])
@@ -64,48 +65,53 @@ test_that('Errors and warnings',{
 })
 
 test_that('SP centrality',{
-    set.seed(100)
     cm<-getCentralityMatrix(karate)
     expect_equal(cm$mnSP,mnSP,tolerance = 0.01)
     expect_equal(cm$sdSP,sdSP,tolerance = 0.01)
 })
 
 test_that('Random centrality',{
-    set.seed(100)
     cm<-getCentralityMatrix(karate)
-    m<-getRandomGraphCentrality(karate,'pa',threads=1)
-    expect_equal(m[1,2],33,ignore_attr = TRUE)
+    set.seed(100)
+    m<-getRandomGraphCentrality(gg=karate,N=1,type='pa',threads=1,
+                                BPparam=SerialParam(RNGseed = 100))[[1]]
+    expect_equal(m[1,2],4,ignore_attr = TRUE)
     set.seed(100)
     pFit <- fitDegree( as.vector(igraph::degree(graph=karate)),
                        Nsim=10, plot=FALSE,threads=1)
     pwr <- slot(pFit,'alpha')
-    set.seed(100)
-    lpa<-lapply(1:5,getRandomGraphCentrality,gg=karate,type='pa',
-                power=pwr,weights = NULL)
+    lpa<-getRandomGraphCentrality(gg=karate,N=5,type='pa',
+                power=pwr,weights = NULL,BPparam=SerialParam(RNGseed = 100))
     iDlpa<-calcCentralityInternalDistances(lpa)
     eDlpa<-calcCentralityExternalDistances(cm,lpa)
     sigPA<-evalCentralitySignificance(iDlpa,eDlpa)
     expect_equal(sapply(sigPA,function(.x).x$pval),
-                 c(0.0606060606,0.6546786547,0.0036630037,0.6546786547,
-                   0.0006660007,0.6546786547,0.0006660007),
+                 c(0.000666000666000666, 0.000666000666000666,
+                   0.000333000333000333, 0.000666000666000666,
+                   0.000666000666000666, 0.0193140193140193,
+                   0.000666000666000666),
                  tolerance = 1e-5,ignore_attr = TRUE)
-    set.seed(100)
-    lgnp<-lapply(1:5,getRandomGraphCentrality,gg=karate,type='gnp')
+    lgnp<-getRandomGraphCentrality(gg=karate,N=5,type='gnp',
+                                   BPparam=SerialParam(RNGseed = 100))
     iDlgnp<-calcCentralityInternalDistances(lgnp)
     eDlgnp<-calcCentralityExternalDistances(cm,lgnp)
     sigGNP<-evalCentralitySignificance(iDlgnp,eDlgnp)
     expect_equal(sapply(sigGNP,function(.x).x$pval),
-                 c(0.0006660007,0.0006660007,0.0006660007,
-                   0.9190809191,0.0006660007,0.0006660007,0.0006660007),
+                 c(0.000666000666000666, 0.000666000666000666,
+                   0.000666000666000666, 0.654678654678655,
+                   0.000666000666000666, 0.000666000666000666,
+                   0.000666000666000666),
                  tolerance = 1e-5,ignore_attr = TRUE)
-    set.seed(100)
-    lcgnp<-lapply(1:5,getRandomGraphCentrality,gg=karate,type='cgnp')
+    lcgnp<-getRandomGraphCentrality(gg=karate,N=5,type='cgnp',
+                                    BPparam=SerialParam(RNGseed = 100))
     iDlcgnp<-calcCentralityInternalDistances(lcgnp)
     eDlcgnp<-calcCentralityExternalDistances(cm,lcgnp)
     sigCGNP<-evalCentralitySignificance(iDlcgnp,eDlcgnp)
     expect_equal(sapply(sigCGNP,function(.x).x$pval),
-                 c(0.0506160506,0.0006660007,0.0006660007,0.9190809191,
-                   0.0006660007,0.0006660007,0.0006660007),
+                 c(0.154845154845155, 0.000666000666000666,
+                   0.654678654678655, 0.350649350649351,
+                   0.000666000666000666, 0.0193140193140193,
+                   0.000666000666000666),
                  tolerance = 1e-5,ignore_attr = TRUE)
 
 })
