@@ -65,6 +65,7 @@ t<-getAllGenes4Compartment(cid)
 gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
 system.time(m<-getCentralityMatrix(gg))
 system.time(m0<-getCentralityMatrix(gg,BPparam=BiocParallel::SerialParam()))
+identical(m,m0)
 }
 \seealso{
 Other {Parallel Functions}: 

@@ -211,6 +211,8 @@ MAD <- function(X) {
 #'          (directed graph only)
 #' * sdSP - standard deviation of the shortest path
 #' @export
+#' @import BiocParallel
+#'
 #' @family {Parallel Functions}
 #'
 #' @examples
@@ -220,6 +222,7 @@ MAD <- function(X) {
 #' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
 #' system.time(m<-getCentralityMatrix(gg))
 #' system.time(m0<-getCentralityMatrix(gg,BPparam=BiocParallel::SerialParam()))
+#' identical(m,m0)
 getCentralityMatrix <- function(gg,weights = NULL,BPparam=bpparam()) {
     tmp <- makeCentralityMatrix(gg,weights = weights,BPparam=BPparam)
     return(tmp)
@@ -255,7 +258,10 @@ makeCentralityMatrix <- function(gg,weights = NULL,BPparam=bpparam()) {
     }else{
         CN  <- c("ID", "DEG", "BET", "CC", "SL", "PR")
     }
-    calcCentVec<-function(type,gg,weights,distL){
+    calcCentVec<-function(type=c("ID", "DEG", "iDEG", "oDEG",
+                                "BET", "dBET", "CC", "SL",
+                                "PR", "dPR"),gg,weights,distL){
+        type <- match.arg(type)
         cl <- try(switch(
             type,
             ID = igraph::V(gg)$name,
@@ -292,13 +298,17 @@ makeCentralityMatrix <- function(gg,weights = NULL,BPparam=bpparam()) {
         return(l)
 
     }
-    bpstart()
+    toStop <- FALSE
+    if(!bpisup(BPparam)){
+        bpstart(BPparam)
+        toStop <- TRUE
+    }
     centL<-bplapply(CN,calcCentVec,gg=gg,weights=weights,distL=distL,
                     BPPARAM = BPparam)
     tmp<-as.data.frame(centL)
     tmp<-tmp[,CN]
     res <- calShorestPaths(gg,distL = distL,BPparam=BPparam)
-    bpstop()
+    if(toStop) bpstop(BPparam)
     tmp$mnSP  <- res[, 2]
     tmp$sdSP  <- res[, 3]
     return(tmp)
