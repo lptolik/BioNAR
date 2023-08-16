@@ -21,6 +21,21 @@ test_that('calcDirectedCentrality',{
     expect_false(any(is.na(idx)))
 })
 
+test_that('calcCentralitySerial',{
+    gc<-calcCentrality(louvain4,BPparam=SerialParam())
+    idx<-match(c("DEG", "BET", "CC", "SL", "mnSP", "PR", "sdSP"),
+               vertex_attr_names(gc))
+    expect_false(any(is.na(idx)))
+})
+
+test_that('calcDirectedCentralitySerial',{
+    gc<-calcCentrality(macaque,BPparam=SerialParam())
+    idx<-match(c("DEG", "iDEG", "oDEG", "BET", "dBET", "CC", "SL",
+                 "mnSP", "PR", "dPR", "sdSP"),
+               vertex_attr_names(gc))
+    expect_false(any(is.na(idx)))
+})
+
 test_that('Apply matrix',{
     g1 <- make_star(10, mode="undirected")
     V(g1)$name <- letters[1:10]

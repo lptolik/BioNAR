@@ -177,14 +177,22 @@ MAD <- function(X) {
 #' edge \code{weights} in the same way as \code{\link[igraph]{page.rank}}, we
 #' calculate the \code{distance}=1/\code{weights} as edge weights for
 #' \code{BET}, \code{dBET}, \code{mnSP}, and \code{sdSP} values. So we treat
-#' \code{weights} in the package consistently as the strength and closiness of
+#' \code{weights} in the package consistently as the strength and closeness of
 #' vertices, rather the distance between them.
+#'
+#' This function is able to use parallel environment, when avaliable. Parameter
+#' \code{BPparam} specifies an optional \code{\linc[BiocParallel]{BiocParallelParam}}
+#'        instance defining the parallel back-end to be used during evaluation
+#'        to be used by \code{\linc[BiocParallel]{bplapply}} function.
 #'
 #' @param gg igraph object
 #' @param weights Possibly a numeric vector giving edge weights. If this is
 #'        NULL and the graph has a weight edge attribute, then the attribute
 #'        is used. If this is NA then no weights are used (even if the graph
 #'        has a weight attribute).
+#' @param BPparam An optional \code{\linc[BiocParallel]{BiocParallelParam}}
+#'        instance defining the parallel back-end to be used during evaluation
+#'        to be used by \code{\linc[BiocParallel]{bplapply}} function.
 #'
 #' @return data.frame with following columns:
 #' * ID   - vertex ID
@@ -202,69 +210,93 @@ MAD <- function(X) {
 #'          (directed graph only)
 #' * sdSP - standard deviation of the shortest path
 #' @export
+#' @family {Parallel Functions}
 #'
 #' @examples
 #' library(synaptome.db)
 #' cid<-match('Presynaptic',getCompartments()$Name)
 #' t<-getAllGenes4Compartment(cid)
 #' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
-#' m<-getCentralityMatrix(gg)
-getCentralityMatrix <- function(gg,weights = NULL) {
-    tmp <- makeDataFrame(makeCentralityMatrix(gg,weights = weights))
+#' system.time(m<-getCentralityMatrix(gg))
+#' system.time(m0<-getCentralityMatrix(gg,BPparam=BiocParallel::SerialParam()))
+getCentralityMatrix <- function(gg,weights = NULL,BPparam=bpparam()) {
+    tmp <- makeCentralityMatrix(gg,weights = weights,BPparam=BPparam)
     return(tmp)
 }
 
-makeCentralityMatrix <- function(gg,weights = NULL) {
+getWDistance<-function(weights){
+    if(any(weights==0)){
+        delta <- 1e-2/max(weights)
+        distL <- 1/(delta+weights)
+    }else{
+        distL <- 1/weights
+    }
+    return(distL)
+}
+
+makeCentralityMatrix <- function(gg,weights = NULL,BPparam=bpparam()) {
     if (is.null(weights) && "weight" %in% edge_attr_names(gg)) {
-        distL <- 1/E(gg)$weight
         weights  <- E(gg)$weight
+        distL<-getWDistance(weights)
     }
     if (!is.null(weights) && any(!is.na(weights))) {
-        distL <- 1/as.numeric(weights)
         weights <- as.numeric(weights)
+        distL<-getWDistance(weights)
     }
     else {
         distL <- NA
         weights <- NA
     }
-    ID <- V(gg)$name
-    N  <- length(ID)
+    N  <- vcount(gg)
     if(is.directed(gg)){
         CN  <- c("ID", "DEG", "iDEG", "oDEG", "BET", "dBET", "CC", "SL",
-                 "mnSP", "PR", "dPR", "sdSP")
+                 "PR", "dPR")
     }else{
-        CN  <- c("ID", "DEG", "BET", "CC", "SL", "mnSP", "PR", "sdSP")
+        CN  <- c("ID", "DEG", "BET", "CC", "SL", "PR")
     }
-    tmp <- matrix(0, nrow = N, ncol = length(CN))
-    colnames(tmp) <- CN
-    tmp <- as.data.frame(tmp)
-    tmp$ID <- ID
-    tmp$DEG <- igraph::degree(graph = gg,mode = 'total')
-    if(is.directed(gg)){
-        tmp$iDEG <- igraph::degree(graph = gg,mode = 'in')
-        tmp$oDEG <- igraph::degree(graph = gg,mode = 'out')
-        tmp$dBET <- betweenness(gg,directed = TRUE,weights = distL)
-        tmp$dPR  <- page.rank(
-            graph = gg,
-            vids = V(gg),
-            directed = TRUE,
-            weights = weights,
-            options = igraph.arpack.default
-        )$vector
+    calcCentVec<-function(type,gg,weights,distL){
+        cl <- try(switch(
+            type,
+            ID = igraph::V(gg)$name,
+            DEG = igraph::degree(graph = gg,mode = 'total'),
+            iDEG = igraph::degree(graph = gg,mode = 'in'),
+            oDEG = igraph::degree(graph = gg,mode = 'out'),
+            BET = igraph::betweenness(gg,directed = FALSE,weights = distL),
+            dBET = igraph::betweenness(gg,directed = TRUE,weights = distL),
+            PR = igraph::page.rank(
+                graph = gg,
+                vids = igraph::V(gg),
+                directed = FALSE,
+                weights = weights,
+                options = igraph::igraph.arpack.default
+            )$vector,
+            dPR = igraph::page.rank(
+                graph = gg,
+                vids = igraph::V(gg),
+                directed = TRUE,
+                weights = weights,
+                options = igraph::igraph.arpack.default
+            )$vector,
+            CC = igraph::transitivity(gg, "local"),
+            SL = BioNAR:::fSemilocal(gg)
+        ),silent = TRUE)
+        if (inherits(cl, "try-error")) {
+            warning('Centrality of type "',
+                    type,
+                    '" failed. NULL is returned')
+            cl<-NULL
+        }
+        l<-list()
+        l[[type]]<-cl
+        return(l)
+
     }
-    tmp$BET <- betweenness(gg,directed = FALSE,weights = distL)
-    tmp$CC <- transitivity(gg, "local")
-    sl <- fSemilocal(gg)
-    tmp$SL <- sl
+    centL<-bplapply(CN,calcCentVec,gg=gg,weights=weights,distL=distL,
+                    BPPARAM = BPparam)
+    tmp<-as.data.frame(centL)
+    tmp<-tmp[,CN]
     res <- calShorestPaths(gg,distL = distL)
     tmp$mnSP  <- res[, 2]
-    tmp$PR  <- page.rank(
-            graph = gg,
-            vids = V(gg),
-            directed = FALSE,
-            weights = weights,
-            options = igraph.arpack.default
-        )$vector
     tmp$sdSP  <- as.character(res[, 3])
     return(tmp)
 }
@@ -359,23 +391,31 @@ applpMatrixToGraph <- function(gg, m) {
 #' vertex attribute in the graph. The use of \code{weights} explained in
 #' details in \code{\link{getCentralityMatrix}}.
 #'
+#' This function is able to use parallel environment, when avaliable. Parameter
+#' \code{BPparam} specifies an optional \code{\linc[BiocParallel]{BiocParallelParam}}
+#'        instance defining the parallel back-end to be used during evaluation
+#'        to be used by \code{\linc[BiocParallel]{bplapply}} function.
 #'
 #' @param gg igraph object
 #' @param weights Possibly a numeric vector giving edge weights. If this is
 #'        NULL and the graph has a weight edge attribute, then the attribute
 #'        is used. If this is NA then no weights are used (even if the graph
 #'        has a weight attribute).
+#' @param BPparam An optional \code{\linc[BiocParallel]{BiocParallelParam}}
+#'        instance defining the parallel back-end to be used during evaluation
+#'        to be used by \code{\linc[BiocParallel]{bplapply}} function.
 #'
 #' @return modified igraph object
 #' @export
 #' @seealso [getCentralityMatrix()]
+#' @family {Parallel Functions}
 #'
 #' @examples
 #' data(karate,package='igraphdata')
 #' ggm<-calcCentrality(karate)
 #' V(ggm)$DEG
-calcCentrality <- function(gg,weights = NULL) {
-    m <- makeCentralityMatrix(gg,weights = weights)
+calcCentrality <- function(gg,weights = NULL,BPparam=bpparam()) {
+    m <- makeCentralityMatrix(gg,weights = weights,BPparam=BPparam)
     ggm <- applpMatrixToGraph(gg, m)
     return(ggm)
 }
