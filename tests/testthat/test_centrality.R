@@ -3,6 +3,14 @@ library(testthat)
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
 gg <- igraph::read.graph(file, format="gml")
 louvain4<-induced_subgraph(gg,V(gg)[V(gg)$louvain==4])
+mnSP<-c(3.939, 5, 5.091, 5.667, 6.545, 6.576, 6.515, 5.485, 5.03, 5.242, 5.697,
+        6.848, 4.879, 5.242, 5.848, 7.273, 9.212, 5.182, 5.333, 4.03, 4.909,
+        5.667, 6.303, 7.212, 6.333, 8.091, 5.909, 6.394, 4.939, 5.727, 5.758,
+        4.788, 5, 3.97)
+sdSP<-c(1.694, 1.871, 2.199, 1.882, 2.063, 2, 2.078, 1.752, 1.447, 2.122,
+        1.879, 1.822, 1.781, 1.458, 2.063, 2.254, 2.595, 1.828, 2.189, 1.51,
+        1.99, 1.963, 2.229, 2.147, 1.831, 2.052, 2.006, 2.474, 1.731, 1.989,
+        2.194, 1.474, 2.236, 1.912)
 data(karate,package='igraphdata')
 data(macaque,package='igraphdata')
 
@@ -53,6 +61,13 @@ test_that('Errors and warnings',{
     V(g1)$name <- letters[1:10]
     expect_error(applpMatrixToGraph(g1,data.frame(ID=1,Val=LETTERS[1:10])),
                  '.*unique.')
+})
+
+test_that('SP centrality',{
+    set.seed(100)
+    cm<-getCentralityMatrix(karate)
+    expect_equal(cm$mnSP,mnSP,tolerance = 0.01)
+    expect_equal(cm$sdSP,sdSP,tolerance = 0.01)
 })
 
 test_that('Random centrality',{

@@ -181,18 +181,18 @@ MAD <- function(X) {
 #' vertices, rather the distance between them.
 #'
 #' This function is able to use parallel environment, when avaliable. Parameter
-#' \code{BPparam} specifies an optional \code{\linc[BiocParallel]{BiocParallelParam}}
+#' \code{BPparam} specifies an optional \code{\link[BiocParallel]{BiocParallelParam}}
 #'        instance defining the parallel back-end to be used during evaluation
-#'        to be used by \code{\linc[BiocParallel]{bplapply}} function.
+#'        to be used by \code{\link[BiocParallel]{bplapply}} function.
 #'
 #' @param gg igraph object
 #' @param weights Possibly a numeric vector giving edge weights. If this is
 #'        NULL and the graph has a weight edge attribute, then the attribute
 #'        is used. If this is NA then no weights are used (even if the graph
 #'        has a weight attribute).
-#' @param BPparam An optional \code{\linc[BiocParallel]{BiocParallelParam}}
+#' @param BPparam An optional \code{\link[BiocParallel]{BiocParallelParam}}
 #'        instance defining the parallel back-end to be used during evaluation
-#'        to be used by \code{\linc[BiocParallel]{bplapply}} function.
+#'        to be used by \code{\link[BiocParallel]{bplapply}} function.
 #'
 #' @return data.frame with following columns:
 #' * ID   - vertex ID
@@ -392,18 +392,18 @@ applpMatrixToGraph <- function(gg, m) {
 #' details in \code{\link{getCentralityMatrix}}.
 #'
 #' This function is able to use parallel environment, when avaliable. Parameter
-#' \code{BPparam} specifies an optional \code{\linc[BiocParallel]{BiocParallelParam}}
+#' \code{BPparam} specifies an optional \code{\link[BiocParallel]{BiocParallelParam}}
 #'        instance defining the parallel back-end to be used during evaluation
-#'        to be used by \code{\linc[BiocParallel]{bplapply}} function.
+#'        to be used by \code{\link[BiocParallel]{bplapply}} function.
 #'
 #' @param gg igraph object
 #' @param weights Possibly a numeric vector giving edge weights. If this is
 #'        NULL and the graph has a weight edge attribute, then the attribute
 #'        is used. If this is NA then no weights are used (even if the graph
 #'        has a weight attribute).
-#' @param BPparam An optional \code{\linc[BiocParallel]{BiocParallelParam}}
+#' @param BPparam An optional \code{\link[BiocParallel]{BiocParallelParam}}
 #'        instance defining the parallel back-end to be used during evaluation
-#'        to be used by \code{\linc[BiocParallel]{bplapply}} function.
+#'        to be used by \code{\link[BiocParallel]{bplapply}} function.
 #'
 #' @return modified igraph object
 #' @export
@@ -448,11 +448,16 @@ calcCentrality <- function(gg,weights = NULL,BPparam=bpparam()) {
 #'        NULL and the graph has a weight edge attribute, then the attribute
 #'        is used. If this is NA then no weights are used (even if the graph
 #'        has a weight attribute).
+#' @param BPparam An optional \code{\link[BiocParallel]{BiocParallelParam}}
+#'        instance defining the parallel back-end to be used during evaluation
+#'        to be used by \code{\link{getCentralityMatrix} function.
 #' @param ... other parameters passed to random graph generation functions
 #'
 #' @return matrix of random graph vertices centrality measure.
 #' @export
-#' @seealso [getCentralityMatrix()] for explanation of the use of \code{weights}.
+#' @seealso [getCentralityMatrix()] for explanation of the use of \code{weights}
+#'         and \code{BPparam}.
+#' @family {Parallel Functions}
 #'
 #' @examples
 #' data(karate,package='igraphdata')
@@ -468,6 +473,7 @@ calcCentrality <- function(gg,weights = NULL,BPparam=bpparam()) {
 getRandomGraphCentrality <- function(gg,
                                      type = c('gnp', 'pa', 'cgnp', 'rw'),
                                      power = NULL,weights = NULL,
+                                     BPparam=bpparam(),
                                      ...) {
     op <- options(warn = -1)
     type <- match.arg(type)
@@ -482,7 +488,7 @@ getRandomGraphCentrality <- function(gg,
         rw = rewire(gg, keeping_degseq(niter = 0.25 * ne))
     )
     V(rg)$name <- V(gg)$name
-    m <- makeCentralityMatrix(rg,weights = weights)
+    m <- makeCentralityMatrix(rg,weights = weights,BPparam=BPparam)
     options(op)
     return(m)
 }
@@ -584,7 +590,7 @@ getGraphCentralityECDF <- function(m) {
 }
 
 #' Extracts particular measure from matrix and convert for distance
-#' calculation by \code{\linc{calcCentralityInternalDistances}} and
+#' calculation by \code{\link{calcCentralityInternalDistances}} and
 #' \code{\link{calcCentralityExternalDistances}} functions.
 #'
 #' @param m matrix of centrality measures as returned by getCentralityMatrix

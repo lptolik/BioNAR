@@ -4,7 +4,7 @@
 \alias{calcCentrality}
 \title{Calculate the vertex centrality measures}
 \usage{
-calcCentrality(gg, weights = NULL)
+calcCentrality(gg, weights = NULL, BPparam = bpparam())
 }
 \arguments{
 \item{gg}{igraph object}
@@ -13,6 +13,10 @@ calcCentrality(gg, weights = NULL)
 NULL and the graph has a weight edge attribute, then the attribute
 is used. If this is NA then no weights are used (even if the graph
 has a weight attribute).}
+
+\item{BPparam}{An optional \code{\link[BiocParallel]{BiocParallelParam}}
+instance defining the parallel back-end to be used during evaluation
+to be used by \code{\link[BiocParallel]{bplapply}} function.}
 }
 \value{
 modified igraph object
@@ -28,6 +32,11 @@ calculate all vertex centrality measures, and then
 \code{\link{applpMatrixToGraph}} to store each centrality result as a new
 vertex attribute in the graph. The use of \code{weights} explained in
 details in \code{\link{getCentralityMatrix}}.
+
+This function is able to use parallel environment, when avaliable. Parameter
+\code{BPparam} specifies an optional \code{\link[BiocParallel]{BiocParallelParam}}
+instance defining the parallel back-end to be used during evaluation
+to be used by \code{\link[BiocParallel]{bplapply}} function.
 }
 \examples{
 data(karate,package='igraphdata')
@@ -36,4 +45,9 @@ V(ggm)$DEG
 }
 \seealso{
 \code{\link[=getCentralityMatrix]{getCentralityMatrix()}}
+
+Other {Parallel Functions}: 
+\code{\link{getCentralityMatrix}()},
+\code{\link{getRandomGraphCentrality}()}
 }
+\concept{{Parallel Functions}}

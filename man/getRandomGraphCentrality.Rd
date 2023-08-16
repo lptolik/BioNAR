@@ -9,6 +9,7 @@ getRandomGraphCentrality(
   type = c("gnp", "pa", "cgnp", "rw"),
   power = NULL,
   weights = NULL,
+  BPparam = bpparam(),
   ...
 )
 }
@@ -62,5 +63,11 @@ lpa<-lapply(1:5,getRandomGraphCentrality,gg=karate,type='pa',
             power=pwr,weights = NULL)
 }
 \seealso{
-\code{\link[=getCentralityMatrix]{getCentralityMatrix()}} for explanation of the use of \code{weights}.
+\code{\link[=getCentralityMatrix]{getCentralityMatrix()}} for explanation of the use of \code{weights}
+and \code{BPparam}.
+
+Other {Parallel Functions}: 
+\code{\link{calcCentrality}()},
+\code{\link{getCentralityMatrix}()}
 }
+\concept{{Parallel Functions}}
