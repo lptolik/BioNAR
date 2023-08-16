@@ -6,6 +6,7 @@
 \usage{
 getRandomGraphCentrality(
   gg,
+  N,
   type = c("gnp", "pa", "cgnp", "rw"),
   power = NULL,
   weights = NULL,
@@ -15,6 +16,8 @@ getRandomGraphCentrality(
 }
 \arguments{
 \item{gg}{template graph to mimic}
+
+\item{N}{number of iterations}
 
 \item{type}{type of random graph to generate:
 \itemize{
@@ -39,10 +42,14 @@ NULL and the graph has a weight edge attribute, then the attribute
 is used. If this is NA then no weights are used (even if the graph
 has a weight attribute).}
 
+\item{BPparam}{An optional \code{\link[BiocParallel]{BiocParallelParam}}
+instance defining the parallel back-end to be used during evaluation
+to be used by \code{\link{getCentralityMatrix}} function.}
+
 \item{...}{other parameters passed to random graph generation functions}
 }
 \value{
-matrix of random graph vertices centrality measure.
+list of \code{N} matrices of random graph vertices centrality measure.
 }
 \description{
 Generate a random graph that mimics the properties of the input graph and
@@ -59,7 +66,7 @@ pFit <- fitDegree( as.vector(igraph::degree(graph=karate)),
 Nsim=10, plot=FALSE,threads=1)
 pwr <- slot(pFit,'alpha')
 m<-getRandomGraphCentrality(karate,'pa',power=pwr)
-lpa<-lapply(1:5,getRandomGraphCentrality,gg=karate,type='pa',
+lpa<-getRandomGraphCentrality(gg=karate,N=5,type='pa',
             power=pwr,weights = NULL)
 }
 \seealso{

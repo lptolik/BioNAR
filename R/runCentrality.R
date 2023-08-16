@@ -443,6 +443,7 @@ calcCentrality <- function(gg,weights = NULL,BPparam=bpparam()) {
 #'
 #'
 #' @param gg template graph to mimic
+#' @param N number of iterations
 #' @param type type of random graph to generate:
 #' * gnp -- G(n,p) Erdos-Renyi model (\code{\link[igraph]{sample_gnp}})
 #' * pa --  Barabasi-Albert model (\code{\link[igraph]{sample_pa}})
@@ -463,10 +464,10 @@ calcCentrality <- function(gg,weights = NULL,BPparam=bpparam()) {
 #'        has a weight attribute).
 #' @param BPparam An optional \code{\link[BiocParallel]{BiocParallelParam}}
 #'        instance defining the parallel back-end to be used during evaluation
-#'        to be used by \code{\link{getCentralityMatrix} function.
+#'        to be used by \code{\link{getCentralityMatrix}} function.
 #' @param ... other parameters passed to random graph generation functions
 #'
-#' @return matrix of random graph vertices centrality measure.
+#' @return list of \code{N} matrices of random graph vertices centrality measure.
 #' @export
 #' @seealso [getCentralityMatrix()] for explanation of the use of \code{weights}
 #'         and \code{BPparam}.
@@ -481,29 +482,42 @@ calcCentrality <- function(gg,weights = NULL,BPparam=bpparam()) {
 #' Nsim=10, plot=FALSE,threads=1)
 #' pwr <- slot(pFit,'alpha')
 #' m<-getRandomGraphCentrality(karate,'pa',power=pwr)
-#' lpa<-lapply(1:5,getRandomGraphCentrality,gg=karate,type='pa',
+#' lpa<-getRandomGraphCentrality(gg=karate,N=5,type='pa',
 #'             power=pwr,weights = NULL)
-getRandomGraphCentrality <- function(gg,
+getRandomGraphCentrality <- function(gg,N,
                                      type = c('gnp', 'pa', 'cgnp', 'rw'),
                                      power = NULL,weights = NULL,
-                                     BPparam=bpparam(),
-                                     ...) {
+                                     BPparam=bpparam()) {
     op <- options(warn = -1)
     type <- match.arg(type)
     nv <- vcount(gg)
     ne <- ecount(gg)
     prob <- (2 * ne) / (nv * (nv - 1))
+    makeRanomMatrix<-function(i,gg,
+                              type,
+                              power,ne,weights) {
     rg <- switch (
         type,
-        gnp = getGNP(gg, ...),
-        pa = getPA(gg, pwr = power, ...),
-        cgnp = sample_correlated_gnp(gg, corr = 0.75, ...),
+        gnp = getGNP(gg),
+        pa = getPA(gg, pwr = power),
+        cgnp = sample_correlated_gnp(gg, corr = 0.75),
         rw = rewire(gg, keeping_degseq(niter = 0.25 * ne))
     )
     V(rg)$name <- V(gg)$name
-    m <- makeCentralityMatrix(rg,weights = weights,BPparam=BPparam)
-    options(op)
+    ## inside parallel job we should use SerialParam to avoid clush
+    m <- makeCentralityMatrix(rg,weights = weights,BPparam=SerialParam())
     return(m)
+    }
+    toStop <- FALSE
+    if(!bpisup(BPparam)){
+        bpstart(BPparam)
+        toStop <- TRUE
+    }
+    l<-bplapply(seq_len(N),makeRanomMatrix,gg=gg,type=type,power=power,
+                ne=ne,weights=weights,BPparam0=BPparam,BPPARAM = BPparam)
+    if(toStop) bpstop(BPparam)
+    options(op)
+    return(l)
 }
 
 #' Generate random graph from reference
@@ -526,11 +540,11 @@ getRandomGraphCentrality <- function(gg,
 #' rg<- getGNP(karate)
 #' vcount(rg)
 #' ecount(rg)
-getGNP <- function(gg, ...) {
+getGNP <- function(gg) {
     nv <- vcount(gg)
     ne <- ecount(gg)
     prob <- (2 * ne) / (nv * (nv - 1))
-    g <- sample_gnp(nv, p = prob, ...)
+    g <- sample_gnp(nv, p = prob, directed = is.directed(gg))
     return(g)
 }
 
@@ -571,7 +585,7 @@ getPA <- function(gg, pwr, ...) {
         pwr <- pFit@alpha
     }
     g <- do.call(function(...) {
-        sample_pa(nv, power = pwr, directed = FALSE, ...)
+        sample_pa(nv, power = pwr, directed = is.directed(gg), ...)
     }, args[names(args) %in% formalArgs(sample_pa)])
     return(g)
 }

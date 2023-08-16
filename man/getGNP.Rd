@@ -4,7 +4,7 @@
 \alias{getGNP}
 \title{Generate random graph from reference}
 \usage{
-getGNP(gg, ...)
+getGNP(gg)
 }
 \arguments{
 \item{gg}{reference graph}
