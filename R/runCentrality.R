@@ -292,11 +292,13 @@ makeCentralityMatrix <- function(gg,weights = NULL,BPparam=bpparam()) {
         return(l)
 
     }
+    bpstart()
     centL<-bplapply(CN,calcCentVec,gg=gg,weights=weights,distL=distL,
                     BPPARAM = BPparam)
     tmp<-as.data.frame(centL)
     tmp<-tmp[,CN]
     res <- calShorestPaths(gg,distL = distL,BPparam=BPparam)
+    bpstop()
     tmp$mnSP  <- res[, 2]
     tmp$sdSP  <- res[, 3]
     return(tmp)
