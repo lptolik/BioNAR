@@ -1,0 +1,106 @@
+---
+title: "BioNAR parallel execution"
+author: "Colin Mclean, Anatoly Sorokin, T. I. Simpson, J. Douglas Armstrong, Oksana Sorokina"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{BioNAR parallel execution}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  comment = "#>"
+)
+```
+
+```{r setup, echo=FALSE}
+library(knitr)
+library(BioNAR)
+library(synaptome.db)
+library(ggplot2)
+library(pander)
+library(ggrepel)
+library(randomcoloR)
+```
+
+# Introduction
+There are several functions in the BioNAR package that takes substantial amount 
+of time either because of complex calculations or because of repetitive random
+perturbation of the graph under investigation. The later functions could benefit
+a lot from the parallelism, taking into account that most contemporary computer
+have more than one core. BioNAR support multicore execution since version 1.3.7,
+via 
+[BiocParallel](https://bioconductor.org/packages/release/bioc/html/BiocParallel.html).
+This vignette describe which functions could be run within parallel execution
+environment and how to do it most efficiently.
+
+# Linux and MacOS
+Linux and MacOS support `MulticoreParam`, which is the most efficient way to run
+randomisation jobs in parallel:
+>"MulticoreParam uses ‘forked’ processes with ‘copy-on-change’ semantics – memory is only copied when it is changed. This makes it very efficient to invoke compared to other back-ends."
+([via](https://bioconductor.org/packages/release/bioc/vignettes/BiocParallel/inst/doc/Introduction_To_BiocParallel.html))
+
+# Windows
+Windows do not supports 'forked' processes, so the only parallel environment
+available is `SnowParam`, which emulate cluster of workstations by setting up 
+several instances and run code there. That approach implies huge overhead, which
+could be several orders of magnitude higher than the execution time, so by
+default on Windows BioNAR uses `SerialParam` environment and execute all code
+on one core. In the following we will discuss when the `SnowParam` is useful despite the overhead and how to set up parallel environment in a way that maximize benefits
+from parallel execution.
+
+
+
+
+Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format:
+
+- Never uses retina figures
+- Has a smaller default figure size
+- Uses a custom CSS stylesheet instead of the default Twitter Bootstrap style
+
+## Vignette Info
+
+Note the various macros within the `vignette` section of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the `title` field and the `\VignetteIndexEntry` to match the title of your vignette.
+
+## Styles
+
+The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
+
+    output: 
+      rmarkdown::html_vignette:
+        css: mystyles.css
+
+## Figures
+
+The figure sizes have been customised so that you can easily put two images side-by-side. 
+
+```{r, fig.show='hold'}
+plot(1:10)
+plot(10:1)
+```
+
+You can enable figure captions by `fig_caption: yes` in YAML:
+
+    output:
+      rmarkdown::html_vignette:
+        fig_caption: yes
+
+Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
+
+## More Examples
+
+You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
+
+```{r, echo=FALSE, results='asis'}
+knitr::kable(head(mtcars, 10))
+```
+
+Also a quote using `>`:
+
+> "He who gives up [code] safety for [code] speed deserves neither."
+([via](https://twitter.com/hadleywickham/status/504368538874703872))
