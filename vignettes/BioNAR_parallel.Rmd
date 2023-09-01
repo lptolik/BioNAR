@@ -45,6 +45,10 @@ randomisation jobs in parallel:
 >"MulticoreParam uses ‘forked’ processes with ‘copy-on-change’ semantics – memory is only copied when it is changed. This makes it very efficient to invoke compared to other back-ends."
 ([via](https://bioconductor.org/packages/release/bioc/vignettes/BiocParallel/inst/doc/Introduction_To_BiocParallel.html))
 
+In the BioNAR we are using `MulticoreParam` environment with default 
+configurations except for RNGseed, which could be specified explicitly in 
+functions with randomisation procedure for reproducibility.
+
 # Windows
 Windows do not supports 'forked' processes, so the only parallel environment
 available is `SnowParam`, which emulate cluster of workstations by setting up 

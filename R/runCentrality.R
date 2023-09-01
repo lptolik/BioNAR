@@ -238,7 +238,8 @@ getWDistance<-function(weights){
     return(distL)
 }
 
-makeCentralityMatrix <- function(gg,weights = NULL,BPparam=bpparam()) {
+makeCentralityMatrix <- function(gg,weights = NULL,BPparam=NULL) {
+    BPparam=makeBPparam(BPparam=BPparam)
     if (is.null(weights) && "weight" %in% edge_attr_names(gg)) {
         weights  <- E(gg)$weight
         distL<-getWDistance(weights)
@@ -487,8 +488,10 @@ calcCentrality <- function(gg,weights = NULL,BPparam=bpparam()) {
 getRandomGraphCentrality <- function(gg,N,
                                      type = c('gnp', 'pa', 'cgnp', 'rw'),
                                      power = NULL,weights = NULL,
-                                     BPparam=bpparam()) {
+                                     RNGseed = NULL,
+                                     BPparam=NULL) {
     op <- options(warn = -1)
+    BPparam=makeBPparam(BPparam=BPparam,RNGseed=RNGseed)
     type <- match.arg(type)
     nv <- vcount(gg)
     ne <- ecount(gg)

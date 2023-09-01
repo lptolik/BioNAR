@@ -10,8 +10,7 @@ getRandomGraphCentrality(
   type = c("gnp", "pa", "cgnp", "rw"),
   power = NULL,
   weights = NULL,
-  BPparam = bpparam(),
-  ...
+  BPparam = NULL
 )
 }
 \arguments{

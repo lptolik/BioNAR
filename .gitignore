@@ -42,3 +42,4 @@ vignettes/*.pdf
 .Rproj.user
 inst/doc
 PLOTS
+microbench.getRandomGraphCentrality.rds
