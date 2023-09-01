@@ -2,6 +2,11 @@
 
 * Take into account edge weights in clustering algorithms and centrality measure
   calculations.
+* Add calculation of the DYNAMO perturbation pattern from signed weight directed
+  networks proposed in Santolini,M. and Barabasi,A.-L. (2018) PNAS 169, 201720589
+* Parallel calculations are implemented for Linux and MacOS
+* Decoupled from synaptome.db package
+
 
 # BioNAR 1.2.1
 

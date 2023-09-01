@@ -157,6 +157,8 @@ addEdgeAtts <- function(GG, gg){
 #' network edge nodes
 #' @param kw pmid keyword annotation data.frame. If `NA`
 #' no annotation will be added
+#' @param LCC if TRUE only largest connected component is returned
+#' @param simplify if TRUE loops and multiple edges will be removed
 #'
 #' @return igraph object of the largest connected component
 #' @export
@@ -166,7 +168,7 @@ addEdgeAtts <- function(GG, gg){
 #' f<-data.frame(A=c('A', 'A', 'B', 'D'), B=c('B', 'C', 'C', 'E'))
 #' gg<-buildNetwork(f)
 #' V(gg)$name
-buildNetwork<-function(ff, kw=NA){
+buildNetwork<-function(ff, kw=NA,LCC=TRUE,simplify=TRUE){
     #--- build raw graph
     GG <- graph.data.frame(ff[, seq_len(2)], directed=FALSE)
     if( !is.na(kw) ){
@@ -190,48 +192,6 @@ buildNetwork<-function(ff, kw=NA){
     gg <- addEdgeAtts(GG, gg)
 }
 
-#' Utility function to create network from
-#' \code{\link[synaptome.db]{synaptome.db}} data
-#'
-#' @param entrez vector of EntrezIDs for network vertices
-#'
-#' @return  largest connected component of network defined by the gene list
-#' @export
-#' @import synaptome.db
-#'
-#' @examples
-#' library(synaptome.db)
-#' cid<-match('Presynaptic', getCompartments()$Name)
-#' geneTable<-getAllGenes4Compartment(cid)
-#' gg<-buildFromSynaptomeByEntrez(geneTable$HumanEntrez)
-buildFromSynaptomeByEntrez<-function(entrez){
-    geneTable<-findGenesByEntrez(entrez)
-    gg<-buildFromSynaptomeGeneTable(geneTable)
-    return(gg)
-}
-
-#' Utility function to create network from
-#' \code{\link[synaptome.db]{synaptome.db}} data
-#'
-#' @param geneTable data.frame described in
-#'        \code{\link[synaptome.db]{getGenesByID}}
-#'
-#' @return largest connected component of network defined by the gene table
-#' @export
-#'
-#' @examples
-#' library(synaptome.db)
-#' cid<-match('Presynaptic', getCompartments()$Name)
-#' geneTable<-getAllGenes4Compartment(cid)
-#' gg<-buildFromSynaptomeGeneTable(geneTable)
-buildFromSynaptomeGeneTable<-function(geneTable){
-    p<-getPPIbyIDs(geneTable$GeneID, type = 'limited')
-    aidx<-match(p$A, geneTable$GeneID)
-    bidx<-match(p$B, geneTable$GeneID)
-    gg<-buildNetwork(data.frame(A=geneTable$HumanEntrez[aidx],
-                                B=geneTable$HumanEntrez[bidx]))
-    return(gg)
-}
 
 #' Calculate sparsness of the graph.
 #'
