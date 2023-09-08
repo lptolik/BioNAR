@@ -28,7 +28,7 @@ data(karate,package='igraphdata')
 m<-getCentralityMatrix(karate)
 gnp<-list()
 for(i in 1:10){
-    gnp[[i]]<-getRandomGraphCentrality(karate,type = 'gnp')
+    gnp[[i]]<-getRandomGraphCentrality(karate,N=10,type = 'gnp')
 }
 gnpIDist<-calcCentralityInternalDistances(gnp)
 summary(gnpIDist)

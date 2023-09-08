@@ -463,6 +463,7 @@ calcCentrality <- function(gg,weights = NULL,BPparam=bpparam()) {
 #'        NULL and the graph has a weight edge attribute, then the attribute
 #'        is used. If this is NA then no weights are used (even if the graph
 #'        has a weight attribute).
+#' @param RNGseed seed for parallel random number generator.
 #' @param BPparam An optional \code{\link[BiocParallel]{BiocParallelParam}}
 #'        instance defining the parallel back-end to be used during evaluation
 #'        to be used by \code{\link{getCentralityMatrix}} function.
@@ -490,6 +491,8 @@ getRandomGraphCentrality <- function(gg,N,
                                      power = NULL,weights = NULL,
                                      RNGseed = NULL,
                                      BPparam=NULL) {
+    if(missing(gg)){stop('Graph gg is required')}
+    if(missing(N)){stop('Number of iterations N is required')}
     op <- options(warn = -1)
     BPparam=makeBPparam(BPparam=BPparam,RNGseed=RNGseed)
     type <- match.arg(type)
@@ -659,7 +662,7 @@ getCM <- function(m, nm, keepOrder) {
 #' m<-getCentralityMatrix(karate)
 #' gnp<-list()
 #' for(i in 1:10){
-#'     gnp[[i]]<-getRandomGraphCentrality(karate,type = 'gnp')
+#'     gnp[[i]]<-getRandomGraphCentrality(karate,N=10,type = 'gnp')
 #' }
 #' gnpIDist<-calcCentralityInternalDistances(gnp)
 #' summary(gnpIDist)

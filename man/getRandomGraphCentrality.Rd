@@ -42,6 +42,8 @@ NULL and the graph has a weight edge attribute, then the attribute
 is used. If this is NA then no weights are used (even if the graph
 has a weight attribute).}
 
+\item{RNGseed}{seed for parallel random number generator.}
+
 \item{BPparam}{An optional \code{\link[BiocParallel]{BiocParallelParam}}
 instance defining the parallel back-end to be used during evaluation
 to be used by \code{\link{getCentralityMatrix}} function.}
