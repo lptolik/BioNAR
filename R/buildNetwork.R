@@ -155,7 +155,7 @@ addEdgeAtts <- function(GG, gg){
 #'
 #' @param ff network structure data.frame with first two columns defining the
 #' network edge nodes
-#' @param kw pmid keyword annotation data.frame. If `NA`
+#' @param pmid pmid keyword annotation data.frame. If `NA`
 #' no annotation will be added
 #' @param LCC if TRUE only largest connected component is returned
 #' @param simplify if TRUE loops and multiple edges will be removed
@@ -168,28 +168,33 @@ addEdgeAtts <- function(GG, gg){
 #' f<-data.frame(A=c('A', 'A', 'B', 'D'), B=c('B', 'C', 'C', 'E'))
 #' gg<-buildNetwork(f)
 #' V(gg)$name
-buildNetwork<-function(ff, kw=NA,LCC=TRUE,simplify=TRUE){
-    #--- build raw graph
-    GG <- graph.data.frame(ff[, seq_len(2)], directed=FALSE)
-    if( !is.na(kw) ){
+buildNetwork<-function(ff, pmid=NA,LCC=TRUE,simplify=TRUE){
+  #--- build raw graph
+  GG <- graph.data.frame(ff[, seq_len(2)], directed=FALSE)
+  if( !is.na(pmid) ){
     GG <- set.edge.attribute(GG, "METHOD", E(GG), as.character(ff[, 3]))
     GG <- set.edge.attribute(GG, "TYPE", E(GG), as.character(ff[, 7]))
-
+    
     PMIDS <- ifelse(!grepl("unassigned", ff[, 4]),
                     sprintf("PMID:%s", ff[, 4]), ff[, 4])
     GG <- set.edge.attribute(GG, "PUBMED", E(GG), PMIDS)
-
-    YEARS <- kw[match(gsub("PMID:", "", E(GG)$PUBMED), kw[, 1]), 3]
+    
+    YEARS <- pmid[match(gsub("PMID:", "", E(GG)$PUBMED), pmid[, 1]), 3]
     YEARS <- ifelse(is.na(YEARS), "na", YEARS)
     GG <- set.edge.attribute(GG, "YEAR", E(GG), YEARS)
     #---
-
-    }
-    #--- build igraph, removing multiple edges and loops
+    
+  }
+  gg<-GG
+  #--- build igraph, removing multiple edges and loops
+  if(simplify){
     gg <- simplify(GG, remove.multiple=TRUE, remove.loops=TRUE)
-    #---Find Largest CC
+  }
+  #---Find Largest CC
+  if(LCC){
     gg  <- findLCC(gg)
-    gg <- addEdgeAtts(GG, gg)
+  }
+  gg <- addEdgeAtts(GG, gg)
 }
 
 
