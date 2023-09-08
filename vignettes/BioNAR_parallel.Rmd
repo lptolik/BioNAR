@@ -43,7 +43,10 @@ environment and how to do it most efficiently.
 # Linux and MacOS
 Linux and MacOS support `MulticoreParam`, which is the most efficient way to run
 randomisation jobs in parallel:
->"MulticoreParam uses ‘forked’ processes with ‘copy-on-change’ semantics – memory is only copied when it is changed. This makes it very efficient to invoke compared to other back-ends."
+
+>"MulticoreParam uses ‘forked’ processes with ‘copy-on-change’ semantics – 
+memory is only copied when it is changed. This makes it very efficient to 
+invoke compared to other back-ends."
 ([via](https://bioconductor.org/packages/release/bioc/vignettes/BiocParallel/inst/doc/Introduction_To_BiocParallel.html))
 
 In the BioNAR we are using `MulticoreParam` environment with default 
@@ -56,8 +59,9 @@ available is `SnowParam`, which emulate cluster of workstations by setting up
 several instances and run code there. That approach implies huge overhead, which
 could be several orders of magnitude higher than the execution time, so by
 default on Windows BioNAR uses `SerialParam` environment and execute all code
-on one core. In the following we will discuss when the `SnowParam` is useful despite the overhead and how to set up parallel environment in a way that maximize benefits
-from parallel execution.
+on one core. In the following we will discuss when the `SnowParam` is useful 
+despite the overhead and how to set up parallel environment in a way that 
+maximize benefits from parallel execution.
 
 
 
