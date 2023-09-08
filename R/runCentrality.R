@@ -430,7 +430,6 @@ getRandomGraphCentrality <- function(gg,
                                      power = NULL,weights = NULL,
                                      ...) {
     if(missing(gg)){stop('Graph gg is required')}
-    if(missing(N)){stop('Number of iterations N is required')}
     op <- options(warn = -1)
     type <- match.arg(type)
     nv <- vcount(gg)
