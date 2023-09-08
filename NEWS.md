@@ -11,7 +11,6 @@
   all benefits of parallelisation. So to make parallel code faster we have moved
   synaptome.db from Imports to Suggests and use it only in examples and vignette.
 
-
 # BioNAR 1.2.1
 
 * Allow analysis of directed graphs and add four new centrality measures specific 
