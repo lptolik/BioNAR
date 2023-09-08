@@ -29,7 +29,7 @@ Imports: stringr, viridis, clusterCons, fgsea, grid, methods,
     ggrepel, minpack.lm, cowplot, data.table, scales, stats, Matrix
 RdMacros: Rdpack
 Suggests: 
-    knitr, 
+    knitr, BiocStyle, magick,
     rmarkdown,
     igraphdata, synaptome.db (>= 0.99.13),
     testthat (>= 3.0.0), vdiffr,

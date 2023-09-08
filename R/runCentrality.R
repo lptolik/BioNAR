@@ -429,6 +429,8 @@ getRandomGraphCentrality <- function(gg,
                                      type = c('gnp', 'pa', 'cgnp', 'rw'),
                                      power = NULL,weights = NULL,
                                      ...) {
+    if(missing(gg)){stop('Graph gg is required')}
+    if(missing(N)){stop('Number of iterations N is required')}
     op <- options(warn = -1)
     type <- match.arg(type)
     nv <- vcount(gg)
@@ -583,7 +585,7 @@ getCM <- function(m, nm, keepOrder) {
 #' m<-getCentralityMatrix(karate)
 #' gnp<-list()
 #' for(i in 1:10){
-#'     gnp[[i]]<-getRandomGraphCentrality(karate,type = 'gnp')
+#'     gnp[[i]]<-getRandomGraphCentrality(karate,N=10,type = 'gnp')
 #' }
 #' gnpIDist<-calcCentralityInternalDistances(gnp)
 #' summary(gnpIDist)
