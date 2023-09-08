@@ -86,8 +86,12 @@ getDYNAMO<-function(g,attr=NULL,vid='name',alpha = .9){
     }
     vcg<- length(V(g))
     Ws <- as_adjacency_matrix(g,type='both',attr=attr,sparse = TRUE)
-    D1s <- Diagonal(n=vcg,x=ifelse(sqrt(apply(abs(Ws),1,sum))==0,0,1/sqrt(apply(abs(Ws),1,sum))))
-    D2s <- Diagonal(n=vcg,x=ifelse(sqrt(apply(abs(Ws),2,sum))==0,0,1/sqrt(apply(abs(Ws),2,sum))))
+    D1s <- Diagonal(n=vcg,
+                    x=ifelse(sqrt(apply(abs(Ws),1,sum))==0,0,
+                             1/sqrt(apply(abs(Ws),1,sum))))
+    D2s <- Diagonal(n=vcg,
+                    x=ifelse(sqrt(apply(abs(Ws),2,sum))==0,0,
+                             1/sqrt(apply(abs(Ws),2,sum))))
     Wps <- D1s %*% Ws %*% D2s
     Is <- Diagonal(n=vcg)
     Msprince_dir_sign <- solve(Is-alpha * Wps) * (1-alpha)
