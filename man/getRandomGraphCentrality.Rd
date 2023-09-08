@@ -10,6 +10,7 @@ getRandomGraphCentrality(
   type = c("gnp", "pa", "cgnp", "rw"),
   power = NULL,
   weights = NULL,
+  RNGseed = NULL,
   BPparam = NULL
 )
 }

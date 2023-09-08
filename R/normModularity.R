@@ -33,7 +33,7 @@
 #' Where \eqn{Q_{real}}{Qreal} is the network modularity of a real-world signalling
 #' network and, \eqn{Q_{rand}}{Qrand} is the average network modularity value obtained
 #' from 10,000 randomised networks constructed from its real-world network.
-#' \eqn{Q_{max}}{Qmax} was estimated as: 1 - 1/M, where M is the number of 
+#' \eqn{Q_{max}}{Qmax} was estimated as: 1 - 1/M, where M is the number of
 #' modules in the real network.
 #'
 #' Randomised networks were generated from a real-world network using the
@@ -63,7 +63,7 @@
 #' library(synaptome.db)
 #' cid<-match('Presynaptic', getCompartments()$Name)
 #' t<-getAllGenes4Compartment(cid)
-#' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+#' gg<-graphFromSynaptomeByEntrez(t$HumanEntrez)
 #'
 #' nm<-normModularity(gg, alg='louvain',Nint=10)
 normModularity <- function(gg,

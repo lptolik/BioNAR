@@ -4,7 +4,7 @@
 \alias{buildNetwork}
 \title{Build network from data.table}
 \usage{
-buildNetwork(ff, kw = NA)
+buildNetwork(ff, kw = NA, LCC = TRUE, simplify = TRUE)
 }
 \arguments{
 \item{ff}{network structure data.frame with first two columns defining the
@@ -12,6 +12,10 @@ network edge nodes}
 
 \item{kw}{pmid keyword annotation data.frame. If \code{NA}
 no annotation will be added}
+
+\item{LCC}{if TRUE only largest connected component is returned}
+
+\item{simplify}{if TRUE loops and multiple edges will be removed}
 }
 \value{
 igraph object of the largest connected component

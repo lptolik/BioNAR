@@ -62,7 +62,7 @@ to be used by \code{\link[BiocParallel]{bplapply}} function.
 library(synaptome.db)
 cid<-match('Presynaptic',getCompartments()$Name)
 t<-getAllGenes4Compartment(cid)
-gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+gg<-graphFromSynaptomeByEntrez(t$HumanEntrez)
 system.time(m<-getCentralityMatrix(gg))
 system.time(m0<-getCentralityMatrix(gg,BPparam=BiocParallel::SerialParam()))
 identical(m,m0)

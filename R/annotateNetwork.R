@@ -367,7 +367,7 @@ getAnnotationList <- function(annVec,
 #' library(synaptome.db)
 #' cid<-match('Presynaptic', getCompartments()$Name)
 #' t<-getAllGenes4Compartment(cid)
-#' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+#' gg<-graphFromSynaptomeByEntrez(t$HumanEntrez)
 #' # read HDO data extracted from hxin/topOnto.HDO.db for synaptic network
 #' afile<-system.file("extdata", "flatfile_human_gene2HDO.csv",
 #' package = "BioNAR")
@@ -450,7 +450,7 @@ annotateTopOntoOVG <- function(gg, dis, idatt='name') {
 #' library(synaptome.db)
 #' cid<-match('Presynaptic', getCompartments()$Name)
 #' t<-getAllGenes4Compartment(cid)
-#' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+#' gg<-graphFromSynaptomeByEntrez(t$HumanEntrez)
 #' afile<-system.file("extdata", "SCH_flatfile.csv", package = "BioNAR")
 #' dis    <- read.table(afile, sep="\t", skip=1, header=FALSE,
 #' strip.white=TRUE, quote="")

@@ -109,7 +109,7 @@ getEntropyRate <- function(gg) {
 #' library(synaptome.db)
 #' cid<-match('Presynaptic', getCompartments()$Name)
 #' t<-getAllGenes4Compartment(cid)
-#' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+#' gg<-graphFromSynaptomeByEntrez(t$HumanEntrez)
 #' gg<-annotateGeneNames(gg)
 #' gg<- calcEntropy(gg)
 calcEntropy <- function(gg, maxSr = NULL, exVal = NULL) {
@@ -159,7 +159,7 @@ calcEntropy <- function(gg, maxSr = NULL, exVal = NULL) {
 #' library(synaptome.db)
 #' cid<-match('Presynaptic', getCompartments()$Name)
 #' t<-getAllGenes4Compartment(cid)
-#' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+#' gg<-graphFromSynaptomeByEntrez(t$HumanEntrez)
 #' gg<-annotateGeneNames(gg)
 #' e<- getEntropy(gg)
 getEntropy <- function(gg, maxSr = NULL, exVal = NULL) {
@@ -314,7 +314,7 @@ getEntropyOverExpressed <- function(SRprime, perc = 1) {
 #' library(synaptome.db)
 #' cid<-match('Presynaptic',getCompartments()$Name)
 #' t<-getAllGenes4Compartment(cid)
-#' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+#' gg<-graphFromSynaptomeByEntrez(t$HumanEntrez)
 #' gg<-annotateGeneNames(gg)
 #' ent <- getEntropyRate(gg)
 #' SRprime <- getEntropy(gg, maxSr = NULL)

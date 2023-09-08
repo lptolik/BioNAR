@@ -219,7 +219,7 @@ MAD <- function(X) {
 #' library(synaptome.db)
 #' cid<-match('Presynaptic',getCompartments()$Name)
 #' t<-getAllGenes4Compartment(cid)
-#' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+#' gg<-graphFromSynaptomeByEntrez(t$HumanEntrez)
 #' system.time(m<-getCentralityMatrix(gg))
 #' system.time(m0<-getCentralityMatrix(gg,BPparam=BiocParallel::SerialParam()))
 #' identical(m,m0)
@@ -606,7 +606,7 @@ getPA <- function(gg, pwr, ...) {
 #' library(synaptome.db)
 #' cid<-match('Presynaptic',getCompartments()$Name)
 #' t<-getAllGenes4Compartment(cid)
-#' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+#' gg<-graphFromSynaptomeByEntrez(t$HumanEntrez)
 #' m<-getCentralityMatrix(gg)
 #' ecdfL<-getGraphCentralityECDF(m)
 getGraphCentralityECDF <- function(m) {

@@ -30,7 +30,7 @@ using matching Entrez IDs, filling the vertices attributes
 library(synaptome.db)
 cid<-match('Presynaptic', getCompartments()$Name)
 t<-getAllGenes4Compartment(cid)
-gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+gg<-graphFromSynaptomeByEntrez(t$HumanEntrez)
 # read HDO data extracted from hxin/topOnto.HDO.db for synaptic network
 afile<-system.file("extdata", "flatfile_human_gene2HDO.csv",
 package = "BioNAR")
