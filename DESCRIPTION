@@ -31,7 +31,7 @@ RdMacros: Rdpack
 Suggests: 
     knitr, 
     rmarkdown,
-    igraphdata, synaptome.db,
+    igraphdata, synaptome.db (>= 0.99.13),
     testthat (>= 3.0.0), vdiffr,
     devtools, pander, plotly, randomcoloR
 Config/testthat/edition: 3
