@@ -18,7 +18,7 @@ storeFitInfo <- function( ALG, LL ){
 
     tmp <- c(ALG)
 
-    for( i in 1:length(LL) ){
+    for( i in seq_along(LL) ){
         tmp <- cbind(tmp, as.vector(LL)[i])
     }
 
@@ -30,7 +30,7 @@ storeParInfo <- function( ALG, LL ){
 
     tmp <- c(ALG)
 
-    for( i in 1:length(LL[,1]) ){
+    for( i in seq_along(LL[,1]) ){
         tmp <- cbind(tmp, LL[i,1], LL[i,2])
     }
 
@@ -96,7 +96,7 @@ plotSigmoid <- function( x, rates, model, alg="", pv=0 ){
         Rsize[indx[1]] <- 2
         Rcol[indx[1]]  <- "black"
     }
-    for( r in 1:R ){
+    for( r in seq_len(R) ){
         pp <- list(a=0, b=1, c=rates[r], d=round(median(x)) )
         yi <-  sigmoid(pars=pp, xx=x)
         df <- cbind(df,yi)
@@ -243,8 +243,8 @@ fitSigmoid<-function(stat,SDv=c(0, 0.05, 0.1, 0.5)){
     df<-stat$SUM3
     x.range.value  <- "6.0"
     Xmax <- match(x.range.value,colnames(df))
-    tt   <- df[,1:Xmax]
-    colnames(tt) <- colnames(df)[1:Xmax]
+    tt   <- df[,seq_len(Xmax)]
+    colnames(tt) <- colnames(df)[seq_len(Xmax)]
     N <- length(colnames(tt))
     x <- as.numeric(colnames(tt)[3:N])
     SDlab <- as.character(SDv)#c("0","0.05","0.1","0.5")
@@ -255,7 +255,7 @@ fitSigmoid<-function(stat,SDv=c(0, 0.05, 0.1, 0.5)){
 
     resout<-list()
 
-    for( s in 1:length(SDv) ){
+    for( s in seq_along(SDv) ){
 
         models <- list()
         GPLOTS <- list()
@@ -271,7 +271,7 @@ fitSigmoid<-function(stat,SDv=c(0, 0.05, 0.1, 0.5)){
         fitInfo <- data.frame()
         parInfo <- data.frame()
 
-        for( i in 1:length(tt[,1]) ){
+        for( i in seq_along(tt[,1]) ){
 
             y <- as.numeric(tt[i,3:N])/as.numeric(tt[i,2])
             y <- BioNAR:::addNoise(y, SD=SDv[s])#add gaussian noise to our data
@@ -296,7 +296,7 @@ fitSigmoid<-function(stat,SDv=c(0, 0.05, 0.1, 0.5)){
 
             parInfo <- rbind(parInfo,
                              storeParInfo( names(models)[i],
-                            unlist(summary(models[[i]])$parameters[,1:2]) ))
+                            unlist(summary(models[[i]])$parameters[,c(1,2)]) ))
 
         }
 
@@ -322,7 +322,7 @@ fitSigmoid<-function(stat,SDv=c(0, 0.05, 0.1, 0.5)){
         colnames(oo) <- CN
         oo[,1] <- names(models)
 
-        for( i in 1:length(names(models)) ){
+        for( i in seq_along(names(models)) ){
 
             ks   <- BioNAR:::gofs(x, rates, models[[i]])
             indx <- BioNAR:::highlightRate( rates=rates, val=-2 )
@@ -339,7 +339,7 @@ fitSigmoid<-function(stat,SDv=c(0, 0.05, 0.1, 0.5)){
             names(gof)[i]    <- names(models)[i]
             names(GPLOTS)[i] <- names(models)[i]
 
-            for(j in 1:length(rates)){
+            for(j in seq_along(rates)){
                 oo[i,(j+1)] <- ks[[j]]$p.value
             }
         }

@@ -40,13 +40,13 @@ library(randomcoloR)
 
 # Introduction
 
-Proteomic studies typically generate a massive list of proteins being identified 
+Proteomic studies typically generate a massive list of proteins being identified
 within a specific tissue, compartment or cell type, often accompanied by 
-additional qualitative and/or quantitative information. Conversion of these data 
+additional qualitative and/or quantitative information. Conversion of these data
 into meaningful biological insight requires processing in several stages to 
 identify possible structural and/or functional dependencies.
 
-One of the most popular ways of representing proteomic data is a protein-protein 
+One of the most popular ways of representing proteomic data is a protein-protein
 interaction network, which allows to study its topology and how it correlates 
 with functional annotation mapped onto the network. 
 
@@ -62,7 +62,7 @@ domains. For that purpose, we do not implement network reconstruction directly
 Analyst do this already. Rathher, we provide a detailed topologically-based 
 network analysis package, enabling the researcher to load networks generated 
 from the lab’s own meta-data, thus making the tool as widely applicable and 
-flexible as possible. We also provide a synaptic proteome network of our own for 
+flexible as possible. We also provide a synaptic proteome network of our own for
 validation.
 
 # Overview of capabilities
@@ -86,7 +86,7 @@ depending on user's preferences. Any other vertex meta-data, which can be
 represented in matrix form, can also be stored as a vertex attribute.
 
 To compare observed networks vertex centrality values against those of 
-equivalently sized but randomised graphs, we support three varying randomisation 
+equivalently sized but randomised graphs, we support three varying randomisation
 models including G(n,p) Erdos-Renyi model , Barabasi-Albert model, and new 
 random graph from a given graph by randomly adding/removing edges 
 [getRandomGraphCentrality].
@@ -130,8 +130,8 @@ analysis can be performed using any in-house vertex meta-data, including
 biological function terms.
 
 To study the distribution of the specific annotation(s) over a clustered graph 
-(typically disease of biologial process/function), we enabled overrepresentation 
-analysis [clusterORA], which helps identify the network communities enriched for 
+(typically disease of biologial process/function), we enabled overrepresentation
+analysis [clusterORA], which helps identify the network communities enriched for
 specific function or disease, or any other annotation.
 
 The case study illustrates the package functionality for the protein-protein 
@@ -142,13 +142,13 @@ shown below.
 
 # Build the network
 
-BioNAR allows building a network from a data frame, where the rows correspond to 
+BioNAR allows building a network from a data frame, where the rows correspond to
 the edges of the graph; alternatively for our synaptic proteome exemple, a list 
 of vertices (genes) is needed, for which the information will be retrieved from 
 SynaptomeDB package.
 
 ## Build a network from a given data frame
-The command listed below builds a graph from provided data frame, simplifies the 
+The command listed below builds a graph from provided data frame, simplifies the
 graph (removing multiple edges and loops) and return its MCC (maximum connected 
 component)
 ```{r network_from_scratch}
@@ -343,7 +343,7 @@ protein is being perturbed through over-expression (red) and under-expression
 (green), with the global graph entropy rate (SR) after each proteins 
 perturbation being plotted against the log of the proteins degree, as shown at 
 the plot below. 
-In our case study of the presynaptic PPI network we observe a bi-modal response, 
+In our case study of the presynaptic PPI network we observe a bi-modal response,
 between gene over-expression and degree, and opposing bi-phasic response 
 relative to over/under-expression between global entropy rate and degree. This 
 type of bi-modal, bi-phasic behaviour has been observed only in networks with 
@@ -381,7 +381,7 @@ nm
 Clustering, or community detection, in networks has been well studied in the 
 field of statistical physics with particular attention to methods developed for 
 social science networks. The underlying assumption(s) of what makes a 
-community in social science, translates remarkably well to what we think of as a 
+community in social science, translates remarkably well to what we think of as a
 community (sub-complex, module or cluster) in PPI networks. The possible 
 algorithms of choice implemented in BioNAR are:
 * "lec"('Leading-Eigenvector, Newman, 2006), 
@@ -422,7 +422,7 @@ calculate community memberships and store them within the graph vertices
 attributes named after the algorithm. They also calculate modularity values and 
 store them as graph vertex attributes named after the clustering algorithm. 
 The difference between `calcClustering` and `calcAllClustering` is that 
-`calcAllClustering`allows to calculate memberships for all clustering algorithms 
+`calcAllClustering`allows to calculate memberships for all clustering algorithms
 simultaneously (may take time), and store them as graph vertices attributes, 
 while `calcClustering`command will work for a specific algorithm. 
 
@@ -582,11 +582,11 @@ organise function inside the     communities they belong to, but also
 affect/influence other communities in the network (Nepusz et al., 2008). 
 Bridgeness can be estimated from the consensus clustering matrix estimated 
 above and vertex degree to calculate the vertex’s community membership, i.e. 
-the probability a specific vertex belongs to every community obtained by a given 
+the probability a specific vertex belongs to every community obtained by a given
 clustering algorithm.
 
 The Bridgeness measure lies between 0 - implying a vertex clearly belongs in a 
-single community, and 1 - implying a vertex forms a 'global bridge' across every 
+single community, and 1 - implying a vertex forms a 'global bridge' across every
 community with the same strength. 
 
 ```{r get.bridge}
@@ -608,7 +608,7 @@ each protein found in our network has on the overall network structure:
 * Region 1, proteins having a 'global' rather than 'local' influence in the 
 network (also been called bottle-neck bridges, connector or kinless hubs 
 (0<Sl<0.5; 0.5<Br<1). 
-* Region 2, proteins having 'global' and 'local' influence (0.5<Sl<1, 0.5<Br<1). 
+* Region 2, proteins having 'global' and 'local' influence (0.5<Sl<1, 0.5<Br<1).
 * Region 3, proteins centred within the community they belong to, but also 
 communicating with a few other specific communities (0<Sl<0.5; 0.1<Br<0.5). 
 * Region 4, proteins with 'local' impact , primarily within one or two 
@@ -704,7 +704,8 @@ To identify the clusters with overrepresented function or disease we introduced
 the function which calculates the overrepesentation (enrichment for specified 
 annotation). Based on R package fgsea.
 ```{r ora,warning=FALSE,message=FALSE}
-ora <- clusterORA(gg, alg, name = 'TopOnto_OVG_HDO_ID', vid = "name",alpha = 0.1, col = COLLAPSE)
+ora <- clusterORA(gg, alg, name = 'TopOnto_OVG_HDO_ID', vid = "name",
+                  alpha = 0.1, col = COLLAPSE)
 ```
 
 # Session Info
