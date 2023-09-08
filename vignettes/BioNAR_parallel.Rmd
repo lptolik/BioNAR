@@ -1,12 +1,18 @@
 ---
 title: "BioNAR parallel execution"
-author: "Colin Mclean, Anatoly Sorokin, T. I. Simpson, J. Douglas Armstrong, Oksana Sorokina"
-date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+author:
+- name: "Anatoly Sorokin"
+- name: "Colin Mclean"
+- name: "J. Douglas Armstrong"
+- name: "Oksana Sorokina"
+date: "Edited: September, 2023; Compiled: `r format(Sys.time(), '%B %d, %Y')`"
+package: BioNAR
 vignette: >
   %\VignetteIndexEntry{BioNAR parallel execution}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+output:
+  BiocStyle::html_document
 ---
 
 ```{r, include = FALSE}
