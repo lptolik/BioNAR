@@ -4,6 +4,16 @@
 \name{diseasome.rda}
 \alias{diseasome.rda}
 \title{Barabasi's Diseasome Network}
+\format{
+A bipartite graph as \code{\link[igraph]{graph}} object.
+
+Vertex attributes: \sQuote{name} for the node ID, \sQuote{Name} for the
+human readable node name, \sQuote{Disorder.class},
+\sQuote{Type} for the human readable node type,
+\sQuote{label} and \sQuote{shape} for plotting the graph,
+\sQuote{type} the node type for bipartite \code{\link[igraph]{graph}}
+representation.
+}
 \source{
 Goh, K.-I. et al. The human disease network. Proc. Natl. Acad. Sci.
 U.S.A. 104, 8685–8690 (2007).
