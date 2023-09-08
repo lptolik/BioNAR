@@ -1,11 +1,22 @@
 ---
 title: "BioNAR: Biological Network Analysis in R"
-author: "Colin Mclean, Anatoly Sorokin, T. I. Simpson, J. Douglas Armstrong, Oksana Sorokina"
-output: rmarkdown::html_vignette
+author:
+- name: "Colin Mclean"
+- name: "Anatoly Sorokin"
+- name: "T. I. Simpson"
+- name: "J. Douglas Armstrong"
+- name: "Oksana Sorokina"
+date: "Edited: October, 2022; Compiled: `r format(Sys.time(), '%B %d, %Y')`"
+package: BioNAR
 vignette: >
   %\VignetteIndexEntry{BioNAR: Biological Network Analysis in R}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+output:
+  BiocStyle::html_document:
+    number_sections: yes
+    toc: yes
+    toc_depth: 4
 ---
 
 ```{r, include = FALSE}
@@ -163,7 +174,7 @@ t<-getAllGenes4Compartment(cid)
 dim(t)
 head(t)
 # finally, build the graph using respecctive gene EntrezIDs as node IDs
-gg<-buildFromSynaptomeByEntrez(t$HumanEntrez) 
+gg<-graphFromSynaptomeByEntrez(t$HumanEntrez) 
 summary(gg)
 
 ```

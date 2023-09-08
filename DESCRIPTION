@@ -30,7 +30,7 @@ Imports: stringr, viridis, clusterCons, fgsea, grid, methods,
     BiocParallel
 RdMacros: Rdpack
 Suggests: 
-    knitr, 
+    knitr, BiocStyle, magick,
     rmarkdown,
     igraphdata, synaptome.db (>= 0.99.13),
     testthat (>= 3.0.0), vdiffr,
