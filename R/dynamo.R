@@ -33,8 +33,8 @@ metlMatrix<-function(sparceM){
         i = m@i + 1,  # m@i is 0-based, not 1-based like everything else in R
         j = m@j + 1,  # m@j is 0-based, not 1-based like everything else in R
         x = m@x)
-    d$Rname=colnames(m)[d$i]
-    d$Cname=colnames(m)[d$j]
+    d$Rname <- colnames(m)[d$i]
+    d$Cname <- colnames(m)[d$j]
     return(d)
 }
 
