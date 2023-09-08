@@ -73,6 +73,18 @@ NULL
 #' types. It could be projected to Human Disease Network (HDN) and Disease
 #' Gene Network (DGN).
 #'
+#' @format
+#'   A bipartite graph as \code{\link[igraph]{graph}} object.
+#'
+#'   Vertex attributes: \sQuote{name} for the node ID, \sQuote{Name} for the
+#'   human readable node name, \sQuote{Disorder.class},
+#'   \sQuote{Type} for the human readable node type,
+#'   \sQuote{label} and \sQuote{shape} for plotting the graph,
+#'   \sQuote{type} the node type for bipartite \code{\link[igraph]{graph}}
+#'   representation.
+#'
+#'
+#'
 #' @name diseasome.rda
 #' @keywords diseasome
 #' @keywords graphs
