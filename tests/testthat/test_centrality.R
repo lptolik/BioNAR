@@ -1,6 +1,6 @@
 library(BioNAR)
 library(testthat)
-library(BiocParallel)
+#library(BiocParallel)
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
 gg <- igraph::read.graph(file, format="gml")
 louvain4<-induced_subgraph(gg,V(gg)[V(gg)$louvain==4])
@@ -34,6 +34,7 @@ test_that('calcDirectedCentrality',{
 })
 
 test_that('calcCentralitySerial',{
+    library(BiocParallel)
     gc<-calcCentrality(louvain4,BPparam=SerialParam())
     idx<-match(c("DEG", "BET", "CC", "SL", "mnSP", "PR", "sdSP"),
                vertex_attr_names(gc))
@@ -41,6 +42,7 @@ test_that('calcCentralitySerial',{
 })
 
 test_that('calcDirectedCentralitySerial',{
+    library(BiocParallel)
     gc<-calcCentrality(macaque,BPparam=SerialParam())
     idx<-match(c("DEG", "iDEG", "oDEG", "BET", "dBET", "CC", "SL",
                  "mnSP", "PR", "dPR", "sdSP"),
@@ -74,17 +76,19 @@ test_that('SP centrality',{
 })
 
 test_that('Random centrality',{
+    library(BiocParallel)
+    bppar <- SerialParam(RNGseed = 100)
     cm<-getCentralityMatrix(karate)
     set.seed(100)
     m<-getRandomGraphCentrality(gg=karate,N=1,type='pa',
-                                BPparam=SerialParam(RNGseed = 100))[[1]]
+                                BPparam=bppar)[[1]]
     expect_equal(m[1,2],4,ignore_attr = TRUE)
     set.seed(100)
     pFit <- fitDegree( as.vector(igraph::degree(graph=karate)),
                        Nsim=10, plot=FALSE,threads=1)
     pwr <- slot(pFit,'alpha')
     lpa<-getRandomGraphCentrality(gg=karate,N=5,type='pa',
-                power=pwr,weights = NULL,BPparam=SerialParam(RNGseed = 100))
+                power=pwr,weights = NULL,BPparam=bppar)
     iDlpa<-calcCentralityInternalDistances(lpa)
     eDlpa<-calcCentralityExternalDistances(cm,lpa)
     sigPA<-evalCentralitySignificance(iDlpa,eDlpa)
@@ -95,7 +99,7 @@ test_that('Random centrality',{
                    0.000666000666000666),
                  tolerance = 1e-5,ignore_attr = TRUE)
     lgnp<-getRandomGraphCentrality(gg=karate,N=5,type='gnp',
-                                   BPparam=SerialParam(RNGseed = 100))
+                                   BPparam=bppar)
     iDlgnp<-calcCentralityInternalDistances(lgnp)
     eDlgnp<-calcCentralityExternalDistances(cm,lgnp)
     sigGNP<-evalCentralitySignificance(iDlgnp,eDlgnp)
@@ -106,7 +110,7 @@ test_that('Random centrality',{
                    0.000666000666000666),
                  tolerance = 1e-5,ignore_attr = TRUE)
     lcgnp<-getRandomGraphCentrality(gg=karate,N=5,type='cgnp',
-                                    BPparam=SerialParam(RNGseed = 100))
+                                    BPparam=bppar)
     iDlcgnp<-calcCentralityInternalDistances(lcgnp)
     eDlcgnp<-calcCentralityExternalDistances(cm,lcgnp)
     sigCGNP<-evalCentralitySignificance(iDlcgnp,eDlcgnp)
