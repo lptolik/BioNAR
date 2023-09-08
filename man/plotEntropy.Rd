@@ -26,13 +26,13 @@ Following procedure described in
 uniform weight then sequentially perturbed with the global entropy rate
 (\code{SRprime}) after each protein’s perturbation being calculated by
 \code{\link{getEntropy}} function.
-
+}
+\details{
 This function plot \code{SRprime} against the log of the protein’s degree.
 In case of scale-free or approximate scale-free topologies, we see a clear
 bi-modal response between over-weighted vertices and their degree and an
 opposing bi-phasic response in under-weighted vertices and their degrees.
-}
-\details{
+
 If \code{maxSr} or \code{SRo} is set to their default value
 \code{NULL} \code{\link{getEntropyRate}} will be called and returned values
 will be used in the following calculations. As \code{maxSr} is required for
@@ -43,7 +43,7 @@ could save some time in the case of large network.
 library(synaptome.db)
 cid<-match('Presynaptic',getCompartments()$Name)
 t<-getAllGenes4Compartment(cid)
-gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+gg<-graphFromSynaptomeByEntrez(t$HumanEntrez)
 gg<-annotateGeneNames(gg)
 ent <- getEntropyRate(gg)
 SRprime <- getEntropy(gg, maxSr = NULL)

@@ -40,7 +40,7 @@ based solely on the network topology.
 library(synaptome.db)
 cid<-match('Presynaptic', getCompartments()$Name)
 t<-getAllGenes4Compartment(cid)
-gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+gg<-graphFromSynaptomeByEntrez(t$HumanEntrez)
 gg<-annotateGeneNames(gg)
 gg<- calcEntropy(gg)
 }

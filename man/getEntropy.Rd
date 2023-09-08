@@ -35,7 +35,8 @@ significantly higher than in non-metastatic and helped to identify genes
 and entire pathways involved on metastasis. However, for the assessment of
 scale-free structure we do not actually require gene expression data as it
 based solely on the network topology.
-
+}
+\details{
 In this function, following procedure described in
 (Teschendorff et al., 2015), all vertexes are artificially assigned a
 uniform weight then sequentially perturbed with the global entropy rate
@@ -49,7 +50,7 @@ response in under-weighted vertices and their degrees.
 library(synaptome.db)
 cid<-match('Presynaptic', getCompartments()$Name)
 t<-getAllGenes4Compartment(cid)
-gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+gg<-graphFromSynaptomeByEntrez(t$HumanEntrez)
 gg<-annotateGeneNames(gg)
 e<- getEntropy(gg)
 }

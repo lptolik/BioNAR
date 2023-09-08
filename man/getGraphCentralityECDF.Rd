@@ -21,7 +21,7 @@ Convert centrality matrix into ECDF
 library(synaptome.db)
 cid<-match('Presynaptic',getCompartments()$Name)
 t<-getAllGenes4Compartment(cid)
-gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+gg<-graphFromSynaptomeByEntrez(t$HumanEntrez)
 m<-getCentralityMatrix(gg)
 ecdfL<-getGraphCentralityECDF(m)
 }

@@ -52,7 +52,7 @@ edge-rewiring algorithm (Maslov and Sneppen, 2002).
 library(synaptome.db)
 cid<-match('Presynaptic', getCompartments()$Name)
 t<-getAllGenes4Compartment(cid)
-gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+gg<-graphFromSynaptomeByEntrez(t$HumanEntrez)
 
 nm<-normModularity(gg, alg='louvain',Nint=10)
 }

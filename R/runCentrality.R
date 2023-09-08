@@ -207,7 +207,7 @@ MAD <- function(X) {
 #' library(synaptome.db)
 #' cid<-match('Presynaptic',getCompartments()$Name)
 #' t<-getAllGenes4Compartment(cid)
-#' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+#' gg<-graphFromSynaptomeByEntrez(t$HumanEntrez)
 #' m<-getCentralityMatrix(gg)
 getCentralityMatrix <- function(gg,weights = NULL) {
     tmp <- makeDataFrame(makeCentralityMatrix(gg,weights = weights))
@@ -530,7 +530,7 @@ getPA <- function(gg, pwr, ...) {
 #' library(synaptome.db)
 #' cid<-match('Presynaptic',getCompartments()$Name)
 #' t<-getAllGenes4Compartment(cid)
-#' gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+#' gg<-graphFromSynaptomeByEntrez(t$HumanEntrez)
 #' m<-getCentralityMatrix(gg)
 #' ecdfL<-getGraphCentralityECDF(m)
 getGraphCentralityECDF <- function(m) {

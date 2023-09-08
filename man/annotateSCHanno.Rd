@@ -38,7 +38,7 @@ Molecular Psychiatry 2012,17:996–1006.
 library(synaptome.db)
 cid<-match('Presynaptic', getCompartments()$Name)
 t<-getAllGenes4Compartment(cid)
-gg<-buildFromSynaptomeByEntrez(t$HumanEntrez)
+gg<-graphFromSynaptomeByEntrez(t$HumanEntrez)
 afile<-system.file("extdata", "SCH_flatfile.csv", package = "BioNAR")
 dis    <- read.table(afile, sep="\t", skip=1, header=FALSE,
 strip.white=TRUE, quote="")

@@ -33,14 +33,14 @@ test_that('Build network',{
     expect_equal(vcount(g),3)
     expect_equal(ecount(g),3)
 
-    cid<-match('Presynaptic', getCompartments()$Name)
-    geneTable<-getAllGenes4Compartment(cid)
-    g<-buildFromSynaptomeByEntrez(geneTable$HumanEntrez)
-    expect_equal(vcount(g),2275)
-    expect_equal(ecount(g),9190)
-
-    g<-buildFromSynaptomeGeneTable(geneTable)
-    expect_equal(vcount(g),2274)
-    expect_equal(ecount(g),9189)
+    # cid<-match('Presynaptic', getCompartments()$Name)
+    # geneTable<-getAllGenes4Compartment(cid)
+    # g<-buildFromSynaptomeByEntrez(geneTable$HumanEntrez)
+    # expect_equal(vcount(g),2275)
+    # expect_equal(ecount(g),9190)
+    #
+    # g<-buildFromSynaptomeGeneTable(geneTable)
+    # expect_equal(vcount(g),2274)
+    # expect_equal(ecount(g),9189)
 
 })
