@@ -31,7 +31,6 @@ knitr::opts_chunk$set(
 ```{r setup, echo=FALSE}
 library(knitr)
 library(BioNAR)
-library(synaptome.db)
 library(ggplot2)
 library(pander)
 library(ggrepel)
@@ -160,24 +159,6 @@ summary(gg)
 
 ```
 
-## Build a network given a node list extracted from SynaptomeDB
-The command provides proxy for Synaptome.db package, enabling building the 
-protein-protein interaction (PPI) network for entire synaptic compartment 
-(pre-, or post-synaptic)
-
-```{r net_from_SynaptomeDB}
-# Let's get the ID for presynaptic compartment
-cid<-match('Presynaptic',getCompartments()$Name) 
-cid
-# Now we need to collect all the gene IDs for presinaptic  compartment
-t<-getAllGenes4Compartment(cid) 
-dim(t)
-head(t)
-# finally, build the graph using respecctive gene EntrezIDs as node IDs
-gg<-graphFromSynaptomeByEntrez(t$HumanEntrez) 
-summary(gg)
-
-```
 ## Use a predifined network
 Any predefined network stored as a graph file (e.g. .gml, .graphml) can be 
 loaded for further analysis using Igraph's functionality.

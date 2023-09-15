@@ -1,6 +1,6 @@
 Package: BioNAR
 Title: Biological Network Analysis in R
-Version: 1.3.7
+Version: 1.3.8
 Authors@R: c(
     person("Colin", "Mclean", 
         email="Colin.D.Mclean@ed.ac.uk", role="aut"), 
@@ -31,7 +31,7 @@ RdMacros: Rdpack
 Suggests: 
     knitr, BiocStyle, magick,
     rmarkdown,
-    igraphdata, synaptome.db (>= 0.99.13),
+    igraphdata, 
     testthat (>= 3.0.0), vdiffr,
     devtools, pander, plotly, randomcoloR
 Config/testthat/edition: 3
