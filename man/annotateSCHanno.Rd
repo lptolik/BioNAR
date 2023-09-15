@@ -35,10 +35,9 @@ Molecular Psychiatry 2012,17:996–1006.
 }
 }
 \examples{
-library(synaptome.db)
-cid<-match('Presynaptic', getCompartments()$Name)
-t<-getAllGenes4Compartment(cid)
-gg<-graphFromSynaptomeByEntrez(t$HumanEntrez)
+file <- system.file("extdata", "PPI_Presynaptic.csv", package = "BioNAR")
+tbl <- read.csv(file, sep="\t")
+gg <- buildNetwork(tbl)
 afile<-system.file("extdata", "SCH_flatfile.csv", package = "BioNAR")
 dis    <- read.table(afile, sep="\t", skip=1, header=FALSE,
 strip.white=TRUE, quote="")

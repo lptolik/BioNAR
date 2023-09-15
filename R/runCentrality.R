@@ -204,10 +204,9 @@ MAD <- function(X) {
 #' @export
 #'
 #' @examples
-#' library(synaptome.db)
-#' cid<-match('Presynaptic',getCompartments()$Name)
-#' t<-getAllGenes4Compartment(cid)
-#' gg<-graphFromSynaptomeByEntrez(t$HumanEntrez)
+#' file <- system.file("extdata", "PPI_Presynaptic.csv", package = "BioNAR")
+#' tbl <- read.csv(file, sep="\t")
+#' gg <- buildNetwork(tbl)
 #' m<-getCentralityMatrix(gg)
 getCentralityMatrix <- function(gg,weights = NULL) {
     tmp <- makeDataFrame(makeCentralityMatrix(gg,weights = weights))
@@ -528,10 +527,9 @@ getPA <- function(gg, pwr, ...) {
 #' @seealso getCentralityMatrix
 #' @export
 #' @examples
-#' library(synaptome.db)
-#' cid<-match('Presynaptic',getCompartments()$Name)
-#' t<-getAllGenes4Compartment(cid)
-#' gg<-graphFromSynaptomeByEntrez(t$HumanEntrez)
+#' file <- system.file("extdata", "PPI_Presynaptic.csv", package = "BioNAR")
+#' tbl <- read.csv(file, sep="\t")
+#' gg <- buildNetwork(tbl)
 #' m<-getCentralityMatrix(gg)
 #' ecdfL<-getGraphCentralityECDF(m)
 getGraphCentralityECDF <- function(m) {

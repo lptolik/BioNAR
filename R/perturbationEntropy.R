@@ -106,10 +106,9 @@ getEntropyRate <- function(gg) {
 #' @seealso [getEntropy()]
 #' @family {Entropy Functions}
 #' @examples
-#' library(synaptome.db)
-#' cid<-match('Presynaptic', getCompartments()$Name)
-#' t<-getAllGenes4Compartment(cid)
-#' gg<-graphFromSynaptomeByEntrez(t$HumanEntrez)
+#' file <- system.file("extdata", "PPI_Presynaptic.csv", package = "BioNAR")
+#' tbl <- read.csv(file, sep="\t")
+#' gg <- buildNetwork(tbl)
 #' gg<-annotateGeneNames(gg)
 #' gg<- calcEntropy(gg)
 calcEntropy <- function(gg, maxSr = NULL, exVal = NULL) {
@@ -161,10 +160,9 @@ calcEntropy <- function(gg, maxSr = NULL, exVal = NULL) {
 #' @export
 #' @family {Entropy Functions}
 #' @examples
-#' library(synaptome.db)
-#' cid<-match('Presynaptic', getCompartments()$Name)
-#' t<-getAllGenes4Compartment(cid)
-#' gg<-graphFromSynaptomeByEntrez(t$HumanEntrez)
+#' file <- system.file("extdata", "PPI_Presynaptic.csv", package = "BioNAR")
+#' tbl <- read.csv(file, sep="\t")
+#' gg <- buildNetwork(tbl)
 #' gg<-annotateGeneNames(gg)
 #' e<- getEntropy(gg)
 getEntropy <- function(gg, maxSr = NULL, exVal = NULL) {
@@ -323,10 +321,9 @@ getEntropyOverExpressed <- function(SRprime, perc = 1) {
 #' @seealso [getEntropy()]
 #' @family {Entropy Functions}
 #' @examples
-#' library(synaptome.db)
-#' cid<-match('Presynaptic',getCompartments()$Name)
-#' t<-getAllGenes4Compartment(cid)
-#' gg<-graphFromSynaptomeByEntrez(t$HumanEntrez)
+#' file <- system.file("extdata", "PPI_Presynaptic.csv", package = "BioNAR")
+#' tbl <- read.csv(file, sep="\t")
+#' gg <- buildNetwork(tbl)
 #' gg<-annotateGeneNames(gg)
 #' ent <- getEntropyRate(gg)
 #' SRprime <- getEntropy(gg, maxSr = NULL)

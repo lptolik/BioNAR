@@ -50,9 +50,8 @@ calculate the \code{distance}=1/\code{weights} as edge weights for
 vertices, rather the distance between them.
 }
 \examples{
-library(synaptome.db)
-cid<-match('Presynaptic',getCompartments()$Name)
-t<-getAllGenes4Compartment(cid)
-gg<-graphFromSynaptomeByEntrez(t$HumanEntrez)
+file <- system.file("extdata", "PPI_Presynaptic.csv", package = "BioNAR")
+tbl <- read.csv(file, sep="\t")
+gg <- buildNetwork(tbl)
 m<-getCentralityMatrix(gg)
 }

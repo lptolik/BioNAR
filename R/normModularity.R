@@ -60,10 +60,9 @@
 #' @export
 #'
 #' @examples
-#' library(synaptome.db)
-#' cid<-match('Presynaptic', getCompartments()$Name)
-#' t<-getAllGenes4Compartment(cid)
-#' gg<-graphFromSynaptomeByEntrez(t$HumanEntrez)
+#' file <- system.file("extdata", "PPI_Presynaptic.csv", package = "BioNAR")
+#' tbl <- read.csv(file, sep="\t")
+#' gg <- buildNetwork(tbl)
 #'
 #' nm<-normModularity(gg, alg='louvain',Nint=10)
 normModularity <- function(gg,

@@ -40,10 +40,9 @@ will be used in the following calculations. As \code{maxSr} is required for
 could save some time in the case of large network.
 }
 \examples{
-library(synaptome.db)
-cid<-match('Presynaptic',getCompartments()$Name)
-t<-getAllGenes4Compartment(cid)
-gg<-graphFromSynaptomeByEntrez(t$HumanEntrez)
+file <- system.file("extdata", "PPI_Presynaptic.csv", package = "BioNAR")
+tbl <- read.csv(file, sep="\t")
+gg <- buildNetwork(tbl)
 gg<-annotateGeneNames(gg)
 ent <- getEntropyRate(gg)
 SRprime <- getEntropy(gg, maxSr = NULL)
