@@ -46,6 +46,11 @@ approximate scale-free topologies, we see a clear bi-modal response
 between over-weighted vertices and their degree and an opposing bi-phasic
 response in under-weighted vertices and their degrees.
 }
+\note{
+Entropy is calculated with respect to GeneName property, if there is no such
+vertex attribute in the graph vertex name will be copied to the GeneName
+attribute. If any NA is found in GeneNames error will be thrown.
+}
 \examples{
 library(synaptome.db)
 cid<-match('Presynaptic', getCompartments()$Name)

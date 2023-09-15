@@ -139,6 +139,11 @@ calcEntropy <- function(gg, maxSr = NULL, exVal = NULL) {
 #' between over-weighted vertices and their degree and an opposing bi-phasic
 #' response in under-weighted vertices and their degrees.
 #'
+#' @note
+#' Entropy is calculated with respect to GeneName property, if there is no such
+#' vertex attribute in the graph vertex name will be copied to the GeneName
+#' attribute. If any NA is found in GeneNames error will be thrown.
+#'
 #' @param gg igraph object
 #' @param maxSr the maximum entropy rate \eqn{maxSR}, if NULL
 #'            \code{getEntropyRate} will be called.
@@ -165,6 +170,12 @@ calcEntropy <- function(gg, maxSr = NULL, exVal = NULL) {
 getEntropy <- function(gg, maxSr = NULL, exVal = NULL) {
     if (!"GeneName" %in% vertex_attr_names(gg)) {
         V(gg)$GeneName <- V(gg)$name
+    }
+    if(any(is.na(V(gg)$GeneName))){
+        idx<-which(is.na(V(gg)$GeneName))
+        stop('Vertices [',
+             paste(idx,collapse = ', '),
+             '] have empty GeneName\n')
     }
     V    <- vcount(gg)
     E    <- ecount(gg)

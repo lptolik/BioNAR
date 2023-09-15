@@ -115,3 +115,9 @@ test_that('Perturbation entropy',{
 
 })
 
+test_that('Perturbation entropy error message',{
+    set.seed(100)
+    g<-louvainG
+    V(g)$GeneName[1]<-NA
+    expect_error(getEntropy(g),'.*have empty GeneName.*')
+})
