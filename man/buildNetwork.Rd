@@ -21,10 +21,10 @@ no annotation will be added}
 igraph object of the largest connected component
 }
 \description{
-Wrapper for \code{\link[igraph]{graph.data.frame}} function which will always
-return the largest connect component for a given network \code{ff}.
-The function will also #' annotated the edges in \code{ff} with PubMed data
-if it exits.
+Wrapper for \code{\link[igraph]{graph_from_data_frame}} function which will
+always return the largest connect component for a given network \code{ff}.
+The function will also annotated the edges in \code{ff} with PubMed data
+from \code{kw} if provided.
 }
 \examples{
 f<-data.frame(A=c('A', 'A', 'B', 'D'), B=c('B', 'C', 'C', 'E'))

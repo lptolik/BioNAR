@@ -136,7 +136,7 @@ specific function or disease, or any other annotation.
 The case study illustrates the package functionality for the protein-protein 
 interaction network for the presynaptic compartment of the synapse generated 
 from Synaptic proteome database (Sorokina et al., 2021) with Synaptome.db 
-package. The network has 1073 vertices and 3346 edges, step by step analysis is 
+package. The network has 1073 vertices and 6620 edges, step by step analysis is 
 shown below.
 
 # Build the network
