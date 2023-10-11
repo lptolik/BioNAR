@@ -33,3 +33,10 @@ library(BioNAR)
 vignette("BioNAR_overview")
 ```
 
+# Citation
+
+If you are using this package, please cite the following paper:
+
+Mclean C, Sorokin A, Simpson TI, Armstrong JD, Sorokina O (2023). “BioNAR: An Integrated Biological Network Analysis
+  Package in Bioconductor.” _Bioinformatics Advances_, vbad137. doi:10.1093/bioadv/vbad137
+  <https://doi.org/10.1093/bioadv/vbad137>.
