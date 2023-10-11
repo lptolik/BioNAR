@@ -1,0 +1,13 @@
+bibentry(
+  bibtype  = "Article",
+  title    = "BioNAR: An Integrated Biological Network Analysis Package in Bioconductor",
+  author   = personList(as.person("Colin Mclean"),
+                        as.person("Anatoly Sorokin"),
+                        as.person("T. Ian Simpson"),
+                        as.person("J. Douglas Armstrong"),
+                        as.person("Oksana Sorokina")),
+  journal  = "Bioinformatics Advances",
+  year     = 2023,
+  pages    = "vbad137",
+  doi      = "10.1093/bioadv/vbad137"
+)
