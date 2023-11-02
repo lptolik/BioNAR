@@ -9,9 +9,9 @@
 #' @param alg algorithm name
 #' @param weights The weights of the edges. It must be a positive numeric
 #'        vector, NULL or NA. If it is NULL and the input graph has a ‘weight’
-#'        edge attribute, then that attribute will be used. If NULL and no such
+#'        edge attribute, then that attribute will be used. If it is NULL and no such
 #'        attribute is present, then the edges will have equal weights. Set
-#'        this to NA if the graph was a ‘weight’ edge attribute, but you don't
+#'        this to NA if the graph has a ‘weight’ edge attribute, but you don't
 #'        want to use it for community detection. A larger edge weight means a
 #'        stronger connection for this function. The weights value is ignored
 #'        for the \code{spectral} clustering.
