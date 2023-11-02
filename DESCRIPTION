@@ -36,5 +36,6 @@ Suggests:
     devtools, pander, plotly, randomcoloR
 Config/testthat/edition: 3
 VignetteBuilder: knitr
+BugReports: https://github.com/lptolik/BioNAR/issues/
 biocViews: Software, GraphAndNetwork, Network
 LazyData: true
