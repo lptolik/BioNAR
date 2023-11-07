@@ -13,6 +13,13 @@ clustering. Package also enables estimating of co-occurrence of
 diseases across the network and specific clusters pointing towards
 shared/common mechanisms.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item Report bugs at \url{https://github.com/lptolik/BioNAR/issues/}
+}
+
+}
 \author{
 \strong{Maintainer}: Anatoly Sorokin \email{lptolik@gmail.com}
 
