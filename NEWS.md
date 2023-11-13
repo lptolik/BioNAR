@@ -1,3 +1,7 @@
+# BioNAR 1.5.0.100
+
+* Parallel version of centrality measure calculations
+
 # BioNAR 1.3
 
 * Take into account edge weights in clustering algorithms and centrality measure
