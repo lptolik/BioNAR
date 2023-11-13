@@ -216,15 +216,14 @@ MAD <- function(X) {
 #' @family {Parallel Functions}
 #'
 #' @examples
-#' library(synaptome.db)
-#' cid<-match('Presynaptic',getCompartments()$Name)
-#' t<-getAllGenes4Compartment(cid)
-#' gg<-graphFromSynaptomeByEntrez(t$HumanEntrez)
 #' system.time(m<-getCentralityMatrix(gg))
 #' system.time(m0<-getCentralityMatrix(gg,BPparam=BiocParallel::SerialParam()))
 #' identical(m,m0)
 getCentralityMatrix <- function(gg,weights = NULL,BPparam=bpparam()) {
     tmp <- makeCentralityMatrix(gg,weights = weights,BPparam=BPparam)
+#' file <- system.file("extdata", "PPI_Presynaptic.csv", package = "BioNAR")
+#' tbl <- read.csv(file, sep="\t")
+#' gg <- buildNetwork(tbl)
     return(tmp)
 }
 
@@ -252,10 +251,11 @@ makeCentralityMatrix <- function(gg,weights = NULL,BPparam=NULL) {
         distL <- NA
         weights <- NA
     }
-    N  <- vcount(gg)
+    ID <- V(gg)$name
+    N  <- length(ID)
     if(is.directed(gg)){
         CN  <- c("ID", "DEG", "iDEG", "oDEG", "BET", "dBET", "CC", "SL",
-                 "PR", "dPR")
+                 "mnSP", "PR", "dPR", "sdSP")
     }else{
         CN  <- c("ID", "DEG", "BET", "CC", "SL", "PR")
     }
@@ -606,10 +606,9 @@ getPA <- function(gg, pwr, ...) {
 #' @seealso getCentralityMatrix
 #' @export
 #' @examples
-#' library(synaptome.db)
-#' cid<-match('Presynaptic',getCompartments()$Name)
-#' t<-getAllGenes4Compartment(cid)
-#' gg<-graphFromSynaptomeByEntrez(t$HumanEntrez)
+#' file <- system.file("extdata", "PPI_Presynaptic.csv", package = "BioNAR")
+#' tbl <- read.csv(file, sep="\t")
+#' gg <- buildNetwork(tbl)
 #' m<-getCentralityMatrix(gg)
 #' ecdfL<-getGraphCentralityECDF(m)
 getGraphCentralityECDF <- function(m) {
