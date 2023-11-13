@@ -30,8 +30,9 @@ but inhibition relationships in the network.
 \details{
 Algorithm proposed in:
 
-Santolini,M. and Barabasi,A.-L. (2018) Predicting perturbation patterns from
-the topology of biological networks. Proc Natl Acad Sci USA, 169, 201720589.
+Santolini,M. and Barabasi,A.-L. (2018) "Predicting perturbation patterns from
+the topology of biological networks" Proc Natl Acad Sci USA, 169, 201720589.
+\url{doi:10.1073/pnas.1720589115}
 }
 \examples{
 data(karate, package='igraphdata')

@@ -38,6 +38,54 @@ metlMatrix<-function(sparceM){
     return(d)
 }
 
+#' Calculate propagate matrix from the topology and edge weights
+#' 
+#' 
+#' Algorithm proposed in:
+#'
+#' Oron Vanunu, Oded Magger, Eytan Ruppin, Tomer Shlomi, Roded Sharan (2010) 
+#' "Associating Genes and Protein Complexes with Disease via Network Propagation" 
+#' PLoS Computational Biology <doi:10.1371/journal.pcbi.100064>
+#' 
+#' @param g igraph object
+#' @param attr NULL or the name of edge attribute containing numerical weight
+#'         values
+#'
+#' @return sparce propagation matrix defined by the network topology and
+#'         edge attribute \code{attr} values
+#' @export
+#' @import Matrix
+#' @importFrom igraph as_adjacency_matrix
+#' @importFrom igraph edge_attr
+#' @importFrom igraph edge_attr_names
+#' @examples
+#' data(karate, package='igraphdata')
+#' w<-getPropagationMatrix(karate,attr='weight')
+getPropagationMatrix<-function(g,attr=NULL){
+  if(!is.null(attr) ){
+    if(!(attr %in% edge_attr_names(g))){
+      stop('Attr shold be either NULL or edge attribute name.\n')
+    }
+    attv<-edge_attr(g,attr)
+    if(any(is.na(attv))){
+      stop('Attr values shold not contain NAs.\n')
+    }
+    if(any(!is.numeric(attv))){
+      stop('Attr values shold be numeric.\n')
+    }
+  }
+  vcg<- length(V(g))
+  Ws <- as_adjacency_matrix(g,type='both',attr=attr,sparse = TRUE)
+  D1s <- Diagonal(n=vcg,
+                  x=ifelse(sqrt(apply(abs(Ws),1,sum))==0,0,
+                           1/sqrt(apply(abs(Ws),1,sum))))
+  D2s <- Diagonal(n=vcg,
+                  x=ifelse(sqrt(apply(abs(Ws),2,sum))==0,0,
+                           1/sqrt(apply(abs(Ws),2,sum))))
+  Wps <- D1s %*% Ws %*% D2s
+  return(Wps)
+}
+
 #' Calculate DYNAMO sensitivity matrix.
 #'
 #' This function calculates sensitivity matrix that represents perturbation
@@ -47,9 +95,9 @@ metlMatrix<-function(sparceM){
 #'
 #' Algorithm proposed in:
 #'
-#' Santolini,M. and Barabasi,A.-L. (2018) Predicting perturbation patterns from
-#' the topology of biological networks. Proc Natl Acad Sci USA, 169, 201720589.
-#'
+#' Santolini,M. and Barabasi,A.-L. (2018) "Predicting perturbation patterns from
+#' the topology of biological networks" Proc Natl Acad Sci USA, 169, 201720589.
+#' <doi:10.1073/pnas.1720589115>
 #'
 #'
 #' @param g igraph object
@@ -85,14 +133,7 @@ getDYNAMO<-function(g,attr=NULL,vid='name',alpha = .9){
         }
     }
     vcg<- length(V(g))
-    Ws <- as_adjacency_matrix(g,type='both',attr=attr,sparse = TRUE)
-    D1s <- Diagonal(n=vcg,
-                    x=ifelse(sqrt(apply(abs(Ws),1,sum))==0,0,
-                             1/sqrt(apply(abs(Ws),1,sum))))
-    D2s <- Diagonal(n=vcg,
-                    x=ifelse(sqrt(apply(abs(Ws),2,sum))==0,0,
-                             1/sqrt(apply(abs(Ws),2,sum))))
-    Wps <- D1s %*% Ws %*% D2s
+    Wps <- getPropagationMatrix(g,type=type,attr = attr)
     Is <- Diagonal(n=vcg)
     Msprince_dir_sign <- solve(Is-alpha * Wps) * (1-alpha)
     if(!is.null(vid) && (vid %in% vertex_attr_names(g))){
