@@ -31,7 +31,6 @@ knitr::opts_chunk$set(
 ```{r setup, echo=FALSE}
 library(knitr)
 library(BioNAR)
-library(synaptome.db)
 library(ggplot2)
 library(pander)
 library(ggrepel)
@@ -137,7 +136,7 @@ specific function or disease, or any other annotation.
 The case study illustrates the package functionality for the protein-protein 
 interaction network for the presynaptic compartment of the synapse generated 
 from Synaptic proteome database (Sorokina et al., 2021) with Synaptome.db 
-package. The network has 1073 vertices and 3346 edges, step by step analysis is 
+package. The network has 1073 vertices and 6620 edges, step by step analysis is 
 shown below.
 
 # Build the network
@@ -160,24 +159,6 @@ summary(gg)
 
 ```
 
-## Build a network given a node list extracted from SynaptomeDB
-The command provides proxy for Synaptome.db package, enabling building the 
-protein-protein interaction (PPI) network for entire synaptic compartment 
-(pre-, or post-synaptic)
-
-```{r net_from_SynaptomeDB}
-# Let's get the ID for presynaptic compartment
-cid<-match('Presynaptic',getCompartments()$Name) 
-cid
-# Now we need to collect all the gene IDs for presinaptic  compartment
-t<-getAllGenes4Compartment(cid) 
-dim(t)
-head(t)
-# finally, build the graph using respecctive gene EntrezIDs as node IDs
-gg<-graphFromSynaptomeByEntrez(t$HumanEntrez) 
-summary(gg)
-
-```
 ## Use a predifined network
 Any predefined network stored as a graph file (e.g. .gml, .graphml) can be 
 loaded for further analysis using Igraph's functionality.

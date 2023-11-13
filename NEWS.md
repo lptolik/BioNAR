@@ -4,12 +4,8 @@
   calculations.
 * Add calculation of the DYNAMO perturbation pattern from signed weight directed
   networks proposed in Santolini,M. and Barabasi,A.-L. (2018) PNAS 169, 201720589
-* Parallel calculations are implemented for Linux and MacOS
-* Decoupled from synaptome.db and synaptome.data packages. The SOCK cluster parallelisation requires
-  to load all libraries on each worker. The AnnotationHub packages, such as
-  synaptome.data, takes a substantial time to load, and that diminishes almost 
-  all benefits of parallelisation. So to make parallel code faster we have moved
-  synaptome.db from Imports to Suggests and use it only in examples and vignette.
+* Decoupled from synaptome.db and synaptome.data packages. All code, related
+  to graph building from the synaptome.db data is moved to synaptome.db package.
 
 # BioNAR 1.2.1
 

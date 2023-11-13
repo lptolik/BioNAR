@@ -4,7 +4,7 @@
 \alias{getCentralityMatrix}
 \title{Calculate centrality measures for graph nodes.}
 \usage{
-getCentralityMatrix(gg, weights = NULL, BPparam = bpparam())
+getCentralityMatrix(gg, weights = NULL)
 }
 \arguments{
 \item{gg}{igraph object}
@@ -13,10 +13,6 @@ getCentralityMatrix(gg, weights = NULL, BPparam = bpparam())
 NULL and the graph has a weight edge attribute, then the attribute
 is used. If this is NA then no weights are used (even if the graph
 has a weight attribute).}
-
-\item{BPparam}{An optional \code{\link[BiocParallel]{BiocParallelParam}}
-instance defining the parallel back-end to be used during evaluation
-to be used by \code{\link[BiocParallel]{bplapply}} function.}
 }
 \value{
 data.frame with following columns:
@@ -50,26 +46,12 @@ Taking into account that all methods in \code{\link{getClustering}} treat
 edge \code{weights} in the same way as \code{\link[igraph]{page.rank}}, we
 calculate the \code{distance}=1/\code{weights} as edge weights for
 \code{BET}, \code{dBET}, \code{mnSP}, and \code{sdSP} values. So we treat
-\code{weights} in the package consistently as the strength and closeness of
+\code{weights} in the package consistently as the strength and closiness of
 vertices, rather the distance between them.
-
-This function is able to use parallel environment, when avaliable. Parameter
-\code{BPparam} specifies an optional \code{\link[BiocParallel]{BiocParallelParam}}
-instance defining the parallel back-end to be used during evaluation
-to be used by \code{\link[BiocParallel]{bplapply}} function.
 }
 \examples{
-library(synaptome.db)
-cid<-match('Presynaptic',getCompartments()$Name)
-t<-getAllGenes4Compartment(cid)
-gg<-graphFromSynaptomeByEntrez(t$HumanEntrez)
-system.time(m<-getCentralityMatrix(gg))
-system.time(m0<-getCentralityMatrix(gg,BPparam=BiocParallel::SerialParam()))
-identical(m,m0)
+file <- system.file("extdata", "PPI_Presynaptic.csv", package = "BioNAR")
+tbl <- read.csv(file, sep="\t")
+gg <- buildNetwork(tbl)
+m<-getCentralityMatrix(gg)
 }
-\seealso{
-Other {Parallel Functions}: 
-\code{\link{calcCentrality}()},
-\code{\link{getRandomGraphCentrality}()}
-}
-\concept{{Parallel Functions}}

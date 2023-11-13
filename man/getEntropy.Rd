@@ -46,11 +46,15 @@ approximate scale-free topologies, we see a clear bi-modal response
 between over-weighted vertices and their degree and an opposing bi-phasic
 response in under-weighted vertices and their degrees.
 }
+\note{
+Entropy is calculated with respect to GeneName property, if there is no such
+vertex attribute in the graph vertex name will be copied to the GeneName
+attribute. If any NA is found in GeneNames error will be thrown.
+}
 \examples{
-library(synaptome.db)
-cid<-match('Presynaptic', getCompartments()$Name)
-t<-getAllGenes4Compartment(cid)
-gg<-graphFromSynaptomeByEntrez(t$HumanEntrez)
+file <- system.file("extdata", "PPI_Presynaptic.csv", package = "BioNAR")
+tbl <- read.csv(file, sep="\t")
+gg <- buildNetwork(tbl)
 gg<-annotateGeneNames(gg)
 e<- getEntropy(gg)
 }

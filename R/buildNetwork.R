@@ -147,10 +147,10 @@ addEdgeAtts <- function(GG, gg){
 
 #' Build network from data.table
 #'
-#' Wrapper for \code{\link[igraph]{graph.data.frame}} function which will always
-#' return the largest connect component for a given network \code{ff}.
-#' The function will also #' annotated the edges in \code{ff} with PubMed data
-#' if it exits.
+#' Wrapper for \code{\link[igraph]{graph_from_data_frame}} function which will
+#' always return the largest connect component for a given network \code{ff}.
+#' The function will also annotated the edges in \code{ff} with PubMed data
+#' from \code{kw} if provided.
 #'
 #'
 #' @param ff network structure data.frame with first two columns defining the
@@ -170,7 +170,7 @@ addEdgeAtts <- function(GG, gg){
 #' V(gg)$name
 buildNetwork<-function(ff, kw=NA,LCC=TRUE,simplify=TRUE){
     #--- build raw graph
-    GG <- graph.data.frame(ff[, seq_len(2)], directed=FALSE)
+    GG <- graph_from_data_frame(ff[, seq_len(2)], directed=FALSE)
     if( !is.na(kw) ){
     GG <- set.edge.attribute(GG, "METHOD", E(GG), as.character(ff[, 3]))
     GG <- set.edge.attribute(GG, "TYPE", E(GG), as.character(ff[, 7]))
@@ -206,10 +206,9 @@ buildNetwork<-function(ff, kw=NA,LCC=TRUE,simplify=TRUE){
 #' @export
 #'
 #' @examples
-#' library(synaptome.db)
-#' cid<-match('Presynaptic', getCompartments()$Name)
-#' t<-getAllGenes4Compartment(cid)
-#' gg<-graphFromSynaptomeByEntrez(t$HumanEntrez)
+#' file <- system.file("extdata", "PPI_Presynaptic.csv", package = "BioNAR")
+#' tbl <- read.csv(file, sep="\t")
+#' gg <- buildNetwork(tbl)
 #' calcSparsness(gg)
 calcSparsness<-function(gg){
     N<-igraph::vcount(gg)

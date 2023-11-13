@@ -32,10 +32,11 @@ RdMacros: Rdpack
 Suggests: 
     knitr, BiocStyle, magick,
     rmarkdown,
-    igraphdata, synaptome.db (>= 0.99.13),
+    igraphdata, 
     testthat (>= 3.0.0), vdiffr,
     devtools, pander, plotly, randomcoloR
 Config/testthat/edition: 3
 VignetteBuilder: knitr
+BugReports: https://github.com/lptolik/BioNAR/issues/
 biocViews: Software, GraphAndNetwork, Network
 LazyData: true

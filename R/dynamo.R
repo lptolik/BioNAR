@@ -102,3 +102,5 @@ getDYNAMO<-function(g,attr=NULL,vid='name',alpha = .9){
     }
     return(Msprince_dir_sign)
 }
+
+

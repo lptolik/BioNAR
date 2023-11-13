@@ -85,16 +85,14 @@ NULL
 #'
 #'
 #'
-#' @name diseasome.rda
 #' @keywords diseasome
 #' @keywords graphs
-#' @keywords file
 #' @source Goh, K.-I. et al. The human disease network. Proc. Natl. Acad. Sci.
 #' U.S.A. 104, 8685–8690 (2007).
 #' https://pnas.org/doi/full/10.1073/pnas.0701361104
 #' @docType data
 #'
-NULL
+"diseasome"
 
 #' Annotation from Gene Ontology Biological Process (GO_BP)
 #'
