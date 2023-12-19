@@ -248,7 +248,7 @@ makeCentralityMatrix <- function(gg,weights = NULL) {
             vids = V(gg),
             directed = TRUE,
             weights = weights,
-            options = igraph.arpack.default
+            options = igraph.arpack_default
         )$vector
     }
     tmp$BET <- betweenness(gg,directed = FALSE,weights = distL)
