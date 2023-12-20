@@ -202,6 +202,7 @@ MAD <- function(X) {
 #'          (directed graph only)
 #' * sdSP - standard deviation of the shortest path
 #' @export
+#' @importFrom igraph arpack_defaults
 #'
 #' @examples
 #' file <- system.file("extdata", "PPI_Presynaptic.csv", package = "BioNAR")
@@ -248,7 +249,7 @@ makeCentralityMatrix <- function(gg,weights = NULL) {
             vids = V(gg),
             directed = TRUE,
             weights = weights,
-            options = igraph.arpack_default
+            options = arpack_defaults()
         )$vector
     }
     tmp$BET <- betweenness(gg,directed = FALSE,weights = distL)
@@ -262,7 +263,7 @@ makeCentralityMatrix <- function(gg,weights = NULL) {
             vids = V(gg),
             directed = FALSE,
             weights = weights,
-            options = igraph.arpack.default
+            options = arpack_defaults()
         )$vector
     tmp$sdSP  <- as.character(res[, 3])
     return(tmp)
