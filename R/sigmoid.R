@@ -243,6 +243,9 @@ fitSigmoid<-function(stat,SDv=c(0, 0.05, 0.1, 0.5)){
     df<-stat$SUM3
     x.range.value  <- "6.0"
     Xmax <- match(x.range.value,colnames(df))
+    if(is.na(Xmax)){
+        Xmax<-ncol(df)
+    }
     tt   <- df[,seq_len(Xmax)]
     colnames(tt) <- colnames(df)[seq_len(Xmax)]
     N <- length(colnames(tt))
@@ -254,7 +257,10 @@ fitSigmoid<-function(stat,SDv=c(0, 0.05, 0.1, 0.5)){
     rates <- c(-10, -5, -2, -1, -0.5)
 
     resout<-list()
-
+    CNfit <- c("alg", "isConv", "finIter", "finTol",
+               "stopCode", "stopMessage")
+    errorFitInfo<-c("No", "NA", "NA",
+                    "NA")
     for( s in seq_along(SDv) ){
 
         models <- list()
@@ -262,8 +268,6 @@ fitSigmoid<-function(stat,SDv=c(0, 0.05, 0.1, 0.5)){
         gof    <- list()
 
         ## save the fit infomation for each run
-        CNfit             <- c("alg", "isConv", "finTol",
-                               "stopCode", "stopMessage")
         #fitInfo          <- matrix("", ncol=length(CNfit), nrow=length(tt[,1]))
         #colnames(fitInfo) <- CNfit
         #fitInfo[,1]       <- tt[,1]
@@ -273,36 +277,48 @@ fitSigmoid<-function(stat,SDv=c(0, 0.05, 0.1, 0.5)){
 
         for( i in seq_along(tt[,1]) ){
 
-            y <- as.numeric(tt[i,3:N])/as.numeric(tt[i,2])
-            y <- BioNAR:::addNoise(y, SD=SDv[s])#add gaussian noise to our data
+            if(as.numeric(tt[i,2])>0){
+                y <- as.numeric(tt[i,3:N])/as.numeric(tt[i,2])
+                y <- BioNAR:::addNoise(y, SD=SDv[s])#add gaussian noise to our data
 
-            ## starting parameter values for fit
-            pp <- list(a=0, b=round(max(y)), c=-2, d=round(median(x)) )
+                ## starting parameter values for fit
+                pp <- list(a=0, b=round(max(y)), c=-2, d=round(median(x)) )
 
-            ## fit
-            m.s <- minpack.lm::nlsLM(y ~ a + ((b - a)/(1 + exp(-c * (x - d)))),
-                                     start = pp, trace = FALSE,
-                                     control=minpack.lm::nls.lm.control(
-                                         maxiter = 150))
+                ## fit
+                m.s <- try(minpack.lm::nlsLM(y ~ a + ((b - a)/(1 + exp(-c * (x - d)))),
+                                             start = pp, trace = FALSE,
+                                             control=minpack.lm::nls.lm.control(
+                                                 maxiter = 150)),silent=TRUE)
 
-            models[[i]]      <- m.s
-            names(models)[i] <- as.character(tt[i,1])
+                if( !inherits(m.s,'try-error') ){
+                    # models[[i]]      <- m.s
+                    # names(models)[i] <- as.character(tt[i,1])
+                    models[[as.character(tt[i,1])]]      <- m.s
 
-            rm(m.s)
+                    fitInfo <- rbind(fitInfo,
+                                     storeFitInfo( as.character(tt[i,1]),
+                                                   unlist(models[[as.character(tt[i,1])]]$convInfo) ) )
 
-            fitInfo <- rbind(fitInfo,
-                             storeFitInfo( names(models)[i],
-                                           unlist(models[[i]]$convInfo) ) )
+                    parInfo <- rbind(parInfo,
+                                     storeParInfo( as.character(tt[i,1]),
+                                                   unlist(summary(models[[as.character(tt[i,1])]])$parameters[,c(1,2)]) ))
+                }else{
+                    fitInfo <- rbind(fitInfo,
+                                     storeFitInfo( as.character(tt[i,1]),
+                                                   c(errorFitInfo,as.character(m.s))) )
+                    parInfo <- rbind(parInfo,
+                                     storeParInfo( as.character(tt[i,1]),
+                                                   matrix(NA,nrow = 4,ncol=2)))
 
-            parInfo <- rbind(parInfo,
-                             storeParInfo( names(models)[i],
-                            unlist(summary(models[[i]])$parameters[,c(1,2)]) ))
+                }
+                rm(m.s)
+
+            }
 
         }
 
         ##---save the fit infomation
-        colnames(fitInfo) <- c("alg", "isConv", "finIter", "finTol",
-                               "stopCode", "stopMessage")
+        colnames(fitInfo) <- CNfit
         fitInfo$finIter<-as.numeric(fitInfo$finIter)
         fitInfo$finTol<- as.numeric(fitInfo$finTol)
         # write.table(fitInfo, sprintf("%s/FitInfo_sd_%s.csv",plotDIR,SDlab[s]),
@@ -364,5 +380,5 @@ fitSigmoid<-function(stat,SDv=c(0, 0.05, 0.1, 0.5)){
         rm(models, GPLOTS, gof)
 
     }
-return(resout)
+    return(resout)
 }
