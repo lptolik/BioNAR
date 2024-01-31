@@ -243,6 +243,9 @@ fitSigmoid<-function(stat,SDv=c(0, 0.05, 0.1, 0.5)){
     df<-stat$SUM3
     x.range.value  <- "6.0"
     Xmax <- match(x.range.value,colnames(df))
+    if(is.na(Xmax)){
+        Xmax<-ncol(df)
+    }
     tt   <- df[,seq_len(Xmax)]
     colnames(tt) <- colnames(df)[seq_len(Xmax)]
     N <- length(colnames(tt))
