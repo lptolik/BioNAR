@@ -57,7 +57,7 @@ calShorestPaths <- function(gg,distL = NULL) {
     N    <- vcount(gg)
     meas <- matrix(0, nrow = N, ncol = 3)
     for (i in seq_len(N)) {
-        sp <- as.numeric(igraph::shortest.paths(gg, i,mode='all'),weights=distL)
+        sp <- as.numeric(igraph::distances(gg, i,mode='all',weights=distL))
         sp <- sp[-i]
         sp <- sp[!sp == Inf]
         meas[i, 1] <- min(sp)
