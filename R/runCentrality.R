@@ -227,8 +227,12 @@ makeCentralityMatrix <- function(gg,weights = NULL) {
         distL <- NA
         weights <- NA
     }
-    ID <- V(gg)$name
-    N  <- length(ID)
+    if("name" %in% vertex_attr_names(gg)){
+        ID <- V(gg)$name
+    }else{
+        ID<-seq(vcount(gg))
+    }
+    N  <- vcount(gg)
     if(is.directed(gg)){
         CN  <- c("ID", "DEG", "iDEG", "oDEG", "BET", "dBET", "CC", "SL",
                  "mnSP", "PR", "dPR", "sdSP")
@@ -291,12 +295,13 @@ makeDataFrame <- function(m, keep = c('ID')) {
 
 #' Add attributes to the vertex.
 #'
-#' This function suits more for updating calculated vertex properties rathe
+#' This function suits more for updating calculated vertex properties rather
 #' than node annotation. For the later case use \code{\link{annotateVertex}}.
 #'
 #' Unlike \code{\link{annotateVertex}}, which is able to collapse multiple
 #' annotation terms, this function assume that vertex ID values are unique
-#' in the \code{m} matrix.
+#' in the \code{m} matrix and corresponds to the \code{name} vertex attribute.
+#' If graph has no \code{name} vertex attribute error will be raised.
 #'
 #' @param gg igraph object
 #' @param m matrix of values to be applied as vertex attributes.
@@ -314,6 +319,10 @@ makeDataFrame <- function(m, keep = c('ID')) {
 #' V(g1)$capital
 applpMatrixToGraph <- function(gg, m) {
     ggm <- gg
+    if(! "name" %in% vertex_attr_names(gg)){
+        stop("Vertex IDs suppose to be stored in the 'name' attribute.\n")
+    }
+
     measures <- colnames(m)
     id.col <- which(measures == 'ID')
     if(any(table(m[,id.col])>1)){
@@ -327,7 +336,7 @@ applpMatrixToGraph <- function(gg, m) {
         idx <- match(V(gg)$name, m[, id.col])
         naid <- which(is.na(idx))
         if (length(naid) == 0) {
-            ggm <- set.vertex.attribute(
+            ggm <- set_vertex_attr(
                 graph = ggm,
                 name = measures[i],
                 index = V(ggm),
@@ -335,7 +344,7 @@ applpMatrixToGraph <- function(gg, m) {
             )
         } else{
             gindex <- which(!is.na(idx))
-            ggm <- set.vertex.attribute(
+            ggm <- set_vertex_attr(
                 graph = ggm,
                 name = measures[i],
                 index = gindex,
@@ -442,7 +451,9 @@ getRandomGraphCentrality <- function(gg,
         cgnp = sample_correlated_gnp(gg, corr = 0.75, ...),
         rw = rewire(gg, keeping_degseq(niter = 0.25 * ne))
     )
-    V(rg)$name <- V(gg)$name
+    if("name" %in% vertex_attr_names(gg)){
+        V(rg)$name <- V(gg)$name
+    }
     m <- makeCentralityMatrix(rg,weights = weights)
     options(op)
     return(m)

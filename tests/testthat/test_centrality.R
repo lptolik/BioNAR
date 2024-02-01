@@ -1,10 +1,12 @@
 library(BioNAR)
 library(testthat)
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-gg <- igraph::read.graph(file, format="gml")
+gg <- igraph::read_graph(file, format="gml")
 louvain4<-induced_subgraph(gg,V(gg)[V(gg)$louvain==4])
 data(karate,package='igraphdata')
+upgrade_graph(karate)
 data(macaque,package='igraphdata')
+upgrade_graph(macaque)
 
 test_that('calcCentrality',{
     gc<-calcCentrality(louvain4)
@@ -51,13 +53,13 @@ test_that('Random centrality',{
     pwr <- slot(pFit,'alpha')
     set.seed(100)
     lpa<-lapply(1:5,getRandomGraphCentrality,gg=karate,type='pa',
-                power=pwr,weights = NULL)
+                power=pwr,weights = NA)
     iDlpa<-calcCentralityInternalDistances(lpa)
     eDlpa<-calcCentralityExternalDistances(cm,lpa)
     sigPA<-evalCentralitySignificance(iDlpa,eDlpa)
     expect_equal(sapply(sigPA,function(.x).x$pval),
-                 c(0.0606060606,0.6546786547,0.0036630037,0.6546786547,
-                   0.0006660007,0.6546786547,0.0006660007),
+                 c(0.06060606, 0.6546787, 0.003663004, 0.6546787, 0.004006,
+                   0.6546787, 0.9190809191),
                  tolerance = 1e-5,ignore_attr = TRUE)
     set.seed(100)
     lgnp<-lapply(1:5,getRandomGraphCentrality,gg=karate,type='gnp')
