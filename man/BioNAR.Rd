@@ -2,8 +2,8 @@
 % Please edit documentation in R/BioNAR.R
 \docType{package}
 \name{BioNAR}
-\alias{BioNAR}
 \alias{BioNAR-package}
+\alias{BioNAR}
 \title{BioNAR: Biological Network Analysis in R}
 \description{
 The R package BioNAR, developed to step by step analysis of PPI

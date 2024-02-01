@@ -214,7 +214,9 @@ gofs <- function(x, rate, model, sigma2=NULL, countDATA=TRUE ){
 #' Fit Fold-enrichment distribution to sigmoid function
 #'
 #' This function calculates fit of the Fold-Enrichment distribution to the
-#' sigmoid function with the levels of noise specidied in \code{SDV} and return
+#' sigmoid function with the levels of noise specidied in \code{SDV} for all
+#' clustering algorithms, which have non-zero \code{SUM3$`Psig&ORsig`} in the
+#' enrichment table summary results. The function returns
 #' the list in which each element contains result for one of the noise level.
 #'
 #' Results are repersented as a list with five elements:
@@ -238,6 +240,7 @@ gofs <- function(x, rate, model, sigma2=NULL, countDATA=TRUE ){
 #' @importFrom cowplot plot_grid
 #' @importFrom stats confint fisher.test fitted ks.test median
 #' @importFrom stats p.adjust quantile rnorm
+#' @seealso [summaryStats()]
 #' @export
 fitSigmoid<-function(stat,SDv=c(0, 0.05, 0.1, 0.5)){
     df<-stat$SUM3
