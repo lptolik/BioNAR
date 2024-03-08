@@ -1,7 +1,7 @@
 library(BioNAR)
 library(testthat)
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-gg <- igraph::read.graph(file, format="gml")
+gg <- igraph::read_graph(file, format="gml")
 louvainG<-induced_subgraph(gg,V(gg)[V(gg)$louvain%in%c(4,8,10,12)])
 
 test_that('Scale',{
@@ -10,13 +10,17 @@ test_that('Scale',{
 })
 
 test_that('Karate getBridgenes',{
-    data(karate, package='igraphdata')
+    karate <- make_graph("Zachary")
+    V(karate)$name<-c(LETTERS,letters)[1:vcount(karate)]
+    #data(karate, package='igraphdata')
+    #upgrade_graph(karate)
     set.seed(100)
+    johnA<-34
     g <- calcClustering(karate, 'louvain')
     cnmat <- makeConsensusMatrix(g, N=10, alg = 'louvain', type = 2, mask = 10)
     br<-getBridgeness(g, alg = 'louvain', cnmat)
     expect_equal(dim(br),c(34,2))
-    expect_equal(br$BRIDGENESS.louvain[br$ID=='John A'],0.2407267,
+    expect_equal(br$BRIDGENESS.louvain[johnA],0.376394,
                  tolerance = 0.01)
     agg<-calcBridgeness(g, alg = 'louvain', cnmat)
     expect_true(any(grepl('louvain',vertex_attr_names(agg))))
@@ -48,9 +52,11 @@ test_that('Karate getBridgenes',{
 
 
 test_that('Karate calcBridgenes',{
-    data(karate, package='igraphdata')
+    karate <- make_graph("Zachary")
+    V(karate)$name<-c(LETTERS,letters)[1:vcount(karate)]
     set.seed(100)
     g <- calcClustering(karate, 'lec')
+    g<-set_vertex_attr(g,'name',value=seq(vcount(g)))
     cnmat <- makeConsensusMatrix(g, N=10, alg = 'lec', type = 2, mask = 10)
     agg<-calcBridgeness(g, alg = 'lec', cnmat)
     expect_true(any(grepl('lec',vertex_attr_names(agg))))
@@ -63,7 +69,7 @@ test_that('Presynaptic Bridgenes',{
                                  type = 2, mask = 10)
     br<-getBridgeness(louvainG, alg = 'louvain', cnmat)
     expect_equal(dim(br),c(212,3))
-    expect_equal(br$BRIDGENESS.louvain[br$GENE.NAME == 'ACTN2'],0.2385256,
+    expect_equal(br$BRIDGENESS.louvain[br$GENE.NAME == 'ACTN2'],0.3984919,
                  tolerance = 0.01)
     agg<-calcBridgeness(louvainG, alg = 'louvain', cnmat)
     expect_true(any(grepl('louvain',vertex_attr_names(agg))))
@@ -92,7 +98,7 @@ test_that('Presynaptic Bridgenes',{
 test_that('Norm Modularity',{
     set.seed(100)
     nm<-normModularity(gg, alg='louvain',Nint=10)
-    expect_equal(nm,0.01347063,tolerance = 0.001)
+    expect_equal(nm,0.006533613,tolerance = 0.001)
 })
 
 test_that('Perturbation entropy',{

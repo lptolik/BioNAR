@@ -39,7 +39,7 @@ network model, based on analysis described in Menche et al. 2015
 }
 \examples{
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-gg <- igraph::read.graph(file, format="gml")
+gg <- igraph::read_graph(file, format="gml")
 agg<-annotateGeneNames(gg)
 p <- calcDiseasePairs(
 agg,

@@ -8,8 +8,8 @@ intraEdges <- function(GG,
     intra <- NULL #edges in the community CC
     inter <- NULL #edges going out from community CC
     .inc <- NULL #to avoid Check NOTE
-    if (!is.null(igraph::get.vertex.attribute(GG, ALG))) {
-        coms <- get.vertex.attribute(GG, ALG)
+    if (!is.null(igraph::vertex_attr(GG, ALG))) {
+        coms <- vertex_attr(GG, ALG)
         if (length(which(coms == CC)) != 0) {
             ed_cc <- E(GG)[.inc(coms == CC)]
             all_edges_m <- get.edges(GG, ed_cc) #matrix representation
@@ -343,9 +343,9 @@ calcReclusterMatrix <- function(gg,
 #' mem<-calcMembership(karate,alg = alg)
 #' remem<-calcReclusterMatrix(karate,mem,alg,10)
 recluster <- function(GG, ALGN, CnMAX,weights = NULL) {
-    if (!is.null(igraph::get.vertex.attribute(GG, ALGN))) {
+    if (!is.null(igraph::vertex_attr(GG, ALGN))) {
         #--- algorithm clustering 1
-        ALG1 <- get.vertex.attribute(GG, ALGN, V(GG))
+        ALG1 <- vertex_attr(GG, ALGN, V(GG))
         ALG1 <- cbind(V(GG)$name, ALG1)
         Cn <- table(as.numeric(ALG1[, 2]))
         cc <- names(Cn)[Cn > CnMAX]
@@ -483,7 +483,7 @@ sampleGraphClust <-
         cl <- getClustering(ggLCC, alg,weights=weights)
         if (reclust) {
             ggLCC <-
-                igraph::set.vertex.attribute(ggLCC, alg, V(ggLCC),
+                igraph::set_vertex_attr(ggLCC, alg, V(ggLCC),
                                              cl$membership)
             oo <- recluster(ggLCC, alg, Cnmax,weights=weights)
             if (!is.null(oo)) {

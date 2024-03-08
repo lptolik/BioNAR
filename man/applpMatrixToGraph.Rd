@@ -16,13 +16,14 @@ matrix should contains column "ID" to map value to the vertex.}
 modified igraph object
 }
 \description{
-This function suits more for updating calculated vertex properties rathe
+This function suits more for updating calculated vertex properties rather
 than node annotation. For the later case use \code{\link{annotateVertex}}.
 }
 \details{
 Unlike \code{\link{annotateVertex}}, which is able to collapse multiple
 annotation terms, this function assume that vertex ID values are unique
-in the \code{m} matrix.
+in the \code{m} matrix and corresponds to the \code{name} vertex attribute.
+If graph has no \code{name} vertex attribute error will be raised.
 }
 \examples{
 g1 <- make_star(10, mode="undirected")

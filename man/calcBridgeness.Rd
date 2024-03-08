@@ -27,7 +27,9 @@ replaced by the selected algorithm name.
 }
 \examples{
 library(BioNAR)
-data(karate, package='igraphdata')
+karate <- make_graph("Zachary")
+# We need vertex ID in the 'name' attribute of the vertex
+V(karate)$name<-c(LETTERS,letters)[1:vcount(karate)]
 set.seed(100)
 gg <- calcClustering(karate, 'louvain')
 cnmat <- makeConsensusMatrix(gg, N=10, alg = 'louvain', type = 2, mask = 10)

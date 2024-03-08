@@ -165,13 +165,13 @@ loaded for further analysis using Igraph's functionality.
 
 ```{r net_predefind}
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-gg1 <- igraph::read.graph(file,format="gml")
+gg1 <- igraph::read_graph(file,format="gml")
 summary(gg1)
 ```
 
 ```{r cluster_predefind, include=FALSE}
 file <- system.file("extdata", "PPI_cluster.gml", package = "BioNAR")
-ggCluster <- igraph::read.graph(file,format="gml")
+ggCluster <- igraph::read_graph(file,format="gml")
 ```
 
 # Annotate the nodes with node attributes

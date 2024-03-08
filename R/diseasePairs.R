@@ -89,11 +89,11 @@ diseaseOverlap <- function(GG, GDA, disA, disB, OO){
     NIDS2 <- length(IDS2)
 
     #disease A given B
-    paths  <- igraph::shortest.paths(GG, IDS1, IDS2, weights=NA)
+    paths  <- igraph::distances(GG, IDS1, IDS2, weights=NA)
     dsA    <- as.numeric(as.vector(apply(paths, 1, min)))
 
     #disease B given A
-    paths  <- igraph::shortest.paths(GG, IDS2, IDS1, weights=NA)
+    paths  <- igraph::distances(GG, IDS2, IDS1, weights=NA)
     dsB    <- as.numeric(as.vector(apply(paths, 1, min)))
 
     #network-based separation between disease A and B
@@ -134,7 +134,7 @@ diseaseOverlap <- function(GG, GDA, disA, disB, OO){
 #' @examples
 #' options("show.error.messages"=TRUE)
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-#' gg <- igraph::read.graph(file, format="gml")
+#' gg <- igraph::read_graph(file, format="gml")
 #' agg<-annotateGeneNames(gg)
 #' gda<-prepareGDA(agg, 'TopOntoOVGHDOID')
 #' m<-degreeBinnedGDAs(agg, gda, getAnnotationList(gda))
@@ -171,7 +171,7 @@ degreeBinnedGDAs <- function(gg, GDA, dtype) {
 #' @seealso degreeBinnedGDAs
 #' @examples
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-#' gg <- igraph::read.graph(file, format="gml")
+#' gg <- igraph::read_graph(file, format="gml")
 #' agg<-annotateGeneNames(gg)
 #' gda<-prepareGDA(agg, 'TopOntoOVGHDOID')
 #' diseases<-getAnnotationList(gda)
@@ -221,7 +221,7 @@ sampleDegBinnedGDA <- function(org.map, term) {
 #' @seealso escapeAnnotation
 #' @examples
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-#' gg <- igraph::read.graph(file, format="gml")
+#' gg <- igraph::read_graph(file, format="gml")
 #' agg<-annotateGeneNames(gg)
 #' gda<-prepareGDA(agg, 'TopOntoOVGHDOID')
 #' gda<-prepareGDA(agg, 'TopOntoOVGHDOID')
@@ -230,7 +230,7 @@ prepareGDA <- function(gg, name) {
     if (!name %in% vertex_attr_names(gg)) {
         stop("There is no attribute '", name, "' in the graph.\n")
     }
-    gda <- get.vertex.attribute(gg, name)
+    gda <- vertex_attr(gg, name)
     gda <- escapeAnnotation(gda)
     return(gda)
 }
@@ -266,7 +266,7 @@ prepareGDA <- function(gg, name) {
 #' @md
 #' @examples
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-#' gg <- igraph::read.graph(file, format="gml")
+#' gg <- igraph::read_graph(file, format="gml")
 #' agg<-annotateGeneNames(gg)
 #' p <- calcDiseasePairs(
 #' agg,
@@ -327,7 +327,7 @@ calcDiseasePairs <- function(gg,
     for (d in seq_along(diseases)) {
         IDS <- V(gg)$name[grepl(diseases[d], gda, fixed = TRUE)]
         N   <- length(IDS)
-        XX <- igraph::shortest.paths(gg, IDS, IDS, weights = NA)
+        XX <- igraph::distances(gg, IDS, IDS, weights = NA)
         diag(XX) <- NA
         ds <- apply(XX, 1, min, na.rm = TRUE)
         indX <- match(names(ds), oo[, 1])
@@ -421,7 +421,7 @@ toNum <- function(.x) {
 #'
 #' @examples
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-#' gg <- igraph::read.graph(file, format="gml")
+#' gg <- igraph::read_graph(file, format="gml")
 #' agg<-annotateGeneNames(gg)
 #' r <- runPermDisease(
 #' agg,

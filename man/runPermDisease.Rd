@@ -52,7 +52,7 @@ memory and be timeconsuming.
 }
 \examples{
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-gg <- igraph::read.graph(file, format="gml")
+gg <- igraph::read_graph(file, format="gml")
 agg<-annotateGeneNames(gg)
 r <- runPermDisease(
 agg,

@@ -78,11 +78,11 @@ Two types of fold enrichment values calculated as follow:
 \examples{
 options("show.error.messages"=TRUE)
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-g <- igraph::read.graph(file, format="gml")
+g <- igraph::read_graph(file, format="gml")
 anL<-getAnnotationVertexList(g, 'TopOntoOVGHDOID')
 res<-clusterORA(g, alg='louvain', name='TopOntoOVGHDOID', vid='name')
-andf<-unique(data.frame(ID=get.vertex.attribute(g, 'TopOntoOVGHDOID'),
-Term=get.vertex.attribute(g, 'TopOntoOVG')))
+andf<-unique(data.frame(ID=vertex_attr(g, 'TopOntoOVGHDOID'),
+Term=vertex_attr(g, 'TopOntoOVG')))
 rr<-merge(andf, res, by.y='FL', by.x='ID')
 rr[order(rr$cl), ]
 }

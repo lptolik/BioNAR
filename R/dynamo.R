@@ -24,6 +24,7 @@
 #' @export
 #' @examples
 #' data(karate, package='igraphdata')
+#' upgrade_graph(karate)
 #' Ws <- as_adjacency_matrix(karate,type='both',attr='weight',sparse = TRUE)
 #' mdf<-metlMatrix(Ws)
 #' head(mdf)
@@ -68,6 +69,7 @@ metlMatrix<-function(sparceM){
 #' @importFrom igraph edge_attr_names
 #' @examples
 #' data(karate, package='igraphdata')
+#' upgrade_graph(karate)
 #' d<-getDYNAMO(karate,attr='weight')
 #' df<-metlMatrix(d)
 #' head(df)

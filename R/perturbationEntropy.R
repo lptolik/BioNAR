@@ -43,7 +43,9 @@ maxLSi <- function(XX, BASE = 0) {
 #' @import RSpectra
 #' @family {Entropy Functions}
 #' @examples
-#' data(karate, package='igraphdata')
+#' karate <- make_graph("Zachary")
+#' # We need vertex ID in the 'name' attribute of the vertex
+#' V(karate)$name<-c(LETTERS,letters)[1:vcount(karate)]
 #' ent <- getEntropyRate(karate)
 getEntropyRate <- function(gg) {
     V    <- length(V(gg))
@@ -52,7 +54,7 @@ getEntropyRate <- function(gg) {
     Kbar <- mean(ki)
 
     #--- get adjacency matrix for graph
-    A    <- get.adjacency(gg)
+    A    <- as_adjacency_matrix(gg)
 
     #--- get leading eigenvalue and vector
     #R     <- eigen(A)
@@ -179,7 +181,7 @@ getEntropy <- function(gg, maxSr = NULL, exVal = NULL) {
     E    <- ecount(gg)
     ki   <- as.vector(igraph::degree(gg))
     Kbar <- mean(ki)
-    A    <- get.adjacency(gg)
+    A    <- as_adjacency_matrix(gg)
     if (is.null(maxSr)) {
         par <- getEntropyRate(gg)
         maxSr <- par$maxSr
