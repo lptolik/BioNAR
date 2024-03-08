@@ -52,6 +52,7 @@ fSemilocal <- function(gg) {
                vec = meas[, 2])
     return(as.numeric(meas[, 3]))
 }
+
 ##calculate the mean and sd of the shortest paths for each gene
 calShorestPaths <- function(gg,distL = NULL) {
     N    <- vcount(gg)
@@ -171,10 +172,10 @@ MAD <- function(X) {
 #' The edge attribute \code{weights} treated differently by different functions
 #' calculating centrality measures. For example,
 #' \code{\link[igraph]{betweenness}} use \code{weights} as an edge length,
-#' while in \code{\link[igraph]{page.rank}} "an edge with a larger weight is
+#' while in \code{\link[igraph]{page_rank}} "an edge with a larger weight is
 #' more likely to be selected by the surfer", which infer the opposite meaning.
 #' Taking into account that all methods in \code{\link{getClustering}} treat
-#' edge \code{weights} in the same way as \code{\link[igraph]{page.rank}}, we
+#' edge \code{weights} in the same way as \code{\link[igraph]{page_rank}}, we
 #' calculate the \code{distance}=1/\code{weights} as edge weights for
 #' \code{BET}, \code{dBET}, \code{mnSP}, and \code{sdSP} values. So we treat
 #' \code{weights} in the package consistently as the strength and closiness of
@@ -227,9 +228,13 @@ makeCentralityMatrix <- function(gg,weights = NULL) {
         distL <- NA
         weights <- NA
     }
-    ID <- V(gg)$name
-    N  <- length(ID)
-    if(is.directed(gg)){
+    if("name" %in% vertex_attr_names(gg)){
+        ID <- V(gg)$name
+    }else{
+        ID<-seq(vcount(gg))
+    }
+    N  <- vcount(gg)
+    if(is_directed(gg)){
         CN  <- c("ID", "DEG", "iDEG", "oDEG", "BET", "dBET", "CC", "SL",
                  "mnSP", "PR", "dPR", "sdSP")
     }else{
@@ -240,11 +245,11 @@ makeCentralityMatrix <- function(gg,weights = NULL) {
     tmp <- as.data.frame(tmp)
     tmp$ID <- ID
     tmp$DEG <- igraph::degree(graph = gg,mode = 'total')
-    if(is.directed(gg)){
+    if(is_directed(gg)){
         tmp$iDEG <- igraph::degree(graph = gg,mode = 'in')
         tmp$oDEG <- igraph::degree(graph = gg,mode = 'out')
         tmp$dBET <- betweenness(gg,directed = TRUE,weights = distL)
-        tmp$dPR  <- page.rank(
+        tmp$dPR  <- page_rank(
             graph = gg,
             vids = V(gg),
             directed = TRUE,
@@ -258,7 +263,7 @@ makeCentralityMatrix <- function(gg,weights = NULL) {
     tmp$SL <- sl
     res <- calShorestPaths(gg,distL = distL)
     tmp$mnSP  <- res[, 2]
-    tmp$PR  <- page.rank(
+    tmp$PR  <- page_rank(
             graph = gg,
             vids = V(gg),
             directed = FALSE,
@@ -291,12 +296,13 @@ makeDataFrame <- function(m, keep = c('ID')) {
 
 #' Add attributes to the vertex.
 #'
-#' This function suits more for updating calculated vertex properties rathe
+#' This function suits more for updating calculated vertex properties rather
 #' than node annotation. For the later case use \code{\link{annotateVertex}}.
 #'
 #' Unlike \code{\link{annotateVertex}}, which is able to collapse multiple
 #' annotation terms, this function assume that vertex ID values are unique
-#' in the \code{m} matrix.
+#' in the \code{m} matrix and corresponds to the \code{name} vertex attribute.
+#' If graph has no \code{name} vertex attribute error will be raised.
 #'
 #' @param gg igraph object
 #' @param m matrix of values to be applied as vertex attributes.
@@ -314,6 +320,10 @@ makeDataFrame <- function(m, keep = c('ID')) {
 #' V(g1)$capital
 applpMatrixToGraph <- function(gg, m) {
     ggm <- gg
+    if(! "name" %in% vertex_attr_names(gg)){
+        stop("Vertex IDs suppose to be stored in the 'name' attribute.\n")
+    }
+
     measures <- colnames(m)
     id.col <- which(measures == 'ID')
     if(any(table(m[,id.col])>1)){
@@ -327,7 +337,7 @@ applpMatrixToGraph <- function(gg, m) {
         idx <- match(V(gg)$name, m[, id.col])
         naid <- which(is.na(idx))
         if (length(naid) == 0) {
-            ggm <- set.vertex.attribute(
+            ggm <- set_vertex_attr(
                 graph = ggm,
                 name = measures[i],
                 index = V(ggm),
@@ -335,7 +345,7 @@ applpMatrixToGraph <- function(gg, m) {
             )
         } else{
             gindex <- which(!is.na(idx))
-            ggm <- set.vertex.attribute(
+            ggm <- set_vertex_attr(
                 graph = ggm,
                 name = measures[i],
                 index = gindex,
@@ -442,7 +452,9 @@ getRandomGraphCentrality <- function(gg,
         cgnp = sample_correlated_gnp(gg, corr = 0.75, ...),
         rw = rewire(gg, keeping_degseq(niter = 0.25 * ne))
     )
-    V(rg)$name <- V(gg)$name
+    if("name" %in% vertex_attr_names(gg)){
+        V(rg)$name <- V(gg)$name
+    }
     m <- makeCentralityMatrix(rg,weights = weights)
     options(op)
     return(m)

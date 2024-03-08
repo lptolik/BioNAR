@@ -32,11 +32,11 @@ Wrapper function for calculation of clustering for predefined set of ten
 algorithms:
 \itemize{
 \item lec -- leading eigenvector community (version of
-\code{\link[igraph]{leading.eigenvector.community}}),
+\code{\link[igraph]{cluster_leading_eigen}}),
 directed graph will be converted to undirected by
 \code{\link[igraph]{as.undirected}} with mode \code{collapse};
-\item wt -- walktrap community \code{\link[igraph]{walktrap.community}};
-\item fc -- fastgreedy community \code{\link[igraph]{fastgreedy.community}},
+\item wt -- walktrap community \code{\link[igraph]{cluster_walktrap}};
+\item fc -- fastgreedy community \code{\link[igraph]{cluster_fast_greedy}},
 directed graph will be converted to undirected by
 \code{\link[igraph]{as.undirected}} with mode \code{collapse};
 \item infomap -- infomap community \code{\link[igraph]{cluster_infomap}};
@@ -44,11 +44,11 @@ directed graph will be converted to undirected by
 directed graph will be converted to undirected by
 \code{\link[igraph]{as.undirected}} with mode \code{collapse};
 \item sgG1 -- spin-glass model and simulated annealing clustering (version of
-\code{\link[igraph]{spinglass.community}} with spins=500 and gamma=1);
+\code{\link[igraph]{cluster_spinglass}} with spins=500 and gamma=1);
 \item sgG2 -- spin-glass model and simulated annealing clustering (version of
-\code{\link[igraph]{spinglass.community}} with spins=500 and gamma=2);
+\code{\link[igraph]{cluster_spinglass}} with spins=500 and gamma=2);
 \item sgG5 -- spin-glass model and simulated annealing clustering (version of
-\code{\link[igraph]{spinglass.community}} with spins=500 and gamma=7);
+\code{\link[igraph]{cluster_spinglass}} with spins=500 and gamma=7);
 \item spectral -- spectral modularity clustering
 \code{\link[rSpectral]{spectral_igraph_communities}};
 }

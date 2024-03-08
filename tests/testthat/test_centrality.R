@@ -1,10 +1,12 @@
 library(BioNAR)
 library(testthat)
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-gg <- igraph::read.graph(file, format="gml")
+gg <- igraph::read_graph(file, format="gml")
 louvain4<-induced_subgraph(gg,V(gg)[V(gg)$louvain==4])
 data(karate,package='igraphdata')
+upgrade_graph(karate)
 data(macaque,package='igraphdata')
+upgrade_graph(macaque)
 
 test_that('calcCentrality',{
     gc<-calcCentrality(louvain4)
@@ -51,13 +53,13 @@ test_that('Random centrality',{
     pwr <- slot(pFit,'alpha')
     set.seed(100)
     lpa<-lapply(1:5,getRandomGraphCentrality,gg=karate,type='pa',
-                power=pwr,weights = NULL)
+                power=pwr,weights = NA)
     iDlpa<-calcCentralityInternalDistances(lpa)
     eDlpa<-calcCentralityExternalDistances(cm,lpa)
     sigPA<-evalCentralitySignificance(iDlpa,eDlpa)
     expect_equal(sapply(sigPA,function(.x).x$pval),
-                 c(0.0606060606,0.6546786547,0.0036630037,0.6546786547,
-                   0.0006660007,0.6546786547,0.0006660007),
+                 c(0.06060606, 0.6546787, 0.003663004, 0.6546787, 0.004006,
+                   0.6546787, 0.9190809191),
                  tolerance = 1e-5,ignore_attr = TRUE)
     set.seed(100)
     lgnp<-lapply(1:5,getRandomGraphCentrality,gg=karate,type='gnp')
@@ -89,16 +91,16 @@ test_that('Cluster subgraph',{
 test_that('Layouts',{
     alg<-'louvain'
     set.seed(100)
-    mem<-calcMembership(karate,alg = alg)
+    mem<-calcMembership(karate,alg = alg,weights = NA)
     set.seed(100)
     lay<-layoutByCluster(karate,mem)
-    expect_equal(lay[1,],c(-10.1634700,9.7602631),tolerance = 0.001)
+    expect_equal(lay[1,],c(-8.503734,  9.185847),tolerance = 0.001)
     set.seed(100)
     remem<-calcReclusterMatrix(karate,mem,alg,10)
-    expect_equal(unlist(remem[34,c(2,3)]),c(3,4),ignore_attr = TRUE)
+    expect_equal(unlist(remem[34,c(2,3)]),c(3,5),ignore_attr = TRUE)
     set.seed(100)
     lay<-layoutByRecluster(karate,remem)
-    expect_equal(lay[1,],c(6.0216997,14.6233495),tolerance = 0.001)
+    expect_equal(lay[1,],c(16.38576156,  0.04864405),tolerance = 0.001)
     cg<-getCommunityGraph(karate,mem$membership)
-    expect_true(isomorphic(cg,graph_from_literal(A-B-C)))
+    expect_true(isomorphic(cg,graph_from_literal(A-B, A-C-D, A-D)))
 })

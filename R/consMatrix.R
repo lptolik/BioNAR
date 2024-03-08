@@ -105,7 +105,9 @@ matrixDiv <- function(x, y) {
 #' @export
 #' @family {Robustness functions}
 #' @examples
-#' data(karate, package='igraphdata')
+#' karate <- make_graph("Zachary")
+#' # We need vertex ID in the 'name' attribute of the vertex
+#' V(karate)$name<-c(LETTERS,letters)[1:vcount(karate)]
 #' alg<-'louvain'
 #' gg<-calcClustering(karate, alg = alg)
 #' conmat<-makeConsensusMatrix(gg, N=100, mask = 10, alg = alg, type = 2)

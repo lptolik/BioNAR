@@ -13,7 +13,7 @@
 #' summary(lcc)
 findLCC <- function(GG){
 
-    dec <- decompose.graph(GG,mode = 'weak')
+    dec <- decompose(GG,mode = 'weak')
     vc<-vapply(dec,vcount, FUN.VALUE = 0)
     resG<-dec[[which.max(vc)]]
     return(resG)
@@ -88,7 +88,7 @@ findTERM <- function(eatt, TERMS){
 #'
 #' @examples
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-#' GG <- igraph::read.graph(file, format="gml")
+#' GG <- igraph::read_graph(file, format="gml")
 #' gg<-findLCC(GG)
 #' gg <- addEdgeAtts(GG, gg)
 #' edge_attr_names(gg)
@@ -98,14 +98,14 @@ addEdgeAtts <- function(GG, gg){
 
     if( !is.null(ATTS) ){
 
-    ed <- get.edgelist(gg)
+    ed <- as_edgelist(gg)
     M <- length(E(gg))
-    ED <- get.edgelist(GG)
+    ED <- as_edgelist(GG)
 
     VALUES <- list()
 
     for( a in seq_along(ATTS) ){
-        VALUES[[a]] <- get.edge.attribute(GG, ATTS[a], E(GG))
+        VALUES[[a]] <- edge_attr(GG, ATTS[a], E(GG))
         names(VALUES)[a] <- ATTS[a]
     }
 
@@ -136,7 +136,7 @@ addEdgeAtts <- function(GG, gg){
     # cat("done.\n")
 
     for( a in seq_along(ATTS) ){
-        gg <- set.edge.attribute(gg, ATTS[a], E(gg), as.character(RES[, a]))
+        gg <- set_edge_attr(gg, ATTS[a], E(gg), as.character(RES[, a]))
     }
 
     }
@@ -172,16 +172,16 @@ buildNetwork<-function(ff, kw=NA,LCC=TRUE,simplify=TRUE){
     #--- build raw graph
     GG <- graph_from_data_frame(ff[, seq_len(2)], directed=FALSE)
     if( !is.na(kw) ){
-    GG <- set.edge.attribute(GG, "METHOD", E(GG), as.character(ff[, 3]))
-    GG <- set.edge.attribute(GG, "TYPE", E(GG), as.character(ff[, 7]))
+    GG <- set_edge_attr(GG, "METHOD", E(GG), as.character(ff[, 3]))
+    GG <- set_edge_attr(GG, "TYPE", E(GG), as.character(ff[, 7]))
 
     PMIDS <- ifelse(!grepl("unassigned", ff[, 4]),
                     sprintf("PMID:%s", ff[, 4]), ff[, 4])
-    GG <- set.edge.attribute(GG, "PUBMED", E(GG), PMIDS)
+    GG <- set_edge_attr(GG, "PUBMED", E(GG), PMIDS)
 
     YEARS <- kw[match(gsub("PMID:", "", E(GG)$PUBMED), kw[, 1]), 3]
     YEARS <- ifelse(is.na(YEARS), "na", YEARS)
-    GG <- set.edge.attribute(GG, "YEAR", E(GG), YEARS)
+    GG <- set_edge_attr(GG, "YEAR", E(GG), YEARS)
     #---
 
     }

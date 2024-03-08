@@ -22,7 +22,7 @@ vertex degree originally found with that annotation term..
 }
 \examples{
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-gg <- igraph::read.graph(file, format="gml")
+gg <- igraph::read_graph(file, format="gml")
 agg<-annotateGeneNames(gg)
 gda<-prepareGDA(agg, 'TopOntoOVGHDOID')
 diseases<-getAnnotationList(gda)
