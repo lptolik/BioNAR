@@ -43,7 +43,9 @@ maxLSi <- function(XX, BASE = 0) {
 #' @import RSpectra
 #' @family {Entropy Functions}
 #' @examples
-#' data(karate, package='igraphdata')
+#' karate <- make_graph("Zachary")
+#' # We need vertex ID in the 'name' attribute of the vertex
+#' V(karate)$name<-c(LETTERS,letters)[1:vcount(karate)]
 #' ent <- getEntropyRate(karate)
 getEntropyRate <- function(gg) {
     V    <- length(V(gg))

@@ -1,6 +1,7 @@
 library(BioNAR)
 library(testthat)
 data(karate,package='igraphdata')
+upgrade_graph(karate)
 alg<-'louvain'
 #context("Testing robustness calculations")
 test_that("proper algorithm selected",{

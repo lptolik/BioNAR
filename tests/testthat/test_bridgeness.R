@@ -10,7 +10,10 @@ test_that('Scale',{
 })
 
 test_that('Karate getBridgenes',{
-    data(karate, package='igraphdata')
+    karate <- make_graph("Zachary")
+    V(karate)$name<-c(LETTERS,letters)[1:vcount(karate)]
+    #data(karate, package='igraphdata')
+    #upgrade_graph(karate)
     set.seed(100)
     g <- calcClustering(karate, 'louvain')
     cnmat <- makeConsensusMatrix(g, N=10, alg = 'louvain', type = 2, mask = 10)
@@ -48,7 +51,8 @@ test_that('Karate getBridgenes',{
 
 
 test_that('Karate calcBridgenes',{
-    data(karate, package='igraphdata')
+    karate <- make_graph("Zachary")
+    V(karate)$name<-c(LETTERS,letters)[1:vcount(karate)]
     set.seed(100)
     g <- calcClustering(karate, 'lec')
     cnmat <- makeConsensusMatrix(g, N=10, alg = 'lec', type = 2, mask = 10)

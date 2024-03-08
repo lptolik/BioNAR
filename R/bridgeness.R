@@ -23,7 +23,9 @@
 #' @importFrom igraph get.edgelist get.vertex.attribute
 #' @examples
 #' library(BioNAR)
-#' data(karate, package='igraphdata')
+#' karate <- make_graph("Zachary")
+#' # We need vertex ID in the 'name' attribute of the vertex
+#' V(karate)$name<-c(LETTERS,letters)[1:vcount(karate)]
 #' gg <- calcClustering(karate, 'louvain')
 #' cnmat <- makeConsensusMatrix(gg, N=10, alg = 'louvain', type = 2, mask = 10)
 #' br<-getBridgeness(gg, alg = 'louvain', cnmat)
@@ -135,7 +137,9 @@ getBridgeness <- function(gg, alg, conmat) {
 #'
 #' @examples
 #' library(BioNAR)
-#' data(karate, package='igraphdata')
+#' karate <- make_graph("Zachary")
+#' # We need vertex ID in the 'name' attribute of the vertex
+#' V(karate)$name<-c(LETTERS,letters)[1:vcount(karate)]
 #' set.seed(100)
 #' gg <- calcClustering(karate, 'louvain')
 #' cnmat <- makeConsensusMatrix(gg, N=10, alg = 'louvain', type = 2, mask = 10)
@@ -209,7 +213,9 @@ scale <- function(x, VALUE = NULL) {
 #' @import ggplot2
 #'
 #' @examples
-#' data(karate, package='igraphdata')
+#' karate <- make_graph("Zachary")
+#' # We need vertex ID in the 'name' attribute of the vertex
+#' V(karate)$name<-c(LETTERS,letters)[1:vcount(karate)]
 #' set.seed(100)
 #' gg <- calcClustering(karate, 'louvain')
 #' gg <- calcCentrality(gg)
