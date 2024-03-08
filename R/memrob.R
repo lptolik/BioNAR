@@ -46,7 +46,7 @@ getRobustness <- function(gg, alg, conmat) {
         )
     }
     rm <-
-        data.frame(cm = as.numeric(igraph::get.vertex.attribute(gg, alg,
+        data.frame(cm = as.numeric(igraph::vertex_attr(gg, alg,
                                                                 V(gg))))
     cm           <- data.frame(conmat)
 

@@ -1,7 +1,7 @@
 library(BioNAR)
 library(testthat)
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-gg <- igraph::read.graph(file, format="gml")
+gg <- igraph::read_graph(file, format="gml")
 louvainG<-induced_subgraph(gg,V(gg)[V(gg)$louvain%in%c(4,8,10,12)])
 
 test_that('Scale',{
@@ -56,6 +56,7 @@ test_that('Karate calcBridgenes',{
     V(karate)$name<-c(LETTERS,letters)[1:vcount(karate)]
     set.seed(100)
     g <- calcClustering(karate, 'lec')
+    g<-set_vertex_attr(g,'name',value=seq(vcount(g)))
     cnmat <- makeConsensusMatrix(g, N=10, alg = 'lec', type = 2, mask = 10)
     agg<-calcBridgeness(g, alg = 'lec', cnmat)
     expect_true(any(grepl('lec',vertex_attr_names(agg))))

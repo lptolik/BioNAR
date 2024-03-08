@@ -15,11 +15,11 @@
 #' m<-removeVertexTerm(karate, 'color')
 #' vertex_attr_names(m)
 removeVertexTerm <- function(GG, NAME) {
-    if (!is.null(get.vertex.attribute(GG, NAME))) {
-        GG <- remove.vertex.attribute(GG, name = NAME)
+    if (!is.null(vertex_attr(GG, NAME))) {
+        GG <- delete_vertex_attr(GG, name = NAME)
     }
-    if (!is.null(get.vertex.attribute(GG, gsub("_", "", NAME)))) {
-        GG <- remove.vertex.attribute(GG, name = gsub("_", "", NAME))
+    if (!is.null(vertex_attr(GG, gsub("_", "", NAME)))) {
+        GG <- delete_vertex_attr(GG, name = gsub("_", "", NAME))
     }
     return(GG)
 }
@@ -59,7 +59,7 @@ ESC      <- "|"
 #'
 #' @examples
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-#' gg <- igraph::read.graph(file, format="gml")
+#' gg <- igraph::read_graph(file, format="gml")
 #' agg<-annotateGeneNames(gg)
 annotateGeneNames <-
     function(gg, orgDB = org.Hs.eg.db, keytype = "ENTREZID") {
@@ -68,7 +68,7 @@ annotateGeneNames <-
                                                      column = "SYMBOL",
                                                      keytype = keytype))
         gg <- removeVertexTerm(gg, "GeneName")
-        set.vertex.attribute(gg, "GeneName", V(gg), "")
+        set_vertex_attr(gg, "GeneName", V(gg), "")
         V(gg)$GeneName <- gn
         return(gg)
     }
@@ -139,7 +139,7 @@ getDiseases <- function() {
 #'
 #' @return \code{idatt} attribute values
 getIDs <- function(gg,idatt){
-    ids <- get.vertex.attribute(gg,idatt)
+    ids <- vertex_attr(gg,idatt)
     if(any(duplicated(ids))){
         stop("ID attribute ('",idatt,"') should be unique ",
              "for the graph nodes.\n")
@@ -189,10 +189,10 @@ annotateVertex <- function(gg, name, values, idatt='name') {
                        paste(unique(val[vids == .x]), collapse = COLLAPSE),
                    c(ann = ''))
     ggm <- removeVertexTerm(gg, name)
-    ggm <- set.vertex.attribute(graph = ggm,
+    ggm <- set_vertex_attr(graph = ggm,
                                 name = name,
                                 value = '')
-    ggm <- set.vertex.attribute(
+    ggm <- set_vertex_attr(
         graph = ggm,
         name = name,
         index = gidx,
@@ -291,13 +291,13 @@ unescapeAnnotation <- function(annVec, col = COLLAPSE, esc = ESC) {
 #'
 #' @examples
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-#' gg <- igraph::read.graph(file, format="gml")
+#' gg <- igraph::read_graph(file, format="gml")
 #' avl<-getAnnotationVertexList(gg, 'TopOntoOVGHDOID')
 #' head(avl)
 getAnnotationVertexList <-
     function(g, name, vid = 'name', col = COLLAPSE) {
         gda <- prepareGDA(g, name)
-        vertices <- get.vertex.attribute(g, vid)
+        vertices <- vertex_attr(g, vid)
         anNames <- getAnnotationList(gda)
         anL <-
             lapply(anNames, function(.a) {
@@ -322,7 +322,7 @@ getAnnotationVertexList <-
 #' @seealso getAnnotationVertexList
 #' @examples
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-#' gg <- igraph::read.graph(file, format="gml")
+#' gg <- igraph::read_graph(file, format="gml")
 #' annVec<-V(gg)$TopOntoOVG
 #' al<-getAnnotationList(annVec)
 #' al
@@ -380,8 +380,8 @@ annotateTopOntoOVG <- function(gg, dis, idatt='name') {
     gg <- removeVertexTerm(gg, "TopOnto_OVG")
     gg <- removeVertexTerm(gg, "TopOnto_OVG_HDO_ID")
     #--- Set Disease (geneRIF db) attributes in .gml graph
-    set.vertex.attribute(gg, "TopOnto_OVG", V(gg), "")
-    set.vertex.attribute(gg, "TopOnto_OVG_HDO_ID", V(gg), "")
+    set_vertex_attr(gg, "TopOnto_OVG", V(gg), "")
+    set_vertex_attr(gg, "TopOnto_OVG_HDO_ID", V(gg), "")
     disIDS <- dis[, 3]
     disn <- getDiseases()
     dtype <- getDType()
@@ -459,7 +459,7 @@ annotateSCHanno <- function(gg, anno,idatt='name') {
     ids <- getIDs(gg,idatt)
     gg <- removeVertexTerm(gg, "SCHanno")
     #--- Set Family attributes in .gml graph
-    set.vertex.attribute(gg, "SCHanno", V(gg), "")
+    set_vertex_attr(gg, "SCHanno", V(gg), "")
     annoIDS <- as.character(anno[, 3])
     type <-
         unique(unlist(strsplit(as.character(unique(
@@ -499,7 +499,7 @@ annotateSCHanno <- function(gg, anno,idatt='name') {
 #'
 #' @examples
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-#' gg <- igraph::read.graph(file, format="gml")
+#' gg <- igraph::read_graph(file, format="gml")
 #' sfile<-system.file("extdata", "PresynAn.csv", package = "BioNAR")
 #' pres <- read.csv(sfile,skip=1,header=FALSE,strip.white=TRUE,quote="")
 #' gg <- annotatePresynaptic(gg, pres)
@@ -508,7 +508,7 @@ annotatePresynaptic <- function(gg, anno,idatt='name') {
     ids <- getIDs(gg,idatt)
     gg <- removeVertexTerm(gg, "PRESYNAPTIC")
     #--- Set Family attributes in .gml graph
-    set.vertex.attribute(gg, "PRESYNAPTIC", V(gg), "")
+    set_vertex_attr(gg, "PRESYNAPTIC", V(gg), "")
     annoIDS <- as.character(anno[, 3])
     type <-
         unique(unlist(strsplit(as.character(unique(
@@ -556,10 +556,10 @@ annotateInterpro <- function(gg, annoF, annoD,idatt='name') {
     gg <- removeVertexTerm(gg, "InterPro_Domain_ID")
     gg <- removeVertexTerm(gg, "InterPro_Domain")
     #--- Set InterPro_Family attributes in .gml graph
-    set.vertex.attribute(gg, "InterPro_Family_ID", V(gg), "")
-    set.vertex.attribute(gg, "InterPro_Family", V(gg), "")
-    set.vertex.attribute(gg, "InterPro_Domain_ID", V(gg), "")
-    set.vertex.attribute(gg, "InterPro_Domain", V(gg), "")
+    set_vertex_attr(gg, "InterPro_Family_ID", V(gg), "")
+    set_vertex_attr(gg, "InterPro_Family", V(gg), "")
+    set_vertex_attr(gg, "InterPro_Domain_ID", V(gg), "")
+    set_vertex_attr(gg, "InterPro_Domain", V(gg), "")
     annoFIDS <- as.character(annoF[, 3])
     annoDIDS <- as.character(annoD[, 3])
     for (i in seq_along(ids)) {
@@ -645,7 +645,7 @@ annotateInterpro <- function(gg, annoF, annoD,idatt='name') {
 #' @importFrom dplyr filter
 #' @examples
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-#' gg <- igraph::read.graph(file, format="gml")
+#' gg <- igraph::read_graph(file, format="gml")
 #' ggGO <- annotateGOont(gg)
 annotateGOont <- function(gg, orgDB = org.Hs.eg.db, keytype = "ENTREZID",
                           idatt = 'name') {
@@ -726,7 +726,7 @@ annotateGOont <- function(gg, orgDB = org.Hs.eg.db, keytype = "ENTREZID",
 #'
 #' @examples
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-#' gg <- igraph::read.graph(file, format="gml")
+#' gg <- igraph::read_graph(file, format="gml")
 #' sfile<-system.file("extdata", "flatfile.go.MF.csv", package = "BioNAR")
 #' goMF <- read.table(sfile, sep="\t", skip=1, header=FALSE,
 #' strip.white=TRUE, quote="")
@@ -737,8 +737,8 @@ annotateGoMF <- function(gg, annoF,idatt='name') {
     gg <- removeVertexTerm(gg, "GO_MF")
     gg <- removeVertexTerm(gg, "GO_MF_ID")
     #--- Set Disease (geneRIF db) attributes in .gml graph
-    set.vertex.attribute(gg, "GO_MF", V(gg), "")
-    set.vertex.attribute(gg, "GO_MF_ID", V(gg), "")
+    set_vertex_attr(gg, "GO_MF", V(gg), "")
+    set_vertex_attr(gg, "GO_MF_ID", V(gg), "")
     annoFIDS <- as.character(annoF[, 3])
     typeF <-
         unique(unlist(strsplit(as.character(unique(
@@ -792,7 +792,7 @@ annotateGoMF <- function(gg, annoF,idatt='name') {
 #'
 #' @examples
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-#' gg <- igraph::read.graph(file, format="gml")
+#' gg <- igraph::read_graph(file, format="gml")
 #' sfile<-system.file("extdata", "flatfile.go.BP.csv", package = "BioNAR")
 #' goBP <- read.table(sfile, sep="\t", skip=1, header=FALSE,
 #' strip.white=TRUE, quote="")
@@ -803,8 +803,8 @@ annotateGoBP <- function(gg, annoF,idatt='name') {
     gg <- removeVertexTerm(gg, "GO_BP")
     gg <- removeVertexTerm(gg, "GO_BP_ID")
     #--- Set Disease (geneRIF db) attributes in .gml graph
-    set.vertex.attribute(gg, "GO_BP", V(gg), "")
-    set.vertex.attribute(gg, "GO_BP_ID", V(gg), "")
+    set_vertex_attr(gg, "GO_BP", V(gg), "")
+    set_vertex_attr(gg, "GO_BP_ID", V(gg), "")
     annoFIDS <- as.character(annoF[, 3])
     typeF <-
         unique(unlist(strsplit(as.character(unique(
@@ -858,7 +858,7 @@ annotateGoBP <- function(gg, annoF,idatt='name') {
 #'
 #' @examples
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-#' gg <- igraph::read.graph(file, format="gml")
+#' gg <- igraph::read_graph(file, format="gml")
 #' sfile<-system.file("extdata", "flatfile.go.CC.csv", package = "BioNAR")
 #' goCC <- read.table(sfile, sep="\t", skip=1, header=FALSE,
 #' strip.white=TRUE, quote="")
@@ -869,8 +869,8 @@ annotateGoCC <- function(gg, annoF,idatt='name') {
     gg <- removeVertexTerm(gg, "GO_CC")
     gg <- removeVertexTerm(gg, "GO_CC_ID")
 
-    set.vertex.attribute(gg, "GO_CC", V(gg), "")
-    set.vertex.attribute(gg, "GO_CC_ID", V(gg), "")
+    set_vertex_attr(gg, "GO_CC", V(gg), "")
+    set_vertex_attr(gg, "GO_CC_ID", V(gg), "")
     annoFIDS <- as.character(annoF[, 3])
     typeF <-
         unique(unlist(strsplit(as.character(unique(

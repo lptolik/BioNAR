@@ -81,7 +81,7 @@ changeSciNotation <- function(n) {
 #' Legend <- "Presynaptic PPI"
 #'
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-#' gg <- igraph::read.graph(file, format="gml")
+#' gg <- igraph::read_graph(file, format="gml")
 #' pFit <- fitDegree( as.vector(igraph::degree(graph=gg)),
 #' DATAleg=Legend,threads=1, Nsim=nsim)
 fitDegree <- function(DEG,

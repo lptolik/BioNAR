@@ -20,7 +20,7 @@
 #'         second column, the last column contains bridginess values for the
 #          selected clustering algorithm.
 #' @export
-#' @importFrom igraph get.edgelist get.vertex.attribute
+#' @importFrom igraph as_edgelist vertex_attr
 #' @examples
 #' library(BioNAR)
 #' karate <- make_graph("Zachary")
@@ -61,21 +61,21 @@ getBridgeness <- function(gg, alg, conmat) {
         meas[, 2] <- as.character(V(gg)$GeneName)
     }
     ##get consensus matrix indices for each edge in edgelist
-    indA <- match(get.edgelist(gg)[, 1], rownames(conmat))
-    indB <- match(get.edgelist(gg)[, 2], rownames(conmat))
+    indA <- match(as_edgelist(gg)[, 1], rownames(conmat))
+    indB <- match(as_edgelist(gg)[, 2], rownames(conmat))
     dat  <- data.frame(indA, indB)
     ##get community assigned to each vertex in edgelist from the algorithm 'alg'
-    elA <- get.vertex.attribute(gg, alg,
-                                V(gg))[match(get.edgelist(gg)[, 1],
+    elA <- vertex_attr(gg, alg,
+                                V(gg))[match(as_edgelist(gg)[, 1],
                                                 V(gg)$name)]
-    elB <- get.vertex.attribute(gg, alg,
-                                V(gg))[match(get.edgelist(gg)[, 2],
+    elB <- vertex_attr(gg, alg,
+                                V(gg))[match(as_edgelist(gg)[, 2],
                                                 V(gg)$name)]
     ##for each edge record the community assigned to each vertex and it's
     ##consensus matrix value
     ed      <- matrix(ncol = 6, nrow = length(E(gg)))
-    ed[, 1]  <- igraph::get.edgelist(gg)[, 1]
-    ed[, 2]  <- igraph::get.edgelist(gg)[, 2]
+    ed[, 1]  <- igraph::as_edgelist(gg)[, 1]
+    ed[, 2]  <- igraph::as_edgelist(gg)[, 2]
     ed[, 3]  <- elA
     ed[, 4]  <- elB
     ed[, 5]  <-
@@ -84,14 +84,14 @@ getBridgeness <- function(gg, alg, conmat) {
     ed[, 6]  <- (as.numeric(elA) - as.numeric(elB))
     ##maximum number of communities found by clustering algorithm
     Cmax  <-
-        max(as.numeric(igraph::get.vertex.attribute(gg, alg, V(gg))))
+        max(as.numeric(igraph::vertex_attr(gg, alg, V(gg))))
     ##loop over each vertex in the graph
     for (i in seq_along(V(gg))) {
         ##get edges belonging to the i'th veretx
         ind <-
             which(ed[, 1] == V(gg)$name[i] | ed[, 2] == V(gg)$name[i])
         ##get community belonging to the i'th vertex
-        c <- igraph::get.vertex.attribute(gg, alg, V(gg))[i]
+        c <- igraph::vertex_attr(gg, alg, V(gg))[i]
         ##reorder edge communities, so ed[, 3] equals current community no: 'c'
         for (k in seq_along(ind)) {
             if (ed[ind[k], 6] != 0 && ed[ind[k], 4] == c) {
@@ -208,7 +208,7 @@ scale <- function(x, VALUE = NULL) {
 #'
 #' @return \code{\link[ggplot2]{ggplot}} object with plot
 #' @export
-#' @importFrom igraph get.vertex.attribute
+#' @importFrom igraph vertex_attr
 #' @importFrom ggrepel geom_label_repel
 #' @import ggplot2
 #'
@@ -251,12 +251,12 @@ plotBridgeness<-function(gg,alg,VIPs,
     # ymax        <- 1
     # Xlab <- "Semilocal Centrality (SL)"
     # Ylab <- "Bridgeness (B)"
-    X    <- as.numeric(get.vertex.attribute(gg,Xatt,V(gg)))
+    X    <- as.numeric(vertex_attr(gg,Xatt,V(gg)))
     if(length(X)==0){
         stop('Graph vertices have no numerical attribute "',Xatt,'"\n')
     }
     X    <- scale(X)
-    Y   <- as.numeric(get.vertex.attribute(gg,
+    Y   <- as.numeric(vertex_attr(gg,
                                            sprintf("BRIDGENESS.%s", alg),
                                            V(gg)))
     if(length(Y)==0){

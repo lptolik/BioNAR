@@ -65,11 +65,11 @@
 #' @examples
 #' options("show.error.messages"=TRUE)
 #' file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-#' g <- igraph::read.graph(file, format="gml")
+#' g <- igraph::read_graph(file, format="gml")
 #' anL<-getAnnotationVertexList(g, 'TopOntoOVGHDOID')
 #' res<-clusterORA(g, alg='louvain', name='TopOntoOVGHDOID', vid='name')
-#' andf<-unique(data.frame(ID=get.vertex.attribute(g, 'TopOntoOVGHDOID'),
-#' Term=get.vertex.attribute(g, 'TopOntoOVG')))
+#' andf<-unique(data.frame(ID=vertex_attr(g, 'TopOntoOVGHDOID'),
+#' Term=vertex_attr(g, 'TopOntoOVG')))
 #' rr<-merge(andf, res, by.y='FL', by.x='ID')
 #' rr[order(rr$cl), ]
 clusterORA <- function(g,
@@ -79,14 +79,14 @@ clusterORA <- function(g,
                        alpha = 1.0,
                        col = COLLAPSE) {
     anL <- getAnnotationVertexList(g, name)
-    cl <- make_clusters(g, as.numeric(get.vertex.attribute(g, alg)))
+    cl <- make_clusters(g, as.numeric(vertex_attr(g, alg)))
     vcnt <- vcount(g)
     forafun <- function(.i) {
         gids<-which(membership(cl) == .i)
         fres <- fora(
             anL,
-            get.vertex.attribute(g, vid)[gids],
-            universe = as.character(get.vertex.attribute(g, vid))
+            vertex_attr(g, vid)[gids],
+            universe = as.character(vertex_attr(g, vid))
         )
         cn<-length(gids)
         den<-cn/vcnt

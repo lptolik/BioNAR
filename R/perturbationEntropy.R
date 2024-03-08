@@ -54,7 +54,7 @@ getEntropyRate <- function(gg) {
     Kbar <- mean(ki)
 
     #--- get adjacency matrix for graph
-    A    <- get.adjacency(gg)
+    A    <- as_adjacency_matrix(gg)
 
     #--- get leading eigenvalue and vector
     #R     <- eigen(A)
@@ -181,7 +181,7 @@ getEntropy <- function(gg, maxSr = NULL, exVal = NULL) {
     E    <- ecount(gg)
     ki   <- as.vector(igraph::degree(gg))
     Kbar <- mean(ki)
-    A    <- get.adjacency(gg)
+    A    <- as_adjacency_matrix(gg)
     if (is.null(maxSr)) {
         par <- getEntropyRate(gg)
         maxSr <- par$maxSr

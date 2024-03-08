@@ -52,6 +52,7 @@ fSemilocal <- function(gg) {
                vec = meas[, 2])
     return(as.numeric(meas[, 3]))
 }
+
 ##calculate the mean and sd of the shortest paths for each gene
 calShorestPaths <- function(gg,distL = NULL) {
     N    <- vcount(gg)
@@ -171,10 +172,10 @@ MAD <- function(X) {
 #' The edge attribute \code{weights} treated differently by different functions
 #' calculating centrality measures. For example,
 #' \code{\link[igraph]{betweenness}} use \code{weights} as an edge length,
-#' while in \code{\link[igraph]{page.rank}} "an edge with a larger weight is
+#' while in \code{\link[igraph]{page_rank}} "an edge with a larger weight is
 #' more likely to be selected by the surfer", which infer the opposite meaning.
 #' Taking into account that all methods in \code{\link{getClustering}} treat
-#' edge \code{weights} in the same way as \code{\link[igraph]{page.rank}}, we
+#' edge \code{weights} in the same way as \code{\link[igraph]{page_rank}}, we
 #' calculate the \code{distance}=1/\code{weights} as edge weights for
 #' \code{BET}, \code{dBET}, \code{mnSP}, and \code{sdSP} values. So we treat
 #' \code{weights} in the package consistently as the strength and closiness of
@@ -233,7 +234,7 @@ makeCentralityMatrix <- function(gg,weights = NULL) {
         ID<-seq(vcount(gg))
     }
     N  <- vcount(gg)
-    if(is.directed(gg)){
+    if(is_directed(gg)){
         CN  <- c("ID", "DEG", "iDEG", "oDEG", "BET", "dBET", "CC", "SL",
                  "mnSP", "PR", "dPR", "sdSP")
     }else{
@@ -244,11 +245,11 @@ makeCentralityMatrix <- function(gg,weights = NULL) {
     tmp <- as.data.frame(tmp)
     tmp$ID <- ID
     tmp$DEG <- igraph::degree(graph = gg,mode = 'total')
-    if(is.directed(gg)){
+    if(is_directed(gg)){
         tmp$iDEG <- igraph::degree(graph = gg,mode = 'in')
         tmp$oDEG <- igraph::degree(graph = gg,mode = 'out')
         tmp$dBET <- betweenness(gg,directed = TRUE,weights = distL)
-        tmp$dPR  <- page.rank(
+        tmp$dPR  <- page_rank(
             graph = gg,
             vids = V(gg),
             directed = TRUE,
@@ -262,7 +263,7 @@ makeCentralityMatrix <- function(gg,weights = NULL) {
     tmp$SL <- sl
     res <- calShorestPaths(gg,distL = distL)
     tmp$mnSP  <- res[, 2]
-    tmp$PR  <- page.rank(
+    tmp$PR  <- page_rank(
             graph = gg,
             vids = V(gg),
             directed = FALSE,
