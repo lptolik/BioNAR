@@ -42,7 +42,9 @@ that vertex attribute name won't exactly match name of the algorithm from
 \code{link{getClustering}}.
 }
 \examples{
-data(karate, package='igraphdata')
+karate <- make_graph("Zachary")
+# We need vertex ID in the 'name' attribute of the vertex
+V(karate)$name<-c(LETTERS,letters)[1:vcount(karate)]
 g<-calcClustering(karate, 'louvain')
 vertex_attr_names(g)
 graph_attr(g, 'louvain')

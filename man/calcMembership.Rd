@@ -32,7 +32,9 @@ Calculates the clustering membership for each of the 10 clustering algorithms
 defined in function \code{\link{getClustering}}
 }
 \examples{
-data(karate, package='igraphdata')
+karate <- make_graph("Zachary")
+# We need vertex ID in the 'name' attribute of the vertex
+V(karate)$name<-c(LETTERS,letters)[1:vcount(karate)]
 m<-calcMembership(karate, 'lec')
 head(m)
 }

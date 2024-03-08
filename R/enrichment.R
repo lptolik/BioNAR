@@ -2,29 +2,29 @@
 #'
 #' Calculate the cluster enrichment of a graph given a clustering algorithm
 #' \code{alg} and vertex annotation attribute 'name'. Function generates an
-#' enrichment table, one row for each cluster, containing: size of the cluster 
-#' (\code{Cn}), number of annotated vertices in the graph \eqn{F_n} (\code{Fn}), 
-#' number of annotated vertices in the cluster \eqn{\mu} (\code{Mu}), odds ratio 
-#' (\code{OR}) and its 95% Confidence interval \eqn{[CI_l,CI_u]} (\code{CIl} and 
+#' enrichment table, one row for each cluster, containing: size of the cluster
+#' (\code{Cn}), number of annotated vertices in the graph \eqn{F_n} (\code{Fn}),
+#' number of annotated vertices in the cluster \eqn{\mu} (\code{Mu}), odds ratio
+#' (\code{OR}) and its 95% Confidence interval \eqn{[CI_l,CI_u]} (\code{CIl} and
 #' \code{CIu}), two fold enrichment
-#' values \eqn{F_e} (\code{Fe}) and \eqn{F_c} (\code{Fc}). We also provide 
-#' the list of vertices from the cluster that contribute 
-#' to the annotation term, 
-#' p.value of enrichment 
+#' values \eqn{F_e} (\code{Fe}) and \eqn{F_c} (\code{Fc}). We also provide
+#' the list of vertices from the cluster that contribute
+#' to the annotation term,
+#' p.value of enrichment
 #' (\code{pval}) and depletion (\code{palt})
 #' using the Hypergeometric test, adjusted p.values using Benjamini and Yekutieli
 #' correction (BY).
-#' 
-#' Given the enrichment results, we can calculate the log of the Odds Ratio 
+#'
+#' Given the enrichment results, we can calculate the log of the Odds Ratio
 #' (\code{OR}) as:
 #' \deqn{\ln(OR)=\ln(\frac{\mu(N-F_n+\mu-C_n)}{(C_n-\mu)(F_n-\mu)})}{\ln(OR)=\ln(Mu(N-Fn+Mu-C_n)/((Cn-Mu)(Fn-Mu))}
 #' and it’s upper and lower 95% Confidence Interval:
 #' \deqn{CI(\ln(OR))=\ln(OR)\pm 1.96\sqrt{\frac{1}{\mu}+\frac{1}{C_n-\mu}+\frac{1}{F_n-\mu}+\frac{1}{N-F_n+\mu-C_n}}}{CI(\ln(OR))=\ln(OR) \pm 1.96(1/Mu+1/(Cn-Mu)+1/(Fn-Mu)+1/(N-Fn+Mu-Cn))^0.5}
-#' 
-#' Using the odds ratio allows us to distinguish 
-#' functionally enriched communities relative to functionally depleted 
-#' communities. 
-#' 
+#'
+#' Using the odds ratio allows us to distinguish
+#' functionally enriched communities relative to functionally depleted
+#' communities.
+#'
 #' Two types of fold enrichment values calculated as follow:
 #' \deqn{F_e=\frac{(\frac{\mu}{F_n})}{(\frac{C_n}{N})}}{F_e=(Mu/Fn)/(Cn/N)}
 #' \deqn{F_c=\frac{(\frac{\mu}{C_n})}{(\frac{C_n}{N})}}{F_c=(Mu/Cn)/(Cn/N)}
