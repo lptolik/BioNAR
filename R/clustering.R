@@ -21,7 +21,9 @@
 #'
 #' @seealso getClustering
 #' @examples
-#' data(karate, package='igraphdata')
+#' karate <- make_graph("Zachary")
+#' # We need vertex ID in the 'name' attribute of the vertex
+#' V(karate)$name<-c(LETTERS,letters)[1:vcount(karate)]
 #' m<-calcMembership(karate, 'lec')
 #' head(m)
 calcMembership <- function(gg,
@@ -94,7 +96,7 @@ calcAllClustering <- function(gg,weights = NULL) {
         if (dim(cm)[1] > 0) {
             l[[an]] <- as.character(cm$membership)
             mod <- modularity(gg, cm$membership)
-            gg <- set.graph.attribute(gg, an, mod)
+            gg <- set_graph_attr(gg, an, mod)
         }
     }
     m <- do.call(cbind, l)
@@ -138,7 +140,9 @@ calcAllClustering <- function(gg,weights = NULL) {
 #' @export
 #'
 #' @examples
-#' data(karate, package='igraphdata')
+#' karate <- make_graph("Zachary")
+#' # We need vertex ID in the 'name' attribute of the vertex
+#' V(karate)$name<-c(LETTERS,letters)[1:vcount(karate)]
 #' g<-calcClustering(karate, 'louvain')
 #' vertex_attr_names(g)
 #' graph_attr(g, 'louvain')
@@ -152,7 +156,7 @@ calcClustering <- function(gg, alg,weights = NULL) {
         m[, 2] <- as.character(cl$membership)
         ggm <- applpMatrixToGraph(gg , m)
         mod <- modularity(ggm, cl$membership)
-        ggm <- set.graph.attribute(ggm, alg, mod)
+        ggm <- set_graph_attr(ggm, alg, mod)
         return(ggm)
     } else{
         return(gg)
@@ -164,11 +168,11 @@ calcClustering <- function(gg, alg,weights = NULL) {
 #' Wrapper function for calculation of clustering for predefined set of ten
 #' algorithms:
 #' * lec -- leading eigenvector community (version of
-#' \code{\link[igraph]{leading.eigenvector.community}}),
+#' \code{\link[igraph]{cluster_leading_eigen}}),
 #' directed graph will be converted to undirected by
 #' \code{\link[igraph]{as.undirected}} with mode \code{collapse};
-#' * wt -- walktrap community \code{\link[igraph]{walktrap.community}};
-#' * fc -- fastgreedy community \code{\link[igraph]{fastgreedy.community}},
+#' * wt -- walktrap community \code{\link[igraph]{cluster_walktrap}};
+#' * fc -- fastgreedy community \code{\link[igraph]{cluster_fast_greedy}},
 #' directed graph will be converted to undirected by
 #' \code{\link[igraph]{as.undirected}} with mode \code{collapse};
 #' * infomap -- infomap community \code{\link[igraph]{cluster_infomap}};
@@ -176,11 +180,11 @@ calcClustering <- function(gg, alg,weights = NULL) {
 #' directed graph will be converted to undirected by
 #' \code{\link[igraph]{as.undirected}} with mode \code{collapse};
 #' * sgG1 -- spin-glass model and simulated annealing clustering (version of
-#' \code{\link[igraph]{spinglass.community}} with spins=500 and gamma=1);
+#' \code{\link[igraph]{cluster_spinglass}} with spins=500 and gamma=1);
 #' * sgG2 -- spin-glass model and simulated annealing clustering (version of
-#' \code{\link[igraph]{spinglass.community}} with spins=500 and gamma=2);
+#' \code{\link[igraph]{cluster_spinglass}} with spins=500 and gamma=2);
 #' * sgG5 -- spin-glass model and simulated annealing clustering (version of
-#' \code{\link[igraph]{spinglass.community}} with spins=500 and gamma=7);
+#' \code{\link[igraph]{cluster_spinglass}} with spins=500 and gamma=7);
 #' * spectral -- spectral modularity clustering
 #' \code{\link[rSpectral]{spectral_igraph_communities}};
 #'
@@ -242,27 +246,27 @@ getClustering <- function(gg,
     }else{
     lec <- function(gg) {
         ugg <- as.undirected(gg,mode = 'collapse')
-        lec     <- igraph::leading.eigenvector.community(ugg,weights=weights)
+        lec     <- igraph::cluster_leading_eigen(ugg,weights=weights)
         ll      <-
-            igraph::leading.eigenvector.community(ugg, start = membership(lec),
+            igraph::cluster_leading_eigen(ugg, start = membership(lec),
                                                   weights=weights)
     }
     cl <- try(switch(
         alg,
         lec = lec(gg),
-        wt = igraph::walktrap.community(gg,weights=weights),
-        fc = igraph::fastgreedy.community(as.undirected(gg,mode = 'collapse'),
+        wt = igraph::cluster_walktrap(gg,weights=weights),
+        fc = igraph::cluster_fast_greedy(as.undirected(gg,mode = 'collapse'),
                                           weights=weights),
         infomap = igraph::cluster_infomap(gg,e.weights=weights),
         louvain = igraph::cluster_louvain(as.undirected(gg,mode = 'collapse'),
                                           weights=weights),
-        sgG1 = igraph::spinglass.community(gg,
+        sgG1 = igraph::cluster_spinglass(gg,
                                            spins = as.numeric(500),
                                            weights=weights, gamma = 1),
-        sgG2 = igraph::spinglass.community(gg,
+        sgG2 = igraph::cluster_spinglass(gg,
                                            spins = as.numeric(500),
                                            weights=weights, gamma = 2),
-        sgG5 = igraph::spinglass.community(gg,
+        sgG5 = igraph::cluster_spinglass(gg,
                                            spins = as.numeric(500),
                                            weights=weights, gamma = 5),
         spectral = rSpectral::spectral_igraph_communities(gg)

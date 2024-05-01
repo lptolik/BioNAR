@@ -43,7 +43,9 @@ maxLSi <- function(XX, BASE = 0) {
 #' @import RSpectra
 #' @family {Entropy Functions}
 #' @examples
-#' data(karate, package='igraphdata')
+#' karate <- make_graph("Zachary")
+#' # We need vertex ID in the 'name' attribute of the vertex
+#' V(karate)$name<-c(LETTERS,letters)[1:vcount(karate)]
 #' ent <- getEntropyRate(karate)
 getEntropyRate <- function(gg) {
     V    <- length(V(gg))
@@ -52,7 +54,7 @@ getEntropyRate <- function(gg) {
     Kbar <- mean(ki)
 
     #--- get adjacency matrix for graph
-    A    <- get.adjacency(gg)
+    A    <- as_adjacency_matrix(gg)
 
     #--- get leading eigenvalue and vector
     #R     <- eigen(A)
@@ -110,6 +112,9 @@ getEntropyRate <- function(gg) {
 #' tbl <- read.csv(file, sep="\t")
 #' gg <- buildNetwork(tbl)
 #' gg<-annotateGeneNames(gg)
+#' # due to error in org.Hs.eg.db we have to manually check annotation of one node
+#' idx <- which(V(gg)$name == '80273')
+#' paste(V(gg)$GeneName[idx], 'GRPEL1')
 #' gg<- calcEntropy(gg)
 calcEntropy <- function(gg, maxSr = NULL, exVal = NULL) {
     SRprime <- getEntropy(gg, maxSr = maxSr, exVal = exVal)
@@ -164,6 +169,10 @@ calcEntropy <- function(gg, maxSr = NULL, exVal = NULL) {
 #' tbl <- read.csv(file, sep="\t")
 #' gg <- buildNetwork(tbl)
 #' gg<-annotateGeneNames(gg)
+#' any(is.na(V(gg)$GeneName))
+#' # due to error in org.Hs.eg.db we have to manually check annotation of one node
+#' idx <- which(V(gg)$name == '80273')
+#' paste(V(gg)$GeneName[idx], 'GRPEL1')
 #' e<- getEntropy(gg)
 getEntropy <- function(gg, maxSr = NULL, exVal = NULL) {
     if (!"GeneName" %in% vertex_attr_names(gg)) {
@@ -179,7 +188,7 @@ getEntropy <- function(gg, maxSr = NULL, exVal = NULL) {
     E    <- ecount(gg)
     ki   <- as.vector(igraph::degree(gg))
     Kbar <- mean(ki)
-    A    <- get.adjacency(gg)
+    A    <- as_adjacency_matrix(gg)
     if (is.null(maxSr)) {
         par <- getEntropyRate(gg)
         maxSr <- par$maxSr
@@ -324,6 +333,9 @@ getEntropyOverExpressed <- function(SRprime, perc = 1) {
 #' tbl <- read.csv(file, sep="\t")
 #' gg <- buildNetwork(tbl)
 #' gg<-annotateGeneNames(gg)
+#' # due to error in org.Hs.eg.db we have to manually check annotation of one node
+#' idx <- which(V(gg)$name == '80273')
+#' paste(V(gg)$GeneName[idx], 'GRPEL1')
 #' ent <- getEntropyRate(gg)
 #' SRprime <- getEntropy(gg, maxSr = NULL)
 #' plotEntropy(SRprime, subTIT = "Entropy", SRo = ent$SRo, maxSr = ent$maxSr)

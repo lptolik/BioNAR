@@ -27,7 +27,7 @@ and \code{GO_BP}.
 }
 \examples{
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-gg <- igraph::read.graph(file, format="gml")
+gg <- igraph::read_graph(file, format="gml")
 sfile<-system.file("extdata", "flatfile.go.BP.csv", package = "BioNAR")
 goBP <- read.table(sfile, sep="\t", skip=1, header=FALSE,
 strip.white=TRUE, quote="")

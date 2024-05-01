@@ -1,22 +1,12 @@
 library(BioNAR)
 library(testthat)
-#library(BiocParallel)
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-gg <- igraph::read.graph(file, format="gml")
+gg <- igraph::read_graph(file, format="gml")
 louvain4<-induced_subgraph(gg,V(gg)[V(gg)$louvain==4])
-if(.Platform$OS.type=="windows"){
-  register(SerialParam(),default = TRUE)
-}
-mnSP<-c(3.939, 5, 5.091, 5.667, 6.545, 6.576, 6.515, 5.485, 5.03, 5.242, 5.697,
-        6.848, 4.879, 5.242, 5.848, 7.273, 9.212, 5.182, 5.333, 4.03, 4.909,
-        5.667, 6.303, 7.212, 6.333, 8.091, 5.909, 6.394, 4.939, 5.727, 5.758,
-        4.788, 5, 3.97)
-sdSP<-c(1.694, 1.871, 2.199, 1.882, 2.063, 2, 2.078, 1.752, 1.447, 2.122,
-        1.879, 1.822, 1.781, 1.458, 2.063, 2.254, 2.595, 1.828, 2.189, 1.51,
-        1.99, 1.963, 2.229, 2.147, 1.831, 2.052, 2.006, 2.474, 1.731, 1.989,
-        2.194, 1.474, 2.236, 1.912)
 data(karate,package='igraphdata')
+upgrade_graph(karate)
 data(macaque,package='igraphdata')
+upgrade_graph(macaque)
 
 test_that('calcCentrality',{
     gc<-calcCentrality(louvain4)
@@ -27,23 +17,6 @@ test_that('calcCentrality',{
 
 test_that('calcDirectedCentrality',{
     gc<-calcCentrality(macaque)
-    idx<-match(c("DEG", "iDEG", "oDEG", "BET", "dBET", "CC", "SL",
-                 "mnSP", "PR", "dPR", "sdSP"),
-               vertex_attr_names(gc))
-    expect_false(any(is.na(idx)))
-})
-
-test_that('calcCentralitySerial',{
-    library(BiocParallel)
-    gc<-calcCentrality(louvain4,BPparam=SerialParam())
-    idx<-match(c("DEG", "BET", "CC", "SL", "mnSP", "PR", "sdSP"),
-               vertex_attr_names(gc))
-    expect_false(any(is.na(idx)))
-})
-
-test_that('calcDirectedCentralitySerial',{
-    library(BiocParallel)
-    gc<-calcCentrality(macaque,BPparam=SerialParam())
     idx<-match(c("DEG", "iDEG", "oDEG", "BET", "dBET", "CC", "SL",
                  "mnSP", "PR", "dPR", "sdSP"),
                vertex_attr_names(gc))
@@ -69,56 +42,42 @@ test_that('Errors and warnings',{
                  '.*unique.')
 })
 
-test_that('SP centrality',{
-    cm<-getCentralityMatrix(karate)
-    expect_equal(cm$mnSP,mnSP,tolerance = 0.01)
-    expect_equal(cm$sdSP,sdSP,tolerance = 0.01)
-})
-
 test_that('Random centrality',{
-    library(BiocParallel)
-    bppar <- SerialParam(RNGseed = 100)
-    cm<-getCentralityMatrix(karate)
     set.seed(100)
-    m<-getRandomGraphCentrality(gg=karate,N=1,type='pa',
-                                BPparam=bppar)[[1]]
-    expect_equal(m[1,2],4,ignore_attr = TRUE)
+    cm<-getCentralityMatrix(karate)
+    m<-getRandomGraphCentrality(karate,'pa',threads=1)
+    expect_equal(m[1,2],33,ignore_attr = TRUE)
     set.seed(100)
     pFit <- fitDegree( as.vector(igraph::degree(graph=karate)),
                        Nsim=10, plot=FALSE,threads=1)
     pwr <- slot(pFit,'alpha')
-    lpa<-getRandomGraphCentrality(gg=karate,N=5,type='pa',
-                power=pwr,weights = NULL,BPparam=bppar)
+    set.seed(100)
+    lpa<-lapply(1:5,getRandomGraphCentrality,gg=karate,type='pa',
+                power=pwr,weights = NA)
     iDlpa<-calcCentralityInternalDistances(lpa)
     eDlpa<-calcCentralityExternalDistances(cm,lpa)
     sigPA<-evalCentralitySignificance(iDlpa,eDlpa)
     expect_equal(sapply(sigPA,function(.x).x$pval),
-                 c(0.000666000666000666, 0.000666000666000666,
-                   0.000333000333000333, 0.000666000666000666,
-                   0.000666000666000666, 0.0193140193140193,
-                   0.000666000666000666),
+                 c(0.06060606, 0.6546787, 0.003663004, 0.6546787, 0.004006,
+                   0.6546787, 0.9190809191),
                  tolerance = 1e-5,ignore_attr = TRUE)
-    lgnp<-getRandomGraphCentrality(gg=karate,N=5,type='gnp',
-                                   BPparam=bppar)
+    set.seed(100)
+    lgnp<-lapply(1:5,getRandomGraphCentrality,gg=karate,type='gnp')
     iDlgnp<-calcCentralityInternalDistances(lgnp)
     eDlgnp<-calcCentralityExternalDistances(cm,lgnp)
     sigGNP<-evalCentralitySignificance(iDlgnp,eDlgnp)
     expect_equal(sapply(sigGNP,function(.x).x$pval),
-                 c(0.000666000666000666, 0.000666000666000666,
-                   0.000666000666000666, 0.654678654678655,
-                   0.000666000666000666, 0.000666000666000666,
-                   0.000666000666000666),
+                 c(0.0006660007,0.0006660007,0.0006660007,
+                   0.9190809191,0.0006660007,0.0006660007,0.0006660007),
                  tolerance = 1e-5,ignore_attr = TRUE)
-    lcgnp<-getRandomGraphCentrality(gg=karate,N=5,type='cgnp',
-                                    BPparam=bppar)
+    set.seed(100)
+    lcgnp<-lapply(1:5,getRandomGraphCentrality,gg=karate,type='cgnp')
     iDlcgnp<-calcCentralityInternalDistances(lcgnp)
     eDlcgnp<-calcCentralityExternalDistances(cm,lcgnp)
     sigCGNP<-evalCentralitySignificance(iDlcgnp,eDlcgnp)
     expect_equal(sapply(sigCGNP,function(.x).x$pval),
-                 c(0.154845154845155, 0.000666000666000666,
-                   0.654678654678655, 0.350649350649351,
-                   0.000666000666000666, 0.0193140193140193,
-                   0.000666000666000666),
+                 c(0.0506160506,0.0006660007,0.0006660007,0.9190809191,
+                   0.0006660007,0.0006660007,0.0006660007),
                  tolerance = 1e-5,ignore_attr = TRUE)
 
 })
@@ -132,16 +91,16 @@ test_that('Cluster subgraph',{
 test_that('Layouts',{
     alg<-'louvain'
     set.seed(100)
-    mem<-calcMembership(karate,alg = alg)
+    mem<-calcMembership(karate,alg = alg,weights = NA)
     set.seed(100)
     lay<-layoutByCluster(karate,mem)
-    expect_equal(lay[1,],c(-10.1634700,9.7602631),tolerance = 0.001)
+    expect_equal(lay[1,],c(-8.503734,  9.185847),tolerance = 0.001)
     set.seed(100)
     remem<-calcReclusterMatrix(karate,mem,alg,10)
-    expect_equal(unlist(remem[34,c(2,3)]),c(3,4),ignore_attr = TRUE)
+    expect_equal(unlist(remem[34,c(2,3)]),c(3,5),ignore_attr = TRUE)
     set.seed(100)
     lay<-layoutByRecluster(karate,remem)
-    expect_equal(lay[1,],c(6.0216997,14.6233495),tolerance = 0.001)
+    expect_equal(lay[1,],c(16.38576156,  0.04864405),tolerance = 0.001)
     cg<-getCommunityGraph(karate,mem$membership)
-    expect_true(isomorphic(cg,graph_from_literal(A-B-C)))
+    expect_true(isomorphic(cg,graph_from_literal(A-B, A-C-D, A-D)))
 })

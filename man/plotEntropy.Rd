@@ -44,6 +44,9 @@ file <- system.file("extdata", "PPI_Presynaptic.csv", package = "BioNAR")
 tbl <- read.csv(file, sep="\t")
 gg <- buildNetwork(tbl)
 gg<-annotateGeneNames(gg)
+# due to error in org.Hs.eg.db we have to manually check annotation of one node
+idx <- which(V(gg)$name == '80273')
+paste(V(gg)$GeneName[idx], 'GRPEL1')
 ent <- getEntropyRate(gg)
 SRprime <- getEntropy(gg, maxSr = NULL)
 plotEntropy(SRprime, subTIT = "Entropy", SRo = ent$SRo, maxSr = ent$maxSr)
@@ -53,7 +56,7 @@ plotEntropy(SRprime, subTIT = "Entropy", SRo = ent$SRo, maxSr = ent$maxSr)
 
 Other {Entropy Functions}: 
 \code{\link{calcEntropy}()},
-\code{\link{getEntropyRate}()},
-\code{\link{getEntropy}()}
+\code{\link{getEntropy}()},
+\code{\link{getEntropyRate}()}
 }
 \concept{{Entropy Functions}}

@@ -2,7 +2,7 @@ library(BioNAR)
 library(testthat)
 #context("Testing network creation")
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-gg <- igraph::read.graph(file, format="gml")
+gg <- igraph::read_graph(file, format="gml")
 louvain4<-induced_subgraph(gg,V(gg)[V(gg)$louvain==4])
 
 test_that('LCC finder',{

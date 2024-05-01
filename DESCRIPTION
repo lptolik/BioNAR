@@ -1,6 +1,6 @@
 Package: BioNAR
 Title: Biological Network Analysis in R
-Version: 1.5.0.100
+Version: 1.7.0
 Authors@R: c(
     person("Colin", "Mclean", 
         email="Colin.D.Mclean@ed.ac.uk", role="aut"), 
@@ -21,11 +21,11 @@ Description: the R package BioNAR, developed to step by step analysis of PPI
 License: Artistic-2.0
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
-Depends: R (>= 3.5.0), igraph (>= 1.4.0), poweRlaw, latex2exp, RSpectra, 
+RoxygenNote: 7.3.1
+Depends: R (>= 3.5.0), igraph (>= 2.0.1.1), poweRlaw, latex2exp, RSpectra, 
     Rdpack
 Imports: stringr, viridis, clusterCons, fgsea, grid, methods,
-    AnnotationDbi, dplyr, GO.db, org.Hs.eg.db, rSpectral, WGCNA, ggplot2,
+    AnnotationDbi, dplyr, GO.db, org.Hs.eg.db (>= 3.19.1), rSpectral, WGCNA, ggplot2,
     ggrepel, minpack.lm, cowplot, data.table, scales, stats, Matrix, 
     BiocParallel
 RdMacros: Rdpack

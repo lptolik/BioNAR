@@ -26,6 +26,7 @@ its sparse nature. This function convert sparse matrix into triplet
 }
 \examples{
 data(karate, package='igraphdata')
+upgrade_graph(karate)
 Ws <- as_adjacency_matrix(karate,type='both',attr='weight',sparse = TRUE)
 mdf<-metlMatrix(Ws)
 head(mdf)

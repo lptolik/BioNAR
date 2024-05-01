@@ -165,13 +165,14 @@ loaded for further analysis using Igraph's functionality.
 
 ```{r net_predefind}
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-gg1 <- igraph::read.graph(file,format="gml")
+gg1 <- igraph::read_graph(file,format="gml")
 summary(gg1)
 ```
 
 ```{r cluster_predefind, include=FALSE}
 file <- system.file("extdata", "PPI_cluster.gml", package = "BioNAR")
-ggCluster <- igraph::read.graph(file,format="gml")
+ggCluster <- igraph::read_graph(file,format="gml")
+summary(ggCluster)
 ```
 
 # Annotate the nodes with node attributes
@@ -191,6 +192,19 @@ summary(gg)
 head(V(gg))
 head(V(gg)$GeneName)
 ```
+
+Some of the functions downstream requires non-empty GeneNames, so we have to 
+check that annotation assign values to all nodes:
+```{r check_genenames_na}
+any(is.na(V(gg)$GeneName))
+```
+The result of this command should be `r FALSE`.
+
+```{r fix.GRPEL1, eval=any(is.na(V(gg)$GeneName))}
+idx <- which(V(gg)$name == '80273')
+V(gg)$GeneName[idx]<-'GRPEL1'
+```
+
 
 ## Diseases
 

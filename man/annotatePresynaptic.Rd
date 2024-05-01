@@ -24,7 +24,7 @@ and add them to attributes \code{PRESYNAPTIC}.
 }
 \examples{
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-gg <- igraph::read.graph(file, format="gml")
+gg <- igraph::read_graph(file, format="gml")
 sfile<-system.file("extdata", "PresynAn.csv", package = "BioNAR")
 pres <- read.csv(sfile,skip=1,header=FALSE,strip.white=TRUE,quote="")
 gg <- annotatePresynaptic(gg, pres)

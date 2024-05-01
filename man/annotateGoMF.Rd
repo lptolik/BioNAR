@@ -27,7 +27,7 @@ matching Entrez IDs, filling the vertices attributes \code{GO_MF_ID} and
 }
 \examples{
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-gg <- igraph::read.graph(file, format="gml")
+gg <- igraph::read_graph(file, format="gml")
 sfile<-system.file("extdata", "flatfile.go.MF.csv", package = "BioNAR")
 goMF <- read.table(sfile, sep="\t", skip=1, header=FALSE,
 strip.white=TRUE, quote="")

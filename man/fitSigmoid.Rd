@@ -16,7 +16,9 @@ list of fitted functions tables and plots
 }
 \description{
 This function calculates fit of the Fold-Enrichment distribution to the
-sigmoid function with the levels of noise specidied in \code{SDV} and return
+sigmoid function with the levels of noise specidied in \code{SDV} for all
+clustering algorithms, which have non-zero \code{SUM3$`Psig&ORsig`} in the
+enrichment table summary results. The function returns
 the list in which each element contains result for one of the noise level.
 }
 \details{
@@ -33,4 +35,7 @@ message, number of iterations and exit code;
 
 Grid plot is designed in a way to be viewed in the device at least 12 inches
 in width and 12 inches in height.
+}
+\seealso{
+\code{\link[=summaryStats]{summaryStats()}}
 }

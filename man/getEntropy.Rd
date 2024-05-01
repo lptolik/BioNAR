@@ -56,6 +56,10 @@ file <- system.file("extdata", "PPI_Presynaptic.csv", package = "BioNAR")
 tbl <- read.csv(file, sep="\t")
 gg <- buildNetwork(tbl)
 gg<-annotateGeneNames(gg)
+any(is.na(V(gg)$GeneName))
+# due to error in org.Hs.eg.db we have to manually check annotation of one node
+idx <- which(V(gg)$name == '80273')
+paste(V(gg)$GeneName[idx], 'GRPEL1')
 e<- getEntropy(gg)
 }
 \seealso{

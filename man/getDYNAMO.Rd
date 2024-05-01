@@ -35,6 +35,7 @@ the topology of biological networks. Proc Natl Acad Sci USA, 169, 201720589.
 }
 \examples{
 data(karate, package='igraphdata')
+upgrade_graph(karate)
 d<-getDYNAMO(karate,attr='weight')
 df<-metlMatrix(d)
 head(df)

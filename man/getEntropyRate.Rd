@@ -32,7 +32,9 @@ where N here is the number of nodes and \eqn{\bar{k}}{k_bar} the average
 node degree found in the network.
 }
 \examples{
-data(karate, package='igraphdata')
+karate <- make_graph("Zachary")
+# We need vertex ID in the 'name' attribute of the vertex
+V(karate)$name<-c(LETTERS,letters)[1:vcount(karate)]
 ent <- getEntropyRate(karate)
 }
 \seealso{

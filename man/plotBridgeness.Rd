@@ -77,7 +77,9 @@ communities (local or party hubs, 0.5<Sl<1, 0<Br<0.5).
 }
 }
 \examples{
-data(karate, package='igraphdata')
+karate <- make_graph("Zachary")
+# We need vertex ID in the 'name' attribute of the vertex
+V(karate)$name<-c(LETTERS,letters)[1:vcount(karate)]
 set.seed(100)
 gg <- calcClustering(karate, 'louvain')
 gg <- calcCentrality(gg)

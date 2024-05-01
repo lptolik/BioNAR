@@ -1,6 +1,8 @@
 library(BioNAR)
 library(testthat)
+#karate <- make_graph("Zachary")
 data(karate, package='igraphdata')
+upgrade_graph(karate)
 test_that("dynamo karate weight", {
     d<-getDYNAMO(karate,attr='weight')
     expect_equal(dim(d),c(34,34))

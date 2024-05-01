@@ -19,6 +19,7 @@ Remove vertex property.
 }
 \examples{
 data(karate, package='igraphdata')
+upgrade_graph(karate)
 vertex_attr_names(karate)
 m<-removeVertexTerm(karate, 'color')
 vertex_attr_names(m)

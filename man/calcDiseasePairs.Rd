@@ -39,8 +39,11 @@ network model, based on analysis described in Menche et al. 2015
 }
 \examples{
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-gg <- igraph::read.graph(file, format="gml")
+gg <- igraph::read_graph(file, format="gml")
 agg<-annotateGeneNames(gg)
+# due to error in org.Hs.eg.db we have to manually check annotation of one node
+idx <- which(V(agg)$name == '80273')
+paste(V(agg)$GeneName[idx], 'GRPEL1')
 p <- calcDiseasePairs(
 agg,
 name = "TopOntoOVGHDOID",

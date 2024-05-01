@@ -1,7 +1,7 @@
 library(BioNAR)
 library(testthat)
 file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
-gg <- igraph::read.graph(file, format="gml")
+gg <- igraph::read_graph(file, format="gml")
 louvain4<-induced_subgraph(gg,V(gg)[V(gg)$louvain==4])
 
 test_that("GO annotation is added",{
@@ -32,6 +32,10 @@ test_that('GeneNames annotated',{
     gN<-annotateGeneNames(gNoN)
     expect_true('GeneName' %in% vertex_attr_names(gN))
     expect_equal(V(gN)$GeneName[idx],gn[idx])
+    #' # due to error in org.Hs.eg.db we have to manually annotate one node
+    idx <- which(V(gN)$name == '80273')
+    #V(gg)$GeneName[idx]<-'GRPEL1'
+    expect_false(is.na(V(gN)$GeneName[idx]))
 })
 
 test_that('DiseaseType',{
