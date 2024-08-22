@@ -11,7 +11,7 @@
 #' @param gg igraph object to assign membership
 #' @param membership either name of the vertex attribute or vector of membership
 #'
-#' @return
+#' @return \code{data.frame} with two columns \code{names} and \code{membership}
 #' @export
 #'
 #'
