@@ -1,4 +1,42 @@
-
+#' Create membership \code{data.frame} from graph for arbitrary annotation
+#'
+#' Create membership \code{data.frame} from graph vertex attribute or vector
+#' of cluster names, IDs or indices. This function is simular to
+#' \code{\link{calcMembership}} but do not linked to clustering algorithm.
+#'
+#' Any annotation coercible to \code{factor} could be converted to the
+#' membership \code{data.frame}. This function is useful, for example, to
+#' make layout with \code{\link{layoutByCluster}}.
+#'
+#' @param gg igraph object to assign membership
+#' @param membership either name of the vertex attribute or vector of membership
+#'
+#' @return
+#' @export
+#'
+#'
+#' @examples
+#' karate <- make_graph("Zachary")
+#' # We need vertex ID in the 'name' attribute of the vertex
+#' V(karate)$name<-c(LETTERS,letters)[1:vcount(karate)]
+#' m<-makeMembership(karate,rep(c(1,2),length.out=vcount(karate)))
+#' head(m)
+makeMembership<-function(gg,membership){
+    if(length(membership)==1 & is.character(membership)){
+      if(membership %in% vertex_attr_names(gg)){
+          mem<-factor(vertex_attr(gg,membership))
+      }else{
+          stop('Membership "',membership,'" is not a vertex attribute.\n')
+      }
+    }else if(length(membership)==vcount(gg)){
+        mem<-factor(membership)
+    }else{
+        stop('Membership should be either name of the graph vertex attribute\n',
+             ' or vector of length ',vcount(gg),' to map to vertices.\n')
+    }
+    df<-data.frame(names=vertex_attr(gg,'name'), membership=mem)
+    return(df)
+}
 
 #' Calculate cluster memberships for the graph.
 #'
