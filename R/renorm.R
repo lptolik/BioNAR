@@ -84,18 +84,21 @@ getLaplacian <- function(gg,el=0.5,weights = NULL,type = c('igraph','magnetic'))
         igraph = igraph::laplacian_matrix(gg,weights = weights),
         magnetic = getHmatrix(gg,g=el)
     )
-
+    attr(L,'type')<-type
     return(L)
 
 }
 
 #' Calculate eigenvalues and eigenvectors of Laplacian matrix
 #'
-#' @param x
-#' @param only.values
-#' @param inv.vec
+#' @param x Laplasian matrix from \code{\link{getLaplasian}}
+#' @param only.values If TRUE only eigenvalues are returned.
+#' @param inv.vec if TRUE inverted eigenvector matrix is returned.
 #'
-#' @return
+#' @return list with three slots: eigenvalues, eigenvectors and inverted
+#' eigenvectors. If \code{only.values} is FALSE, both slots for eigenvectors and inverted
+#' eigenvectors are NULL, if \code{inv.vec} is FALSE and \code{only.values} is TRUE, then
+#' inverted eigenvectors slot is NULL.
 #' @export
 #'
 #' @examples
@@ -175,7 +178,24 @@ coarse.grain.graph <- function(gg, supernodes){
 }
 
 
-## Laplacian Renormalisation Group in real-space
+#' Laplacian Renormalisation Group in real-space
+#'
+#' @param e Laplacian eigenvalues from \code{\link{getEigen}}
+#' @param v Laplacian eigenvectors from \code{\link{getEigen}}
+#' @param vinv Laplacian inverted eigenvectors from \code{\link{getEigen}}
+#' @param L Laplacian
+#' @param t tau value for coarse-graining
+#' @param gg original graph
+#' @param complex should rho(tau) be treated as complex matrix
+#' @param method method of rho calculation
+#' @param expm_method method to compute exponential of the matrix \code{\link[expm]{expm}}
+#' @param tol tolerance used to check if matrix for the exponential is computationally singular \code{\link[expm]{expm}}
+#' @param order
+#'
+#' @return
+#' @export
+#'
+#' @examples
 real.LRG <- function(e, v, vinv=NULL, L=NULL, t, gg, complex=FALSE,
                      method=c("eigen", "balanced", "square"),
                      expm_method=c("Higham08.b"), tol=1e-5, order=1){
@@ -224,4 +244,183 @@ real.LRG <- function(e, v, vinv=NULL, L=NULL, t, gg, complex=FALSE,
                 supernodes=sn$csize, gg=gg2))
 
 }
+
+
+#### Rho calculation functions ####
+cal.rho.balanced <- function(L, t, method="Higham08.b", order=1, tol=1e-5){
+    #methods=c("Higham08.b", "Higham08",
+    #          "AlMohy-Hi09",
+    #          "Ward77", "PadeRBS", "Pade", "Taylor", "PadeO", "TaylorO",
+    #          "R_Eigen", "R_Pade", "R_Ward77", "hybrid_Eigen_Ward")
+    n   = nrow(L)
+    rho = expm::expm(x=(-L*t), method=method, order=order, tol=tol)
+    rho = rho/n
+    rho = rho/sum(diag(rho))
+    rho
+}
+
+taylor.approx <- function(L, t, order=3){
+    n           <- nrow(L)
+    I           <- diag(1, n)   ## Identity matrix
+    term        <- I            ## Start with the first term (I)
+    rho         <- I            ## Initialize the result with I
+    factorial_k <- 1            ## k!
+
+    for (k in 1:order) {
+        factorial_k <- factorial_k * k             ## Compute k!
+        term        <- term %*% (-L * t)           ## Compute (L t)^k
+        rho         <- rho + term / factorial_k    ## Add the k-th term
+    }
+    rho
+}
+
+cal.rho.approx <- function(L, t, order=3) {
+    n   <- nrow(L)
+    rho <- taylor.approx(L=L, t=t, order=order)
+    rho <- rho/n
+    rho <- rho/sum(diag(rho))
+    return(rho)
+}
+
+
+cal.rho.eigen <- function(e, v, vinv, t){
+    n = length(e)
+
+    if( is.null(vinv) ){ vinv = solve(v); }
+
+    exp_nte = diag(exp(-t*e))
+    St      = v %*% exp_nte %*% vinv
+    St      = St/n
+    rho     = St/sum(diag(St))
+    rho
+}
+
+cal.rho.square <- function(L, t, order=3){
+
+    n      <- nrow(L)
+
+    ## Step 1: Calculate the norm of A
+    norm_L <- sqrt(sum(L^2))
+
+    ## Step 2: Determine m, the smallest power of two for which A/m has a sufficiently small norm
+    m <- 1
+    while (norm_L * t / m > 1) {
+        m <- 2 * m
+    }
+
+    # Step 3: Compute the matrix exponential of -A*t/m
+    L_scaled     <- L/m
+    exp_L_scaled <- taylor.approx(L=L_scaled, t=t, order=order)
+
+    # Step 4: Square the result m times
+    rho <- exp_L_scaled
+    for (i in seq_len(log2(m))) {
+        rho <- rho %*% rho
+    }
+
+    rho = rho/n
+    rho = rho/sum(diag(rho))
+    rho
+}
+
+cal.rho <- function(e, v, vinv=NULL, t, complex=FALSE){
+
+    N = length(e)
+
+    if( is.null(vinv) ){ vinv = solve(v); }
+
+    ##if( complex ){
+    ##  exp_nte = diag(exp(-(0+1i)*t*e))
+    ## else {
+    exp_nte = diag(exp(-t*e))
+    ##}
+
+    St      = v %*% exp_nte %*% vinv
+    St      = St/N
+    rho     = St/sum(diag(St))
+
+    #if( complex ){
+    #  rho = Mod(rho)
+    #  #rho = Re(rho) #Im(rho) ##Mod(rho)
+    #}
+
+    rho
+}
+
+
+#### Helper functions ####
+
+check.t <- function(t){
+    if( t <= 1e-10 ){ t = 0 }
+    if( t >= 1e10 ) { t = 1e10 }
+    return(t)
+}
+
+
+rho.tau <- function(e,t){
+    t = check.t(t)
+    exp(-1*t*e)
+}
+
+
+u.tau <- function(e, t){
+    small = 1e-30
+    num   = exp(-1*t*e)
+    dem   = sum(num)
+    (num/dem) + small
+}
+
+## Entropy Measure given t=tau for graph Laplacian's eigenvalues
+S.tau <- function(e, t, n){
+    mu = u.tau(e=e,t=t)
+    (-1/log(n))*sum(mu*log(mu))
+}
+
+
+## 1st derivative of u.tau
+du_dt = Deriv(u.tau,"t")
+
+## dS(t)/log(t)
+dS_dlogt <- function(e,t,n){
+    ut     = u.tau(t=t,e=e)
+    du     = du_dt(t=t,e=e)
+    log_ut = log(ut)
+    (-1/log(n))*sum(du*t*log_ut)
+}
+
+
+dS_dt   <- Deriv(S.tau, "t")
+d2S_dt2 <- Deriv(dS_dt, "t")
+
+dC_dt_test <- function(e,t,n){
+    -1*(d2S_dt2(e=e, t=t, n=n) * t + dS_dt(e=e, t=t, n=n))
+}
+
+dC_dt_test_wrapper <- function(e,t,n){
+    sapply(1:length(t), function(i) dC_dt_test(e=e, t=t[i], n=n) )
+}
+
+##### ggplot wrapper functions #####
+
+
+## Return: 1-S
+S_wrapper <- function(e,t,n, negate=1){
+    if( negate ){
+        sapply(1:length(t), function(i) 1-S.tau(e=e, t=t[i], n=n) )
+    } else {
+        sapply(1:length(t), function(i) S.tau(e=e, t=t[i], n=n) )
+    }
+}
+
+## Return: C = -dS(t)/d(log(t))
+dS_dlogt_wrapper <- function(e,t,n, scale=TRUE){
+    if( scale ){
+        sapply(1:length(t), function(i)
+            -log(n)*dS_dlogt(e=e, t=t[i], n=n) )
+    } else {
+        sapply(1:length(t), function(i)
+            -1*dS_dlogt(e=e, t=t[i], n=n) )
+    }
+}
+
 
