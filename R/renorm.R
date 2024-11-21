@@ -194,7 +194,7 @@ coarse.grain.graph <- function(gg, supernodes){
 #'
 #' @return
 #' @export
-#'
+#' @import Deriv
 #' @examples
 real.LRG <- function(e, v, vinv=NULL, L=NULL, t, gg, complex=FALSE,
                      method=c("eigen", "balanced", "square"),

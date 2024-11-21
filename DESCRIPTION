@@ -21,12 +21,12 @@ Description: the R package BioNAR, developed to step by step analysis of PPI
 License: Artistic-2.0
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Depends: R (>= 3.5.0), igraph (>= 2.0.1.1), poweRlaw, latex2exp, RSpectra, 
     Rdpack
 Imports: stringr, viridis, clusterCons, fgsea, grid, methods,
-    AnnotationDbi, dplyr, GO.db, org.Hs.eg.db, rSpectral, WGCNA, ggplot2,
-    ggrepel, minpack.lm, cowplot, data.table, scales, stats, Matri, Rbeast,
+    AnnotationDbi, dplyr, GO.db, org.Hs.eg.db, rSpectral, WGCNA, ggplot2, expm,
+    ggrepel, minpack.lm, cowplot, data.table, scales, stats, Matrix, Rbeast,
     Deriv, pracma
 RdMacros: Rdpack
 Suggests: 
