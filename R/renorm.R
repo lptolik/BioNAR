@@ -9,7 +9,8 @@
 #' KU Leuven, Department of Electrical Engineering (ESAT), Kasteelpark Arenberg 10, B-3001 Leuven, Belgium
 #'
 #' @param gg igraph object
-#' @param g an electric charge parameter, which value should be in [0,0.5].
+#' @param g an electric charge parameter, which value should be in range
+#' between 0 and 0.5.
 #'
 #' @return directed graph Magnetic Laplacian matrix
 #' @export
@@ -91,7 +92,7 @@ getLaplacian <- function(gg,el=0.5,weights = NULL,type = c('igraph','magnetic'))
 
 #' Calculate eigenvalues and eigenvectors of Laplacian matrix
 #'
-#' @param x Laplasian matrix from \code{\link{getLaplasian}}
+#' @param x Laplasian matrix from \code{\link{getLaplacian}}
 #' @param only.values If TRUE only eigenvalues are returned.
 #' @param inv.vec if TRUE inverted eigenvector matrix is returned.
 #'
@@ -189,7 +190,8 @@ coarse.grain.graph <- function(gg, supernodes){
 #' @param complex should rho(tau) be treated as complex matrix
 #' @param method method of rho calculation
 #' @param expm_method method to compute exponential of the matrix \code{\link[expm]{expm}}
-#' @param tol tolerance used to check if matrix for the exponential is computationally singular \code{\link[expm]{expm}}
+#' @param tol tolerance used to check if matrix for the exponential is
+#' computationally singular \code{\link[expm]{expm}}
 #' @param order
 #'
 #' @return

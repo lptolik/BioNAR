@@ -37,7 +37,8 @@ real.LRG(
 
 \item{expm_method}{method to compute exponential of the matrix \code{\link[expm]{expm}}}
 
-\item{tol}{tolerance used to check if matrix for the exponential is computationally singular \code{\link[expm]{expm}}}
+\item{tol}{tolerance used to check if matrix for the exponential is
+computationally singular \code{\link[expm]{expm}}}
 
 \item{order}{}
 }

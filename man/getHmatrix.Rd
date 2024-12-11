@@ -9,7 +9,8 @@ getHmatrix(gg, g = 0.5)
 \arguments{
 \item{gg}{igraph object}
 
-\item{g}{an electric charge parameter, which value should be in \link{0,0.5}.}
+\item{g}{an electric charge parameter, which value should be in range
+between 0 and 0.5.}
 }
 \value{
 directed graph Magnetic Laplacian matrix

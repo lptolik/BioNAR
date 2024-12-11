@@ -7,7 +7,7 @@
 getEigen(x, only.values = TRUE, inv.vec = FALSE)
 }
 \arguments{
-\item{x}{Laplasian matrix from \code{\link{getLaplasian}}}
+\item{x}{Laplasian matrix from \code{\link{getLaplacian}}}
 
 \item{only.values}{If TRUE only eigenvalues are returned.}
 
