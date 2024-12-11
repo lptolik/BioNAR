@@ -208,15 +208,15 @@ calcClustering <- function(gg, alg,weights = NULL) {
 #' * lec -- leading eigenvector community (version of
 #' \code{\link[igraph]{cluster_leading_eigen}}),
 #' directed graph will be converted to undirected by
-#' \code{\link[igraph]{as.undirected}} with mode \code{collapse};
+#' \code{\link[igraph]{as_undirected}} with mode \code{collapse};
 #' * wt -- walktrap community \code{\link[igraph]{cluster_walktrap}};
 #' * fc -- fastgreedy community \code{\link[igraph]{cluster_fast_greedy}},
 #' directed graph will be converted to undirected by
-#' \code{\link[igraph]{as.undirected}} with mode \code{collapse};
+#' \code{\link[igraph]{as_undirected}} with mode \code{collapse};
 #' * infomap -- infomap community \code{\link[igraph]{cluster_infomap}};
 #' * louvain -- cluster_louvain \code{\link[igraph]{cluster_louvain}},
 #' directed graph will be converted to undirected by
-#' \code{\link[igraph]{as.undirected}} with mode \code{collapse};
+#' \code{\link[igraph]{as_undirected}} with mode \code{collapse};
 #' * sgG1 -- spin-glass model and simulated annealing clustering (version of
 #' \code{\link[igraph]{cluster_spinglass}} with spins=500 and gamma=1);
 #' * sgG2 -- spin-glass model and simulated annealing clustering (version of
@@ -283,7 +283,7 @@ getClustering <- function(gg,
         return(cl)
     }else{
     lec <- function(gg) {
-        ugg <- as.undirected(gg,mode = 'collapse')
+        ugg <- as_undirected(gg,mode = 'collapse')
         lec     <- igraph::cluster_leading_eigen(ugg,weights=weights)
         ll      <-
             igraph::cluster_leading_eigen(ugg, start = membership(lec),
@@ -293,10 +293,10 @@ getClustering <- function(gg,
         alg,
         lec = lec(gg),
         wt = igraph::cluster_walktrap(gg,weights=weights),
-        fc = igraph::cluster_fast_greedy(as.undirected(gg,mode = 'collapse'),
+        fc = igraph::cluster_fast_greedy(as_undirected(gg,mode = 'collapse'),
                                           weights=weights),
         infomap = igraph::cluster_infomap(gg,e.weights=weights),
-        louvain = igraph::cluster_louvain(as.undirected(gg,mode = 'collapse'),
+        louvain = igraph::cluster_louvain(as_undirected(gg,mode = 'collapse'),
                                           weights=weights),
         sgG1 = igraph::cluster_spinglass(gg,
                                            spins = as.numeric(500),

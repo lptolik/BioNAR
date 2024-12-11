@@ -1,3 +1,8 @@
+# BioNAR 1.7
+
+* Add function to calculate the BowTie decomposition of the graph.
+
+
 # BioNAR 1.3
 
 * Take into account edge weights in clustering algorithms and centrality measure

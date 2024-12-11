@@ -24,7 +24,6 @@
 #' * robustness scaled to range between 0 and 1 (\code{CrobScaled}).
 #'
 #' @export
-#' @import clusterCons
 #' @family {Robustness functions}
 #'
 #' @examples
@@ -60,17 +59,18 @@ getRobustness <- function(gg, alg, conmat) {
 
     ##--- make the consensus matrix object for clusterCons so you can use
     ##--- its functions
-    out <- new(
-        'consmatrix',
-        cm = cm,
-        rm = rm,
-        k = kk,
-        a = alg
-    )
+    # out <- new(
+    #     'consmatrix',
+    #     cm = cm,
+    #     rm = rm,
+    #     k = kk,
+    #     a = alg
+    # )
 
 
     ##--- get cluster robustness values from clusterCons
-    cr <- clusterCons::clrob(out)
+    #cr <- .clrob(out)
+    cr <- .clrob(rm,cm)
 
 
     ##--- the scaled cluster robustness values
@@ -87,4 +87,49 @@ getRobustness <- function(gg, alg, conmat) {
         CrobScaled = as.numeric(crScales)
     )
 
+}
+
+#Function adopted from https://github.com/biomedicalinformaticsgroup/clusterCons
+#due to exclusion of the clusterCons package from CRAN
+#.clrob<-function (x, rm = data.frame())
+.clrob<-function (cmref,cmr, rm = data.frame())
+{
+    # if (class(x) == "consmatrix") {
+    #     cmref <- x@rm
+    # }
+    # else {
+    #     if (length(rm) == 0) {
+    #         stop("You need to specify a reference matrix for a merge consensus matrix")
+    #     }
+    #     else {
+    #         cmref <- rm
+    #     }
+    # }
+    # cmr <- x@cm
+    clnum <- length(unique(cmref$cm))
+    cl_rob = data.frame(matrix(0, clnum, 1))
+    row.names(cl_rob) <- seq(1:clnum)
+    names(cl_rob) <- c("rob")
+    for (k in 1:clnum) {
+        sm = as.matrix(cmr[row.names(cmref)[cmref$cm == k],
+                           row.names(cmref)[cmref$cm == k]])
+        cl_sum <- 0
+        cl_size <- dim(sm)[1]
+        for (i in 1:cl_size) {
+            for (j in 1:cl_size) {
+                if (i < j) {
+                    cl_sum = cl_sum + sm[i, j]
+                }
+            }
+        }
+        meas_sum = 1/(cl_size * (cl_size - 1)/2)
+        curr_cl_rob = cl_sum * meas_sum
+        if (is.na(curr_cl_rob)) {
+            cl_rob[k, 1] = 0
+        }
+        else {
+            cl_rob[k, 1] = curr_cl_rob
+        }
+    }
+    return(cl_rob)
 }
