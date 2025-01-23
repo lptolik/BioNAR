@@ -1,0 +1,443 @@
+---
+title: | 
+       | Laplacian Renormalization 
+       | Group (LRG) Presynaptic PPI Analysis
+pagetitle: "html_booklet"
+author: "Begona Bolos & Colin Mclean"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    css: css/cruk.css
+    number_sections: true
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  pdf_document:
+    toc: yes
+    toc_depth: '3'
+  word_document:
+    toc: yes
+    toc_depth: '4'
+---
+
+
+```{r setup, include=FALSE}
+
+## load libraries
+library(dplyr)
+library(tidyr)
+library(broom)
+library(igraph)
+library(poweRlaw)
+library(Matrix)
+library(expm)
+library(ggplot2)
+library(GGally)
+library(latex2exp)
+library(Deriv)
+library(here)
+library(Rbeast)
+library(pracma) ## for zeta function
+library(parallel)
+library(pso)
+
+## set directory names
+data.dir = here::here("datasets")
+
+knitr::opts_chunk$set(cache=TRUE, echo=TRUE, warning=FALSE)
+                      #root.dir=root.dir,
+                      #project.dir=project.dir)
+
+## In order to knit a Word doc, using kableExtra library for generating tables,
+## 1) clear cache,
+## 2) make sure this option is set before loading kableExtra in the Setup.R script.
+options(kableExtra.auto_format=TRUE)
+
+## Global options for displaying tables via DT::datatable
+#options(DT.options=list(class='cell-border stripe',scrollx=TRUE))
+
+options(DT.fillcontainer=TRUE, 
+        DT.options=list(class='cell-border stripe',scrolly="400px", scrollx=TRUE))
+
+## run Setup.R to load libraries globally - by specifying parameter local=knit_global()
+#source(, local=knitr::knit_global())
+```
+
+
+```{r get_document_type, warning=FALSE, echo=FALSE, cache=TRUE}
+doc.type=NULL 
+output <- rmarkdown:::parse_yaml_front_matter(readLines(knitr::current_input()))$output
+if( is.list(output) ){
+   doc.type=names(output)[1]
+   } else {
+     doc.type=output[1]
+   }
+```
+
+```{r, add_header_logo, warning=FALSE, echo=FALSE, cache=FALSE}
+css.file=NULL
+if(doc.type=="html_document"){
+  ## get leading css file used
+  css.file = rmarkdown:::parse_yaml_front_matter(readLines(knitr::current_input()))$output$html_document$css[1]
+}
+
+if( css.file=="css/cruk.css" ){
+  htmltools::img(src =    knitr::image_uri(here::here("css/images/CRUK_SCOTLAND_C_Pos_RGB.png")),
+               alt = "CRUK Scotland Centre logo",
+               style = "position:absolute; top:0; right:0; padding:10px; height:80px; width:360px;")
+}
+
+if( css.file=="css/nhs.css" ){
+htmltools::img(src = knitr::image_uri(here::here("css/images/NHS_Lothian.jpg")),
+               alt = "NHS Lothian logo",
+               style = "position:absolute; top:0; right:0; padding:10px; height:90px; width:90px;")
+}
+
+```
+
+<br>
+<br>
+
+# Introduction {-}
+
+> Laplacian renomalisation group (LRG) is a dimensional reduction technique inspired from physics. 
+> The specific heat of a physical system, ie network, can be used to measure the point at which
+> the system transitions from high-dimensional space to a coarse-dimensional space whilst 
+> preserving the underlying toplogy of the system.
+>
+> [1] Villegas, P., Gili, T., Caldarelli, G. et al. Laplacian renormalization group for heterogeneous networks. Nat. Phys. 19, 445–450 (2023). https://doi.org/10.1038/s41567-022-01866-8
+>
+
+<br>
+<br>
+
+```{r}
+
+## load function required to perform LRG on a network
+source(here("core_functions.R"))
+
+```
+
+<br>
+<br>
+
+# Presynaptic PPI Network
+
+>
+> Load \& Build network
+>
+
+```{r}
+
+gg = read_graph(here("datasets/PPI_Presynaptic.gml"), format="gml") 
+
+## get Largest Connected Component
+gg = lcc(gg)
+
+## Node of nodes
+Nv = length(V(gg))
+
+## set node names if null
+if( is.null(V(gg)$name) ){ V(gg)$name = seq(1,Nv,1) }
+
+L = get.L(gg)
+E = get.eigen(L, only.values=FALSE, inv.vec=TRUE)
+
+Emean = E[[1]]
+Evec  = E[[2]]
+Evinv = E[[3]]
+```
+
+<br>
+<br>
+
+
+>
+> Plots
+>
+
+>
+> Eigenvalues against degree
+>
+
+```{r}
+#library(dplyr)
+# Create the first tibble with time intervals from 10^-4 to 10^4 with step 0.1
+df1 <- tibble(tau = seq(10^-4, 10^4, by = 0.1))
+
+# Create the second tibble with time intervals from 10^-4 to 1 with step 10^-2
+df2 <- tibble(tau = seq(10^-4, 1, by = 10^-2))
+
+# Combine the two tibbles
+df  <- bind_rows(df1, df2)
+
+# Remove duplicates and reorder the rows by tau in ascending order
+df  <- df %>% 
+       distinct() %>%  # Remove duplicates
+       arrange(tau)    # Reorder by tau (ascending)
+```
+
+> Compute S and C
+
+```{r}
+
+## Possible Specific Heat Capacity Calculations
+S  = S_wrapper(e=Emean, t=df$tau, n=Nv, negate=0)
+C1 =-diff(S)/diff(log(df$tau))
+C1 = c(C1,C1[length(C1)])
+
+C2 = sapply(df$tau, function(i) -dS_dlogt(e=Emean, t=i, n=Nv))
+
+##plot(x=(df$tau), y=C1, type="l", ylim=c(0,1), xlim=c(0,10), col="blue")+lines(x=(df$tau), y=C2, col="red")
+
+pl = eigen.fit2(Emean)
+
+## plot
+lambda_fit_plot(pl$df, xmin=pl$xmin, alpha=pl$alpha)
+
+#P = log(pl$df)
+
+#plot(P[,1], P[,2], type = "p", col = "blue", pch = 16,
+#     xlab = "log10(Laplacian Eigenvalues)", ylab = "log10(CDF Probabilities)",
+#     main = "Log-Log Plot with Power-Law Fits")
+
+# Step 5: Incrementally fit power laws
+for (i in seq(10, 600, by = 10)) {
+  # Subset data
+  x_subset <- P[1:i,1]
+  y_subset <- P[1:i,2]
+  
+  # Fit a linear model (power-law on log-log scale)
+  model <- lm(y_subset ~ x_subset)
+  
+  # Extract coefficients
+  a <- coef(model)[1]  # Intercept
+  b <- coef(model)[2]  # Slope
+  
+  # Generate fitted line
+  fitted_y <- a + b * P[,1]#x_subset
+  
+  # Plot the fitted line
+  lines(P[,1], fitted_y, col = "red", lty = 2)
+}
+
+# Step 5: Finite-Size Scaling Analysis
+lambda_F  <- sort(Emean)[2]
+alpha     <- 2
+tau_F     <- alpha/lambda_F
+ds_values <- seq(1, 20, 0.1)  # Test various d_S
+C_values  <- sapply(ds_values, function(ds) C_tau(tau_F, ds))
+
+# Plot C(τ_F) as a function of d_S
+plot(ds_values, C_values, type = "l", col = "blue", lwd = 2,
+     xlab = "d_S (Spectral Dimension)", ylab = "C(τ_F)",
+     main = "C(τ_F) vs. Spectral Dimension")
+
+
+```
+
+```{r}
+## Set parameters
+params = list()
+#params[[1]]=Emean
+#params[[2]]=Evec 
+#params[[3]]=Evinv 
+params[[1]]=FALSE #complex=FALSE 
+params[[2]]="eigen" #method="eigen"
+params[[3]]="Higham08.b" #expm_method="Higham08.b" 
+params[[4]]="ks_dist" #js_dist"#"kl_div"
+params[[5]]=1 #mle=1
+params[[6]]=1e-5 #tol=1e-5 
+params[[7]]=1 #order=1 
+params[[8]]=0 #plots=0
+names(params) = c("complex", "method","expm_method", "loss_test", "mle", "tol", "order", "plots")
+```
+
+```{r}
+
+## Faster Way Using Parallelisation
+t.lower = 1/Emean[1] #0.001
+t.upper = 1
+
+## Create a cluster
+cl <- makeCluster(detectCores() - 1)
+
+test_t    <- seq(t.lower, t.upper, length.out=100)
+test_loss <- parallel_eigen_loss(t=test_t, gg=gg, L=L, 
+                                 e=Emean, v=Evec, vinv=Evinv, 
+                                 complex=params[[1]], 
+                                 method=params[[2]],
+                                 expm_method=params[[3]],
+                                 loss_test=params[[4]],
+                                 mle=params[[5]],
+                                 tol=params[[6]],
+                                 order=params[[7]],
+                                 plots=params[[8]],
+                                 cl=cl)
+
+lrg.scan0 = data.frame(t=test_t, metric=test_loss)
+
+## Stop the cluster
+stopCluster(cl)
+```
+
+ 
+```{r}
+
+## Create a cluster
+cl <- makeCluster(detectCores() - 1)
+
+## Define initial search range
+t_lower <- 1/Emean[1] #0.01
+t_upper <- 1#8 #tau.x #1
+
+## Perform iterative optimization
+lrg.ann <- iterative_eigen_optimization(
+  t_lower = t_lower, 
+  t_upper = t_upper, 
+  gg = gg, 
+  L = L, 
+  e = Emean, 
+  v = Evec, 
+  vinv = Evinv, 
+  complex=params[[1]], 
+  method=params[[2]],
+  expm_method=params[[3]],
+  loss_test=params[[4]],
+  mle=params[[5]],
+  tol=params[[6]],
+  order=params[[7]],
+  plots=params[[8]],
+  max_iter = 20, 
+  n_points = 10, 
+  cooling_rate=0.85,
+  dt=1,
+  refine_factor = 0.5,
+  cl=cl
+)
+
+## Print the result
+cat("Optimized t:", lrg.ann$best_t, "with loss:", lrg.ann$best_loss, "\n")
+
+## Stop the cluster
+stopCluster(cl)
+
+```
+
+```{r}
+metric="jsd"
+x = lrg.scan0$t 
+y = lrg.scan0$metric 
+df.scan = data.frame(x=x, y=y) %>%
+          filter( !is.infinite(y) | is.na(y) )
+
+df.ann = lrg.ann$df %>% select(t_new, loss_new) %>% 
+         filter(!is.infinite(t_new))
+
+pt5 <- ggplot(df.scan, aes(x,y)) +
+  geom_line() + 
+  ggtitle("Jensson-Shannon Distance between ecdf of network, \n and cdf of fitted lrg network (eigenvalues)")+
+  labs(x="time", y="JSD")+
+  geom_point(data=df.ann, aes(x=t_new,y=loss_new), color="red")+
+  geom_line(data=df.ann, aes(x=t_new,y=loss_new), color="red")+
+  theme_light() 
+
+```
+
+```{r}
+plot(pt5)
+```
+
+```{r}
+
+best=eigen_loss(t=lrg.ann$best_t, 
+                gg=gg, L=L, e=Emean, 
+                v=Evec, vinv=Evinv, 
+                complex=params[[1]], 
+                method=params[[2]],
+                expm_method=params[[3]],
+                loss_test=params[[4]],
+                mle=params[[5]],
+                tol=params[[6]],
+                order=params[[7]],
+                plots=1)
+```
+
+```{r}
+plot(best$plots[[1]])
+```
+
+```{r}
+plot(best$plots[[2]])
+```
+
+```{r}
+
+Ct  = sapply(df$tau, function(i) -dS_dlogt(e=Emean, t=i, n=Nv))
+
+dat = data.frame(x=df$tau, y=Ct, y1=Ct*log(Nv), y2=log(Ct*log(Nv)))
+
+```
+
+```{r}
+
+dat = dat[!is.infinite(dat$y),]
+dat = dat[!is.infinite(dat$y1),]
+dat = dat[!is.infinite(dat$y2),]
+
+## create plot
+pt3 <- ggplot(dat, aes(x,y1))+
+     geom_hline(yintercept=(best$params$spec_dim/2), color="orange2")+
+     geom_hline(yintercept=(best$params$C0), color="orange")+
+     geom_vline(xintercept=lrg.ann$best_t)+
+     geom_line(aes(color="C log(N)"),linewidth=1, alpha=.8)+    
+     scale_color_manual(values = c("C log(N)" = "red"),
+                       breaks = c("C log(N)"),
+                       name = "")+ 
+     labs(x = "log(tau)")+
+     scale_x_log10()+
+     scale_y_continuous(
+         name   = "C log(N)",
+         #labels = ~round(.,2),
+         #breaks = seq(-10,2,.5),
+         labels = scales::label_scientific(digits = 2))+
+    #annotation_logticks(sides="b", outside=TRUE)+
+    coord_cartesian(clip = "off")+
+    theme_light()+
+    theme(legend.position = "right")
+  
+```
+
+```{r}
+plot(pt3)
+```
+
+```{r}
+
+## Plot dC/dt
+pt4 = ggplot(df, aes(x=tau))+
+  geom_function(fun=dC_dt_test_wrapper, args=list(n=Nv,e=Emean),
+                  linewidth=1, aes(color="dC/dt"))+
+    geom_hline(yintercept=0, color="black", linetype="dashed", linewidth=1)+
+    geom_vline(xintercept=lrg.ann$best_t)+
+    labs(x = "log(tau)", y = "")+
+    scale_color_manual(values = c("dC/dt" = "red"),
+                       breaks = c("dC/dt"),
+                       name = "")+ 
+
+    scale_y_continuous(
+    name = "",##dC/dt",
+    ) + 
+     scale_x_log10(
+        breaks = scales::trans_breaks("log10", function(x) 10^x),
+        labels = scales::trans_format("log10", scales::math_format(10^.x))
+    ) +
+    annotation_logticks(sides="b", outside=TRUE)+
+    coord_cartesian(clip = "off")+
+    theme_light()+
+    theme(legend.position = "right")
+```
+
+```{r}
+pt4
+```
