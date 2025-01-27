@@ -15,6 +15,9 @@ getLaplacian(gg, el = 0.5, weights = NULL, type = c("igraph", "magnetic"))
 
 \item{type}{type of Laplacian to calculate for directed graph}
 }
+\value{
+Lapcacian matrix
+}
 \description{
 Prepare Laplacian matrix from graph
 }
