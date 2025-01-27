@@ -352,6 +352,70 @@ real.LRG <- function(e, v, vinv=NULL, L=NULL, t, gg, complex=FALSE,
 
 }
 
+cost_realLRG<-function(tau, cost_type=c("ks_dist", "kl_pq", "kl_qp",
+                                   "js.div", "jsd", "js.norm",
+                                   "loss"),zl,
+                       gg, e=NULL, v=NULL, vinv=NULL, L=NULL,
+                       complex=FALSE, method=c("eigen", "balanced", "square"),
+                       expm_method=c("Higham08.b"), tol=1e-5, order=1){
+    cost_type <- match.arg(cost_type)
+    penalty = 1e30
+    cost <- penalty
+    lrg   = real.LRG(e=e, v=v, vinv=vinv, L=L, t=tau, gg=gg,
+                     complex=complex, method=method,
+                     expm_method=expm_method,
+                     tol=tol, order=order)
+
+    ## degree distribution of coarse-grained network
+    lrg.d = as.numeric(degree(lrg$gg))
+
+    if( length(lrg.d) > 1 ){
+        cost<-cost/2
+        ## find alpha & xmin for d using poweRlaw's MLE
+        ## create new discrete power-law distribution
+        cont = tryCatch({
+            lrg.X=poweRlaw::displ$new(lrg.d)
+            ## If successful, return TRUE
+            TRUE
+        },
+        error = function(e) {
+            ## If there's an error, return FALSE
+            FALSE
+        }
+        )
+
+        if( cont ){
+            cost<-cost/2
+            ## estimate best xmin and alpha from sequence of xmin values
+            lrg.est    = estimate_xmin(lrg.X, seq(1,max(lrg.d),1))
+            lrg.xmin   = lrg.est$xmin
+            lrg.alpha  = lrg.est$pars
+
+            lrg.sn.sz.min = 1
+            lrg.sn.sz.max = igraph::vcount(lrg$gg)
+            lrg.sn        = table(lrg$supernodes)
+            lrg.sn.sz     = as.numeric(names(lrg.sn))
+            lrg.sn.sz     = lrg.sn.sz[-c(lrg.sn.sz.min, lrg.sn.sz.max)]
+            lrg.d         = as.numeric(degree(lrg$gg))
+
+            if( length(lrg.sn.sz) >= 1 && sum(lrg.d!=1) > 1 ){
+                ks_dist = ks_dist(x=zl, xmin=lrg.xmin, alpha=lrg.alpha)
+                ## calculate JS divergence
+                js    = js.distance(x=cbind(ks_dist[[2]],ks_dist[[3]]),we=rep(0.5,2))
+                cost<-switch (cost_type,
+                              "ks_dist"=ks_dist[[1]],
+                              "kl_pq"=kl.divergence (ks_dist[[2]],ks_dist[[3]]),
+                              "kl_qp"=kl.divergence (ks_dist[[3]],ks_dist[[2]]),
+                              "js.div"=js$js.div,
+                              "jsd"=js$jsd,
+                              "js.norm"=js$js.norm,
+                              "loss"=cross.entropy.loss(ks_dist[[2]],ks_dist[[3]])
+                )
+            }
+        }
+    }
+    return(cost)
+}
 #' Scan vector tau values for goodness of fit.
 #'
 #' Function calculates coarse-grained graph for selected set of tau values
