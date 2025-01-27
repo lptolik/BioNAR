@@ -969,7 +969,7 @@ get.supernodes <- function(adj){
                                                          "directed"))
 
     ## function clusters gives a bit more information than decompose
-    clusters  = igraph::clusters(cc)
+    clusters  = igraph::components(cc)
 
 }
 
