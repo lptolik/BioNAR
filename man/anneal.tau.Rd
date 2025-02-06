@@ -12,6 +12,7 @@ anneal.tau(
   L = NULL,
   t.lower,
   t.upper,
+  start = NULL,
   complex = FALSE,
   method = c("eigen", "balanced", "square"),
   expm_method = c("Higham08.b"),

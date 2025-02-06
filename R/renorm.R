@@ -216,7 +216,7 @@ runLRG<-function(gg, complex=FALSE,
     if(verbatim){cat(format(Sys.time(), "%b %d %X"),'BEAST calculated.\n')}
     lrg = scan.tau(gg=gg, e=Emean, v=Evec, vinv=Evinv, L=L, tau=tps$tp$tp.x_axis,
                        complex=complex, method=method, order=order, print=prnt)
-    t.upper = tps$tp$tp.max.x_axis[max(lrg$df$Iter)+1]
+    t.upper = tps$tp$tp.max.x_axis[min(max(lrg$df$Iter)+1,nrow(tps$tp))]
     t.lower = tps$tp$tp.min.x_axis[max(1,min(lrg$df$Iter)-1)]
     if(verbatim){cat(format(Sys.time(), "%b %d %X"),'Tau bounds found:[',t.lower,',',t.upper,'].\n')}
     lrg.ann = anneal.tau(gg=gg, L=L, e=Emean, v=Evec, vinv=Evinv,seed=seed,
@@ -343,7 +343,7 @@ real.LRG <- function(e, v, vinv=NULL, L=NULL, t, gg, complex=FALSE,
     sn = get.supernodes(adj=adj)
 
     ## record node mapping between levels
-    mapping = cbind(gn, sn$membership)
+    mapping = cbind(ID=gn, LRG=sn$membership)
 
     gg2 = coarse.grain.graph(gg=gg, supernodes=sn$membership)
 
@@ -626,8 +626,8 @@ scan.tau <- function(gg, e=NULL, v=NULL, vinv=NULL, L=NULL, tau,
 #'    \item restarts - number of restarts left.
 #' }
 #' @export
-anneal.tau <- function(gg, e=NULL, v=NULL, vinv=NULL, L=NULL, t.lower, t.upper, complex=FALSE,
-                        method=c("eigen", "balanced", "square"),
+anneal.tau <- function(gg, e=NULL, v=NULL, vinv=NULL, L=NULL, t.lower, t.upper, start=NULL,
+                       complex=FALSE, method=c("eigen", "balanced", "square"),
                         expm_method=c("Higham08.b"), tol=1e-5, order=1, print=FALSE,
                         max_iter=100, dt=1, restarts=25, cooling_rate=0.99, seed=NULL) {
 
@@ -662,10 +662,16 @@ anneal.tau <- function(gg, e=NULL, v=NULL, vinv=NULL, L=NULL, t.lower, t.upper, 
                          y=data_cdf_probs(X$internal$values))
 
     ## generate an initial time
+    if(is.null(start)){
     t     = t.lower[1] + runif(1) * (t.upper - t.lower)
+    }else{
+        t <- start
+    }
 
     cont = FALSE
     loss  = NA
+    curr_loss   = loss
+    g_loss = loss
 
     while ( !cont ){
 
@@ -731,6 +737,7 @@ anneal.tau <- function(gg, e=NULL, v=NULL, vinv=NULL, L=NULL, t.lower, t.upper, 
             loss  = js.distance(we=c(1/2,1/2), x=cbind(p=ks_dist[[2]], q=ks_dist[[3]]))[[4]]
             curr_t      = t
             curr_loss   = loss
+            g_loss = loss
             deltaL      = NA
 
             res[[k]]    = c("Iter"=1, "Loss(old)"=NA, "Loss(new)"=loss,
@@ -823,7 +830,7 @@ anneal.tau <- function(gg, e=NULL, v=NULL, vinv=NULL, L=NULL, t.lower, t.upper, 
                     #new_loss = cross.entropy.loss(gg.dat$y, lrg.dat$y)
                     #new_loss = cross.entropy.loss(gg_pdf, lrg_pdf)
 
-                    if( new_loss < loss ){
+                    if( new_loss <= g_loss ){
                         ## store best results
                         res[[k]]    = c("Iter"=iter, "Loss(old)"=loss, "Loss(new)"=new_loss,
                                         #"Loss(delta)"=deltaL,
@@ -843,6 +850,7 @@ anneal.tau <- function(gg, e=NULL, v=NULL, vinv=NULL, L=NULL, t.lower, t.upper, 
                                                    x.lab="K", y.lab="LRG.K")
                         ## store best time
                         loss = new_loss;
+                        g_loss = loss
                         t    = new_t;
                         k    = k + 1
                     }
