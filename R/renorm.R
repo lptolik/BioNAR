@@ -216,7 +216,7 @@ runLRG<-function(gg, complex=FALSE,
     if(verbatim){cat(format(Sys.time(), "%b %d %X"),'BEAST calculated.\n')}
     lrg = scan.tau(gg=gg, e=Emean, v=Evec, vinv=Evinv, L=L, tau=tps$tp$tp.x_axis,
                        complex=complex, method=method, order=order, print=prnt)
-    t.upper = tps$tp$tp.max.x_axis[max(lrg$df$Iter)+1]
+    t.upper = tps$tp$tp.max.x_axis[min(max(lrg$df$Iter)+1,nrow(tps$tp))]
     t.lower = tps$tp$tp.min.x_axis[max(1,min(lrg$df$Iter)-1)]
     if(verbatim){cat(format(Sys.time(), "%b %d %X"),'Tau bounds found:[',t.lower,',',t.upper,'].\n')}
     lrg.ann = anneal.tau(gg=gg, L=L, e=Emean, v=Evec, vinv=Evinv,seed=seed,
@@ -343,7 +343,7 @@ real.LRG <- function(e, v, vinv=NULL, L=NULL, t, gg, complex=FALSE,
     sn = get.supernodes(adj=adj)
 
     ## record node mapping between levels
-    mapping = cbind(gn, sn$membership)
+    mapping = cbind(ID=gn, LRG=sn$membership)
 
     gg2 = coarse.grain.graph(gg=gg, supernodes=sn$membership)
 
@@ -352,6 +352,70 @@ real.LRG <- function(e, v, vinv=NULL, L=NULL, t, gg, complex=FALSE,
 
 }
 
+cost_realLRG<-function(tau, cost_type=c("ks_dist", "kl_pq", "kl_qp",
+                                   "js.div", "jsd", "js.norm",
+                                   "loss"),zl,
+                       gg, e=NULL, v=NULL, vinv=NULL, L=NULL,
+                       complex=FALSE, method=c("eigen", "balanced", "square"),
+                       expm_method=c("Higham08.b"), tol=1e-5, order=1){
+    cost_type <- match.arg(cost_type)
+    penalty = 1e30
+    cost <- penalty
+    lrg   = real.LRG(e=e, v=v, vinv=vinv, L=L, t=tau, gg=gg,
+                     complex=complex, method=method,
+                     expm_method=expm_method,
+                     tol=tol, order=order)
+
+    ## degree distribution of coarse-grained network
+    lrg.d = as.numeric(degree(lrg$gg))
+
+    if( length(lrg.d) > 1 ){
+        cost<-cost/2
+        ## find alpha & xmin for d using poweRlaw's MLE
+        ## create new discrete power-law distribution
+        cont = tryCatch({
+            lrg.X=poweRlaw::displ$new(lrg.d)
+            ## If successful, return TRUE
+            TRUE
+        },
+        error = function(e) {
+            ## If there's an error, return FALSE
+            FALSE
+        }
+        )
+
+        if( cont ){
+            cost<-cost/2
+            ## estimate best xmin and alpha from sequence of xmin values
+            lrg.est    = estimate_xmin(lrg.X, seq(1,max(lrg.d),1))
+            lrg.xmin   = lrg.est$xmin
+            lrg.alpha  = lrg.est$pars
+
+            lrg.sn.sz.min = 1
+            lrg.sn.sz.max = igraph::vcount(lrg$gg)
+            lrg.sn        = table(lrg$supernodes)
+            lrg.sn.sz     = as.numeric(names(lrg.sn))
+            lrg.sn.sz     = lrg.sn.sz[-c(lrg.sn.sz.min, lrg.sn.sz.max)]
+            lrg.d         = as.numeric(degree(lrg$gg))
+
+            if( length(lrg.sn.sz) >= 1 && sum(lrg.d!=1) > 1 ){
+                ks_dist = ks_dist(x=zl, xmin=lrg.xmin, alpha=lrg.alpha)
+                ## calculate JS divergence
+                js    = js.distance(x=cbind(ks_dist[[2]],ks_dist[[3]]),we=rep(0.5,2))
+                cost<-switch (cost_type,
+                              "ks_dist"=ks_dist[[1]],
+                              "kl_pq"=kl.divergence (ks_dist[[2]],ks_dist[[3]]),
+                              "kl_qp"=kl.divergence (ks_dist[[3]],ks_dist[[2]]),
+                              "js.div"=js$js.div,
+                              "jsd"=js$jsd,
+                              "js.norm"=js$js.norm,
+                              "loss"=cross.entropy.loss(ks_dist[[2]],ks_dist[[3]])
+                )
+            }
+        }
+    }
+    return(cost)
+}
 #' Scan vector tau values for goodness of fit.
 #'
 #' Function calculates coarse-grained graph for selected set of tau values
@@ -562,8 +626,8 @@ scan.tau <- function(gg, e=NULL, v=NULL, vinv=NULL, L=NULL, tau,
 #'    \item restarts - number of restarts left.
 #' }
 #' @export
-anneal.tau <- function(gg, e=NULL, v=NULL, vinv=NULL, L=NULL, t.lower, t.upper, complex=FALSE,
-                        method=c("eigen", "balanced", "square"),
+anneal.tau <- function(gg, e=NULL, v=NULL, vinv=NULL, L=NULL, t.lower, t.upper, start=NULL,
+                       complex=FALSE, method=c("eigen", "balanced", "square"),
                         expm_method=c("Higham08.b"), tol=1e-5, order=1, print=FALSE,
                         max_iter=100, dt=1, restarts=25, cooling_rate=0.99, seed=NULL) {
 
@@ -598,10 +662,16 @@ anneal.tau <- function(gg, e=NULL, v=NULL, vinv=NULL, L=NULL, t.lower, t.upper, 
                          y=data_cdf_probs(X$internal$values))
 
     ## generate an initial time
+    if(is.null(start)){
     t     = t.lower[1] + runif(1) * (t.upper - t.lower)
+    }else{
+        t <- start
+    }
 
     cont = FALSE
     loss  = NA
+    curr_loss   = loss
+    g_loss = loss
 
     while ( !cont ){
 
@@ -667,6 +737,7 @@ anneal.tau <- function(gg, e=NULL, v=NULL, vinv=NULL, L=NULL, t.lower, t.upper, 
             loss  = js.distance(we=c(1/2,1/2), x=cbind(p=ks_dist[[2]], q=ks_dist[[3]]))[[4]]
             curr_t      = t
             curr_loss   = loss
+            g_loss = loss
             deltaL      = NA
 
             res[[k]]    = c("Iter"=1, "Loss(old)"=NA, "Loss(new)"=loss,
@@ -759,7 +830,7 @@ anneal.tau <- function(gg, e=NULL, v=NULL, vinv=NULL, L=NULL, t.lower, t.upper, 
                     #new_loss = cross.entropy.loss(gg.dat$y, lrg.dat$y)
                     #new_loss = cross.entropy.loss(gg_pdf, lrg_pdf)
 
-                    if( new_loss < loss ){
+                    if( new_loss <= g_loss ){
                         ## store best results
                         res[[k]]    = c("Iter"=iter, "Loss(old)"=loss, "Loss(new)"=new_loss,
                                         #"Loss(delta)"=deltaL,
@@ -779,6 +850,7 @@ anneal.tau <- function(gg, e=NULL, v=NULL, vinv=NULL, L=NULL, t.lower, t.upper, 
                                                    x.lab="K", y.lab="LRG.K")
                         ## store best time
                         loss = new_loss;
+                        g_loss = loss
                         t    = new_t;
                         k    = k + 1
                     }

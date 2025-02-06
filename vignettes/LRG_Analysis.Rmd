@@ -1,0 +1,170 @@
+---
+title: "Laplacian Renormalization Group (LRG) Analysis"
+author:
+- name: "Colin Mclean"
+- name: "Anatoly Sorokin"
+- name: "T. I. Simpson"
+- name: "J. Douglas Armstrong"
+- name: "Oksana Sorokina"
+date: "Edited: 2025; Compiled: `r format(Sys.time(), '%B %d, %Y')`"
+package: BioNAR
+vignette: >
+  %\VignetteIndexEntry{Laplacian Renormalization Group (LRG) Analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+output:
+  BiocStyle::html_document:
+    number_sections: yes
+    toc: yes
+    toc_depth: 4
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  cache = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, echo=FALSE}
+library(knitr)
+library(BioNAR)
+library(ggplot2)
+library(pander)
+library(ggrepel)
+library(randomcoloR)
+library(clustAnalytics)
+```
+```{r functions, include=FALSE,cache=FALSE}
+alORA<-paste0('|p{0.01\\textwidth}',
+           '|r',                #cl
+           '|r',                #FL
+           '|r',                #N
+           '|r',                #Fn
+           '|r',                #Cn
+           '|r',                #Mu
+           '|r',                #OR
+           '|r',                #Fe
+           '|r',                #Fc
+           '|r',                #pval
+           '|r',                #padj
+           '|r',                #palt
+           '|r|'                #paltadj
+)
+
+```
+
+
+# Introduction
+
+# Presynaptic PPI network analysis
+## Loading network
+```{r ppi.read.data}
+file <- system.file("extdata", "PPI_Presynaptic.gml", package = "BioNAR")
+gg <- igraph::read_graph(file,format="gml")
+gg<-calcAllClustering(gg)
+summary(gg)
+```
+
+Calculation of the optimal coarse-grained graph could be time-consuming ()
+```{r ppi.run.LRG}
+res<-runLRG(gg,cooling_rate=0.85,seed=100,
+                      complex=FALSE, method="eigen", max_iter=100, dt=1,
+            comb='concat',simplify=FALSE)
+```
+
+```{r ppi.LRG.finplot}
+plot(res$finplot)
+```
+
+```{r ppi.LRG.logplot}
+plot(res$logplot)
+```
+
+Supernode size distribution:
+```{r ppi.LRG.supernode.stats}
+kable(table(res$R$supernodes))
+```
+
+Supernode composition:
+```{r ppi.LRG.supernode.comp}
+kable(V(res$R$gg)$GeneName[which(res$R$supernodes>1)])
+```
+
+Degree distribution tale comparison, original graph:
+```{r ppi.LRG.degree.tails.orig}
+kable(sort(degree(res$gg),decreasing=TRUE)[1:15])
+```
+
+coarse-grained graph:
+```{r ppi.LRG.degree.tails.cg}
+kable(sort(degree(res$R$gg),decreasing=TRUE)[1:15])
+```
+
+## Cluster analysis
+```{r ppi.LRG.cSummary}
+gg<-applpMatrixToGraph(gg,res$R$mapping)
+csum<-clusteringSummary(gg,att = c("lec", "wt", "fc", "infomap", "louvain", "sgG1", "sgG2", "sgG5", "spectral",'LRG'))
+lcORA<-list()
+kable(csum)
+```
+
+
+### Walktrap community
+```{r ppi.LRG.wt.ora}
+clORA<-clusterORA(gg,'wt','LRG')
+lcORA[['wt']]<-clORA[!is.infinite(clORA$OR),]
+```
+
+### Spin-glass model community
+```{r ppi.LRG.sgG1.ora}
+clORA<-clusterORA(gg,'sgG1','LRG')
+lcORA[['sgG1']]<-clORA[!is.infinite(clORA$OR),]
+```
+
+```{r ppi.LRG.sgG2.ora}
+clORA<-clusterORA(gg,'sgG2','LRG')
+lcORA[['sgG2']]<-clORA[!is.infinite(clORA$OR),]
+```
+
+```{r ppi.LRG.sgG5.ora}
+clORA<-clusterORA(gg,'sgG5','LRG')
+lcORA[['sgG5']]<-clORA[!is.infinite(clORA$OR),]
+```
+
+### Infomap community
+```{r ppi.LRG.infomap.ora}
+clORA<-clusterORA(gg,'infomap','LRG')
+lcORA[['infomap']]<-clORA[!is.infinite(clORA$OR),]
+```
+
+### Louvain
+```{r ppi.LRG.louvain.ora}
+clORA<-clusterORA(gg,'louvain','LRG')
+lcORA[['louvain']]<-clORA[!is.infinite(clORA$OR),]
+```
+
+### Spectral
+```{r ppi.LRG.spectral.ora}
+clORA<-clusterORA(gg,'spectral','LRG')
+lcORA[['spectral']]<-clORA[!is.infinite(clORA$OR),]
+```
+
+```{r ppi.LRG.ora.table}
+tORA<-do.call(rbind,lcORA)
+kable(tORA[,-c(1,9,10,17)])
+```
+
+# Diseasesome analysis
+
+## Prepare network
+```{r disease.prep.net}
+gd<-findLCC(diseasome)
+gd<-calcAllClustering(gd)
+summary(gd)
+```
+
+
