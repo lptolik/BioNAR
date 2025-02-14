@@ -1332,6 +1332,17 @@ log_plot <- function(df.x, df.y, x.lab="K", y.lab="LRG.K",title=NULL){
     return(gp)
 }
 
+## calculate C wrapper
+## Z(t)      = Sum exp(-e_i*t)
+## lambda(t) = Sum e_i * exp(-e_i*t) / Z(t)
+## C0        = lambda(t) * t
+C0_wrapper <- function(e,t){
+    Z_t      = sapply(t, function(i) Z.tau(e,i))
+    Zp_t     = sapply(t, function(i) Zp.tau(e,i))
+    lambda_t = Zp_t/Z_t
+    return(t*lambda_t)
+}
+
 
 ## Return: 1-S
 S_wrapper <- function(e,t,n, negate=1){

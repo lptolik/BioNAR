@@ -69,16 +69,26 @@ gg<-calcAllClustering(gg)
 summary(gg)
 ```
 
+```{r ppi.powerlaw.plot}
+pFit <- fitDegree( as.vector(igraph::degree(graph=gg)),threads=1,Nsim=5,
+plot=TRUE,WIDTH=2480, HEIGHT=2480)
+```
+
 Calculation of the optimal coarse-grained graph could be time-consuming ()
 ```{r ppi.run.LRG}
 res<-runLRG(gg,cooling_rate=0.85,seed=100,
-                      complex=FALSE, method="eigen", max_iter=100, dt=1,
+            complex=FALSE, method="eigen", max_iter=100, dt=1,
             comb='concat',simplify=FALSE)
 ```
 
 ```{r ppi.LRG.finplot}
 plot(res$finplot)
 ```
+
+```{r ppi.LRG.tpsplot}
+plot(res$tps$pt)
+```
+
 
 ```{r ppi.LRG.logplot}
 plot(res$logplot)
@@ -162,9 +172,103 @@ kable(tORA[,-c(1,9,10,17)])
 
 ## Prepare network
 ```{r disease.prep.net}
+rm(res)
 gd<-findLCC(diseasome)
 gd<-calcAllClustering(gd)
 summary(gd)
+```
+
+```{r disease.powerlaw.plot}
+pFit <- fitDegree( as.vector(igraph::degree(graph=gd)),threads=1,Nsim=5,
+plot=TRUE,WIDTH=2480, HEIGHT=2480)
+```
+
+
+Calculation of the optimal coarse-grained graph could be time-consuming ()
+```{r disease.run.LRG}
+res<-runLRG(gd,cooling_rate=0.85,seed=100,
+            complex=FALSE, method="eigen", max_iter=100, dt=1,
+            comb='concat',simplify=FALSE)
+```
+
+```{r disease.LRG.finplot}
+plot(res$finplot)
+```
+
+```{r disease.LRG.tpsplot}
+plot(res$tps$pt)
+```
+
+```{r disease.LRG.logplot}
+plot(res$logplot)
+```
+
+Supernode size distribution:
+```{r disease.LRG.supernode.stats}
+kable(table(res$R$supernodes))
+```
+
+Supernode composition:
+```{r disease.LRG.supernode.comp}
+kable(V(res$R$gg)$GeneName[which(res$R$supernodes>1)])
+```
+
+Degree distribution tale comparison, original graph:
+```{r disease.LRG.degree.tails.orig}
+kable(sort(degree(res$gg),decreasing=TRUE)[1:15])
+```
+
+coarse-grained graph:
+```{r disease.LRG.degree.tails.cg}
+kable(sort(degree(res$R$gg),decreasing=TRUE)[1:15])
+```
+
+## Cluster analysis
+```{r disease.LRG.cSummary}
+gd<-applpMatrixToGraph(gd,res$R$mapping)
+csum<-clusteringSummary(gd,att = c("lec", "wt", "fc", "infomap", "louvain", "sgG1", "sgG2", "sgG5", "spectral",'LRG'))
+lcORA<-list()
+kable(csum)
+```
+
+
+### Walktrap community
+```{r disease.LRG.wt.ora}
+clORA<-clusterORA(gd,'wt','LRG')
+lcORA[['wt']]<-clORA[!is.infinite(clORA$OR),]
+```
+
+### Spin-glass model community
+```{r disease.LRG.sgG1.ora}
+clORA<-clusterORA(gd,'sgG1','LRG')
+lcORA[['sgG1']]<-clORA[!is.infinite(clORA$OR),]
+```
+
+```{r disease.LRG.sgG2.ora}
+clORA<-clusterORA(gd,'sgG2','LRG')
+lcORA[['sgG2']]<-clORA[!is.infinite(clORA$OR),]
+```
+
+```{r disease.LRG.sgG5.ora}
+clORA<-clusterORA(gd,'sgG5','LRG')
+lcORA[['sgG5']]<-clORA[!is.infinite(clORA$OR),]
+```
+
+### Infomap community
+```{r disease.LRG.infomap.ora}
+clORA<-clusterORA(gd,'infomap','LRG')
+lcORA[['infomap']]<-clORA[!is.infinite(clORA$OR),]
+```
+
+### Spectral
+```{r disease.LRG.spectral.ora}
+clORA<-clusterORA(gd,'spectral','LRG')
+lcORA[['spectral']]<-clORA[!is.infinite(clORA$OR),]
+```
+
+```{r disease.LRG.ora.table}
+tORA<-do.call(rbind,lcORA)
+kable(tORA[,-c(1,9,10,17)])
 ```
 
 
