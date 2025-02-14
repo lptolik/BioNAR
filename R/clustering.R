@@ -91,7 +91,7 @@ calcMembership <- function(gg,
             mdf<-compMembership(sg,alg,compnum = .x,weights = weights)})
         memL[[length(memL)+1]]<-singldf
         mem<-do.call(rbind,memL)
-        idx<-match(mem$names,V(gg)$names)
+        idx<-match(mem$names,V(gg)$name)
         mem<-mem[idx,]
     }
     mem$membership<-factor(mem$membership)
@@ -105,7 +105,7 @@ calcMembership <- function(gg,
 #'
 #' @param gg igraph object to cluster
 #' @param alg algorithm name
-#' @param compnum
+#' @param compnum number of the componet to cluster
 #' @param weights The weights of the edges. It must be a positive numeric
 #'        vector, NULL or NA. If it is NULL and the input graph has a ‘weight’
 #'        edge attribute, then that attribute will be used. If it is NULL and no such
@@ -137,7 +137,7 @@ compMembership<-function(gg,
                                membership = sprintf('C%05d|%d',compnum,
                                                     cl$membership))
     } else{
-        cc <- data.frame(names = ids, membership = 'C%05d|NULL',compnum)
+        cc <- data.frame(names = ids, membership = sprintf('C%05d|NULL',compnum))
         warning('Clustering calculations for algorithm "',
                 alg,'',compnum,
                 '" failed. Whole component marked as a cluster.')
@@ -248,7 +248,7 @@ calcClustering <- function(gg, alg,weights = NULL) {
     m      <- as.matrix(cm)
     colnames(m) <- c('ID', alg)
     ggm <- applpMatrixToGraph(gg , m)
-    mod <- modularity(ggm, as.numeric(cl$membership))
+    mod <- modularity(ggm, as.numeric(cm$membership))
     ggm <- set_graph_attr(ggm, alg, mod)
     return(ggm)
 }

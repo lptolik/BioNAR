@@ -66,9 +66,9 @@ getBridgeness <- function(gg, alg, conmat) {
     dat  <- data.frame(indA, indB)
     ##get community assigned to each vertex in edgelist from the algorithm 'alg'
     algAtt<-factor(vertex_attr(gg, alg))
-    elA <- algAtt<-vertex_attr(gg, alg)[match(as_edgelist(gg)[, 1],
+    elA <- algAtt[match(as_edgelist(gg)[, 1],
                                                 V(gg)$name)]
-    elB <- algAtt<-vertex_attr(gg, alg)[match(as_edgelist(gg)[, 2],
+    elB <- algAtt[match(as_edgelist(gg)[, 2],
                                                 V(gg)$name)]
     ##for each edge record the community assigned to each vertex and it's
     ##consensus matrix value
