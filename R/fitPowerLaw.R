@@ -143,8 +143,10 @@ fitDegree <- function(DEG,
         sdS1 <- round(stats::sd(gof$bootstraps$xmin), 0)
         sdS2 <- round(stats::sd(gof$bootstraps$pars), 2)
         if(showErr){
-        errS1 <- str_sub(as.character(sdS1), -1, -1)
-        errS2 <- str_sub(as.character(sdS2), -1, -1)
+            # errS1 <- str_sub(as.character(sdS1), -1, -1)
+            # errS2 <- str_sub(as.character(sdS2), -1, -1)
+            errS1 <- as.character(sdS1)
+            errS2 <- as.character(sdS2)
         }else{
             errS1 <- '0'
             errS2 <- '0'
