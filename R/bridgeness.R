@@ -65,11 +65,10 @@ getBridgeness <- function(gg, alg, conmat) {
     indB <- match(as_edgelist(gg)[, 2], rownames(conmat))
     dat  <- data.frame(indA, indB)
     ##get community assigned to each vertex in edgelist from the algorithm 'alg'
-    elA <- vertex_attr(gg, alg,
-                                V(gg))[match(as_edgelist(gg)[, 1],
+    algAtt<-factor(vertex_attr(gg, alg))
+    elA <- algAtt<-vertex_attr(gg, alg)[match(as_edgelist(gg)[, 1],
                                                 V(gg)$name)]
-    elB <- vertex_attr(gg, alg,
-                                V(gg))[match(as_edgelist(gg)[, 2],
+    elB <- algAtt<-vertex_attr(gg, alg)[match(as_edgelist(gg)[, 2],
                                                 V(gg)$name)]
     ##for each edge record the community assigned to each vertex and it's
     ##consensus matrix value
@@ -84,7 +83,7 @@ getBridgeness <- function(gg, alg, conmat) {
     ed[, 6]  <- (as.numeric(elA) - as.numeric(elB))
     ##maximum number of communities found by clustering algorithm
     Cmax  <-
-        max(as.numeric(igraph::vertex_attr(gg, alg, V(gg))))
+        length(unique(igraph::vertex_attr(gg, alg, V(gg))))
     ##loop over each vertex in the graph
     for (i in seq_along(V(gg))) {
         ##get edges belonging to the i'th veretx

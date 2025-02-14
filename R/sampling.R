@@ -246,20 +246,8 @@ calcReclusterMatrix <- function(gg,
         edCC <- intraEdgesM(gg, mem, cc[i], INTRA = TRUE)
         if (!is.null(edCC)) {
             ggLCC    <- graph_from_data_frame(d = edCC, directed = FALSE)
-            res <- getClustering(ggLCC, alg,weights=weights)
-            oo       <-
-                data.frame(names = res$names,
-                           membership = res$membership)
-            if (dim(oo)[1] < Cnc[i]) {
-                cmem <- mem[mem$membership == cc[i]]
-                singidx <- which(!cmem$names %in% oo$names)
-                singletones <- data.frame(
-                    names = cmem$names[singidx],
-                    membership = max(oo$membership) +
-                        seq_along(singidx)
-                )
-                oo <- rbind(oo, singletones)
-            }
+            #res <- getClustering(ggLCC, alg,weights=weights)
+            oo       <- calcMembership(ggLCC, alg,weights=weights)
             RES[[k]]      <- oo
             names(RES)[k] <- cc[i]
             k <- k + 1
