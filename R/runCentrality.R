@@ -330,9 +330,9 @@ applpMatrixToGraph <- function(gg, m) {
         stop("Vertex IDs suppose to be unique.")
     }
     idx <- match(V(gg)$name, m[, id.col])
-    if(any(is.na(idx))){
-        stop("Vertex IDs suppose to match graph vertex names.")
-    }
+    # if(any(is.na(idx))){
+    #     stop("Vertex IDs suppose to match graph vertex names.")
+    # }
     meas.col <- which(measures != 'ID')
     for (i in meas.col) {
         #remove previous annotation of that name
