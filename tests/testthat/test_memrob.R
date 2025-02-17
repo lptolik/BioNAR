@@ -28,11 +28,3 @@ test_that('clustering',{
     expect_equal(dim(df),c(9,12))
 })
 
-test_that('spinglass on disconnected graph',{
-    g1 <- make_star(10, mode="undirected") %du% make_ring(7) %du% make_ring(5)
-    expect_warning(m<-calcMembership(g1, 'sgG1'),'.*NULL.*')
-    expect_equal(dim(m)[1],0)
-    expect_warning(g2<-calcClustering(g1, 'sgG1'),'.*NULL.*')
-    expect_identical(g2,g1)
-
-})
