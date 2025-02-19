@@ -31,9 +31,9 @@
 #' br<-getBridgeness(gg, alg = 'louvain', cnmat)
 getBridgeness <- function(gg, alg, conmat) {
     #---number of vertices/genes
-    N    <- length(V(gg))
+    N    <- vcount(gg) #length(V(gg))
     #---number of edges/PPIs
-    M    <- length(E(gg))
+    M    <- ecount(gg) #length(E(gg))
     if (!alg %in% names(vertex.attributes(gg))) {
         stop(
             'Clustering membership attribute "',
@@ -65,12 +65,9 @@ getBridgeness <- function(gg, alg, conmat) {
     indB <- match(as_edgelist(gg)[, 2], rownames(conmat))
     dat  <- data.frame(indA, indB)
     ##get community assigned to each vertex in edgelist from the algorithm 'alg'
-    elA <- vertex_attr(gg, alg,
-                                V(gg))[match(as_edgelist(gg)[, 1],
-                                                V(gg)$name)]
-    elB <- vertex_attr(gg, alg,
-                                V(gg))[match(as_edgelist(gg)[, 2],
-                                                V(gg)$name)]
+    algAtt<-as.numeric(factor(vertex_attr(gg, alg)))
+    elA <- algAtt[match(as_edgelist(gg)[, 1], V(gg)$name)]
+    elB <- algAtt[match(as_edgelist(gg)[, 2], V(gg)$name)]
     ##for each edge record the community assigned to each vertex and it's
     ##consensus matrix value
     ed      <- matrix(ncol = 6, nrow = length(E(gg)))
@@ -84,14 +81,14 @@ getBridgeness <- function(gg, alg, conmat) {
     ed[, 6]  <- (as.numeric(elA) - as.numeric(elB))
     ##maximum number of communities found by clustering algorithm
     Cmax  <-
-        max(as.numeric(igraph::vertex_attr(gg, alg, V(gg))))
+        length(unique(algAtt))
     ##loop over each vertex in the graph
     for (i in seq_along(V(gg))) {
         ##get edges belonging to the i'th veretx
         ind <-
             which(ed[, 1] == V(gg)$name[i] | ed[, 2] == V(gg)$name[i])
         ##get community belonging to the i'th vertex
-        c <- igraph::vertex_attr(gg, alg, V(gg))[i]
+        c <- algAtt[i]
         ##reorder edge communities, so ed[, 3] equals current community no: 'c'
         for (k in seq_along(ind)) {
             if (ed[ind[k], 6] != 0 && ed[ind[k], 4] == c) {

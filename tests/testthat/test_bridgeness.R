@@ -69,7 +69,7 @@ test_that('Presynaptic Bridgenes',{
                                  type = 2, mask = 10)
     br<-getBridgeness(louvainG, alg = 'louvain', cnmat)
     expect_equal(dim(br),c(212,3))
-    expect_equal(br$BRIDGENESS.louvain[br$GENE.NAME == 'ACTN2'],0.3903348,
+    expect_equal(br$BRIDGENESS.louvain[br$GENE.NAME == 'ACTN2'],0.51826614,#0.3903348,
                  tolerance = 0.01)
     agg<-calcBridgeness(louvainG, alg = 'louvain', cnmat)
     expect_true(any(grepl('louvain',vertex_attr_names(agg))))

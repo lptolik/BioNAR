@@ -97,7 +97,7 @@ test_that('Layouts',{
     expect_equal(lay[1,],c(-8.503734,  9.185847),tolerance = 0.001)
     set.seed(100)
     remem<-calcReclusterMatrix(karate,mem,alg,10)
-    expect_equal(unlist(remem[34,c(2,3)]),c(3,5),ignore_attr = TRUE)
+    expect_equal(as.numeric(remem[34,c(2,3)]),c(3,4),ignore_attr = TRUE)
     set.seed(100)
     lay<-layoutByRecluster(karate,remem)
     expect_equal(lay[1,],c(16.38576156,  0.04864405),tolerance = 0.001)

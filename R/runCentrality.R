@@ -329,12 +329,15 @@ applpMatrixToGraph <- function(gg, m) {
     if(any(table(m[,id.col])>1)){
         stop("Vertex IDs suppose to be unique.")
     }
+    idx <- match(V(gg)$name, m[, id.col])
+    # if(any(is.na(idx))){
+    #     stop("Vertex IDs suppose to match graph vertex names.")
+    # }
     meas.col <- which(measures != 'ID')
     for (i in meas.col) {
         #remove previous annotation of that name
         #check does it really needed
         ggm <- removeVertexTerm(ggm, measures[i])
-        idx <- match(V(gg)$name, m[, id.col])
         naid <- which(is.na(idx))
         if (length(naid) == 0) {
             ggm <- set_vertex_attr(

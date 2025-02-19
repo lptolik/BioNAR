@@ -108,6 +108,7 @@ getClusterSubgraphByID <- function(clID, gg, mem) {
 #' #plot(karate,layout=lay)
 layoutByCluster <- function(gg, mem, layout = layout_with_kk) {
     Cn <- table(mem$membership)
+    Cn <- Cn[Cn>0]
     sgraphs <-
         lapply(names(Cn),
                getClusterSubgraphByID,
@@ -141,6 +142,7 @@ layoutByCluster <- function(gg, mem, layout = layout_with_kk) {
 #' #plot(karate,layout=lay)
 layoutByRecluster <- function(gg, remem, layout = layout_with_kk) {
     Cn <- table(remem$membership)
+    Cn <- Cn[Cn>0]
     glist <- list()
     laylist <- list()
     for (i in seq_along(Cn)) {
@@ -148,7 +150,7 @@ layoutByRecluster <- function(gg, remem, layout = layout_with_kk) {
         mem1 <-
             remem[remem$membership == names(Cn)[i], c('names', 'recluster')]
         names(mem1) <- c('names', 'membership')
-        if (length(table(mem1$membership)) > 1) {
+        if (length(table(as.numeric(mem1$membership))) > 1) {
             lay <- layoutByCluster(sg, mem1, layout)
         } else{
             lay <- layout(sg)
@@ -246,20 +248,8 @@ calcReclusterMatrix <- function(gg,
         edCC <- intraEdgesM(gg, mem, cc[i], INTRA = TRUE)
         if (!is.null(edCC)) {
             ggLCC    <- graph_from_data_frame(d = edCC, directed = FALSE)
-            res <- getClustering(ggLCC, alg,weights=weights)
-            oo       <-
-                data.frame(names = res$names,
-                           membership = res$membership)
-            if (dim(oo)[1] < Cnc[i]) {
-                cmem <- mem[mem$membership == cc[i]]
-                singidx <- which(!cmem$names %in% oo$names)
-                singletones <- data.frame(
-                    names = cmem$names[singidx],
-                    membership = max(oo$membership) +
-                        seq_along(singidx)
-                )
-                oo <- rbind(oo, singletones)
-            }
+            #res <- getClustering(ggLCC, alg,weights=weights)
+            oo       <- calcMembership(ggLCC, alg,weights=weights)
             RES[[k]]      <- oo
             names(RES)[k] <- cc[i]
             k <- k + 1
@@ -269,48 +259,24 @@ calcReclusterMatrix <- function(gg,
         return(NULL)
     }
     ALG2     <- mem
-    ALG2$split <- rep(-1, dim(ALG1)[1])
+    ALG2$split <- rep(0, dim(ALG1)[1])
     indx     <- match(ALG2$membership, cc)
     indx     <- ifelse(is.na(indx), TRUE, FALSE)
-    ALG2$split <- ifelse(indx, ALG2$membership, ALG2$split)
-    CCmax <- max(as.numeric(ALG2$split))
+    #ALG2$split <- ifelse(indx, as.character(ALG2$membership), ALG2$split)
+    CCmax <- max(as.numeric(factor(ALG2$split)))
     for (i in seq_along(cc)) {
         temp     <- RES[[i]]
-        temp$membership <- temp$membership + CCmax
         indx <- match(ALG2$names, temp$names)
         ALG2$split <-
-            ifelse(is.na(indx), ALG2$split, temp$membership[indx])
-        CCmax <- max(as.numeric(ALG2$split))
+            ifelse(is.na(indx), ALG2$split, as.numeric(temp$membership[indx]))
     }
-    N <- vcount(gg)
+    ALG2$recluster<-sprintf('%s|%d',ALG2$membership,ALG2$split)
+    ALG2$recluster<-factor(ALG2$recluster)
 
-    temp    <- rep(-1, N)
-    counter <- min(as.numeric(ALG2$split))
-    Knew    <- 1
-
-    Kmax    <- max(as.numeric(ALG2$split))
-    while (counter <= Kmax) {
-        found <- FALSE
-
-        for (v in seq_len(N)) {
-            if (as.numeric(ALG2$split[v]) == counter) {
-                temp[v] <- Knew
-
-                found <- TRUE
-
-            }
-        }
-        if (found)
-            Knew <- Knew + 1
-
-        counter <- counter + 1
-
-    }
-    ALG3 <- cbind(ALG2, data.frame(recluster = temp))
     if (!keepSplit) {
-        ALG3 <- ALG3[, grep('split', names(ALG3), invert = TRUE)]
+        ALG2 <- ALG2[, grep('split', names(ALG2), invert = TRUE)]
     }
-    return(ALG3)
+    return(ALG2)
 }
 
 #' Hierarchical graph clustering

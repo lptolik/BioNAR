@@ -40,7 +40,7 @@ makeMembership<-function(gg,membership){
 
 #' Calculate cluster memberships for the graph.
 #'
-#' Calculates the clustering membership for each of the 10 clustering algorithms
+#' Calculates the clustering membership for one of the 10 clustering algorithms
 #' defined in function \code{\link{getClustering}}
 #'
 #' @param gg igraph object to cluster
@@ -75,13 +75,72 @@ calcMembership <- function(gg,
                                    'sgG5',
                                    'spectral'),
                            weights = NULL) {
+    cgg<-igraph::components(gg,mode = 'weak')
+    if(cgg$no==1){
+        mem <-compMembership(gg,alg,compnum = 0,weights = weights)
+    }else{
+        singlidx<-which(cgg$csize==1)
+        if(length(singlidx)>0){
+            singldf<- data.frame(names = V(gg)$name[match(singlidx,cgg$membership)],
+                                 membership = sprintf('C%05d|%d',singlidx,1))
+        }else{
+            singldf<- data.frame(names = 'names', membership = 'C%05d|%d')[FALSE,]
+        }
+        memL<-lapply(which(cgg$csize>1),function(.x){
+            sg<-subgraph(gg,which(cgg$membership==.x))
+            mdf<-compMembership(sg,alg,compnum = .x,weights = weights)})
+        memL[[length(memL)+1]]<-singldf
+        mem<-do.call(rbind,memL)
+        idx<-match(mem$names,V(gg)$name)
+        mem<-mem[idx,]
+    }
+    mem$membership<-factor(mem$membership)
+    return(mem)
+}
+
+#' Calculate cluster memberships for one of the graph component.
+#'
+#' Calculates the clustering membership for one of the 10 clustering algorithms
+#' defined in function \code{\link{getClustering}} for selected graph component
+#'
+#' @param gg igraph object to cluster
+#' @param alg algorithm name
+#' @param compnum number of the componet to cluster
+#' @param weights The weights of the edges. It must be a positive numeric
+#'        vector, NULL or NA. If it is NULL and the input graph has a ‘weight’
+#'        edge attribute, then that attribute will be used. If it is NULL and no such
+#'        attribute is present, then the edges will have equal weights. Set
+#'        this to NA if the graph has a ‘weight’ edge attribute, but you don't
+#'        want to use it for community detection. A larger edge weight means a
+#'        stronger connection for this function. The weights value is ignored
+#'        for the \code{spectral} clustering.
+#'
+#' @return data.frame with columns \code{names} and \code{membership}
+#'
+#' @seealso getClustering
+compMembership<-function(gg,
+                         alg = c('lec',
+                                 'wt',
+                                 'fc',
+                                 'infomap',
+                                 'louvain',
+                                 'sgG1',
+                                 'sgG2',
+                                 'sgG5',
+                                 'spectral'),
+                         compnum = 0,
+                         weights = NULL) {
     ids <- V(gg)$name
-    cl <- getClustering(gg, alg,weights=weights)
+    cl <- suppressWarnings(getClustering(gg, alg,weights=weights))
     if (!is.null(cl)) {
         cc       <- data.frame(names = cl$names,
-                               membership = cl$membership)
+                               membership = sprintf('C%05d|%d',compnum,
+                                                    cl$membership))
     } else{
-        cc <- data.frame(names = 'names', membership = 0)[FALSE,]
+        cc <- data.frame(names = ids, membership = sprintf('C%05d|NULL',compnum))
+        warning('Clustering calculations for algorithm "',
+                alg,'',compnum,
+                '" failed. Whole component marked as a cluster.')
     }
     return(cc)
 }
@@ -133,7 +192,7 @@ calcAllClustering <- function(gg,weights = NULL) {
         cm <- calcMembership(gg, an,weights=weights)
         if (dim(cm)[1] > 0) {
             l[[an]] <- as.character(cm$membership)
-            mod <- modularity(gg, cm$membership)
+            mod <- modularity(gg, as.numeric(cm$membership))
             gg <- set_graph_attr(gg, an, mod)
         }
     }
@@ -185,20 +244,13 @@ calcAllClustering <- function(gg,weights = NULL) {
 #' vertex_attr_names(g)
 #' graph_attr(g, 'louvain')
 calcClustering <- function(gg, alg,weights = NULL) {
-    cl <- getClustering(gg, alg,weights=weights)
-    if (!is.null(cl)) {
-        ids <- V(gg)$name
-        m      <- matrix(NA, ncol = 2, nrow = length(ids))
-        colnames(m) <- c('ID', alg)
-        m[, 1] <- ids
-        m[, 2] <- as.character(cl$membership)
-        ggm <- applpMatrixToGraph(gg , m)
-        mod <- modularity(ggm, cl$membership)
-        ggm <- set_graph_attr(ggm, alg, mod)
-        return(ggm)
-    } else{
-        return(gg)
-    }
+    cm <- calcMembership(gg, alg,weights=weights)
+    m      <- as.matrix(cm)
+    colnames(m) <- c('ID', alg)
+    ggm <- applpMatrixToGraph(gg , m)
+    mod <- modularity(ggm, as.numeric(cm$membership))
+    ggm <- set_graph_attr(ggm, alg, mod)
+    return(ggm)
 }
 
 #' Get clustering results for the graph.
@@ -366,8 +418,8 @@ clusteringSummary <- function(gg,
     clusterings <- attN[!is.na(idx)]
     res <- list()
     for (c in clusterings) {
-        cmem <- as.numeric(vertex_attr(gg, c))
-        mod <- modularity(gg, cmem)
+        cmem <- factor(vertex_attr(gg, c))
+        mod <- modularity(gg, as.numeric(cmem))
         Cn <- table(cmem)
         C <- length(Cn)
         Cn1 <- length(which(Cn == 1))

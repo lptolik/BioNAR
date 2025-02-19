@@ -1,3 +1,10 @@
+# BioNAR 1.9.2
+
+* Basic clustering is component wise now. That means that before clustering
+  algorithm application graph split into weak components, to which clustering
+  algorithms applied independently. If algorithm fails on some component, whole
+  component considered as a cluster an 
+
 # BioNAR 1.7
 
 * Add function to calculate the BowTie decomposition of the graph.
