@@ -1,0 +1,867 @@
+---
+title: | 
+       | Laplacian Renormalization 
+       | Group (LRG) Diseasome Analysis
+pagetitle: "html_booklet"
+author: "Begona Bolos & Colin Mclean"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    css: css/cruk.css
+    number_sections: true
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  pdf_document:
+    toc: yes
+    toc_depth: '3'
+  word_document:
+    toc: yes
+    toc_depth: '4'
+---
+
+
+```{r setup, include=FALSE}
+
+## load libraries
+library(dplyr)
+library(tidyr)
+library(broom)
+library(igraph)
+library(poweRlaw)
+library(Matrix)
+library(expm)
+library(ggplot2)
+library(GGally)
+library(scales)
+library(latex2exp)
+library(Deriv)
+library(here)
+library(Rbeast)
+library(pracma) ## for zeta function
+library(parallel)
+library(future)
+library(doFuture)
+library(pso)
+
+## set directory names
+data.dir = here::here("datasets")
+
+knitr::opts_chunk$set(cache=TRUE, echo=TRUE, warning=FALSE)
+                      #root.dir=root.dir,
+                      #project.dir=project.dir)
+
+## In order to knit a Word doc, using kableExtra library for generating tables,
+## 1) clear cache,
+## 2) make sure this option is set before loading kableExtra in the Setup.R script.
+options(kableExtra.auto_format=TRUE)
+
+## Global options for displaying tables via DT::datatable
+#options(DT.options=list(class='cell-border stripe',scrollx=TRUE))
+
+options(DT.fillcontainer=TRUE, 
+        DT.options=list(class='cell-border stripe',scrolly="400px", scrollx=TRUE))
+
+## run Setup.R to load libraries globally - by specifying parameter local=knit_global()
+#source(, local=knitr::knit_global())
+```
+
+
+```{r get_document_type, warning=FALSE, echo=FALSE, cache=TRUE}
+doc.type=NULL 
+output <- rmarkdown:::parse_yaml_front_matter(readLines(knitr::current_input()))$output
+if( is.list(output) ){
+   doc.type=names(output)[1]
+   } else {
+     doc.type=output[1]
+   }
+```
+
+```{r, add_header_logo, warning=FALSE, echo=FALSE, cache=FALSE}
+css.file=NULL
+if(doc.type=="html_document"){
+  ## get leading css file used
+  css.file = rmarkdown:::parse_yaml_front_matter(readLines(knitr::current_input()))$output$html_document$css[1]
+}
+
+if( css.file=="css/cruk.css" ){
+  htmltools::img(src =    knitr::image_uri(here::here("css/images/CRUK_SCOTLAND_C_Pos_RGB.png")),
+               alt = "CRUK Scotland Centre logo",
+               style = "position:absolute; top:0; right:0; padding:10px; height:80px; width:360px;")
+}
+
+if( css.file=="css/nhs.css" ){
+htmltools::img(src = knitr::image_uri(here::here("css/images/NHS_Lothian.jpg")),
+               alt = "NHS Lothian logo",
+               style = "position:absolute; top:0; right:0; padding:10px; height:90px; width:90px;")
+}
+
+```
+
+<br>
+<br>
+
+# Introduction {-}
+
+> Laplacian renomalisation group (LRG) is a dimensional reduction technique inspired from physics. 
+> The specific heat of a physical system, ie network, can be used to measure the point at which
+> the system transitions from high-dimensional space to a coarse-dimensional space whilst 
+> preserving the underlying toplogy of the system.
+>
+> [1] Villegas, P., Gili, T., Caldarelli, G. et al. Laplacian renormalization group for heterogeneous networks. Nat. Phys. 19, 445–450 (2023). https://doi.org/10.1038/s41567-022-01866-8
+>
+
+<br>
+<br>
+
+```{r}
+
+## load function required to perform LRG on a network
+source(here("core_functions.R"))
+
+```
+
+<br>
+<br>
+
+# Diseasome Network
+
+
+>
+> Load \& Build network
+>
+
+
+```{r}
+
+load(here("data/diseasome.rda"))
+
+gg = diseasome
+
+## get Largest Connected Component
+gg = lcc(gg)
+
+## get degree distribution
+deg = as.vector(degree(gg))
+
+## Node of nodes
+Nv = length(V(gg))
+
+## set node names if null
+if( is.null(V(gg)$name) ){ V(gg)$name = seq(1,Nv,1) }
+
+L = get.L(gg)
+E = get.eigen(L, only.values=FALSE, inv.vec=TRUE)
+
+Emean = E[[1]]
+Evec  = E[[2]]
+Evinv = E[[3]]
+```
+
+<br>
+<br>
+
+
+>
+> Eigen Density Plot
+>
+
+
+```{r}
+
+pt1 = lambda_plot(df=eigen_density(Emean))
+
+```
+
+
+```{r}
+plot(pt1)
+```
+
+```{r}
+#library(dplyr)
+# Create the first tibble with time intervals from 10^-4 to 10^4 with step 0.1
+df1 <- tibble(tau = seq(10^-4, 10^4, by = 0.1))
+
+# Create the second tibble with time intervals from 10^-4 to 1 with step 10^-2
+df2 <- tibble(tau = seq(10^-4, 1, by = 10^-2))
+
+# Combine the two tibbles
+df  <- bind_rows(df1, df2)
+
+# Remove duplicates and reorder the rows by tau in ascending order
+df  <- df %>% 
+       distinct() %>%  # Remove duplicates
+       arrange(tau)    # Reorder by tau (ascending)
+```
+
+> Plot 1-S and find turning points
+
+# Plot 1-S
+
+```{r}
+
+## Plot (1-S)
+pt2 = ggplot(df, aes(x=tau))+
+     geom_function(fun=S_wrapper, args=list(n=Nv,e=Emean), linewidth=1,
+                  aes(color="1-S"))+
+    labs(x = "log(tau)", y = "1-S")+
+    scale_color_manual(values = c("1-S" = "blue"),
+                       breaks = c("1-S"),
+                       name = "")+ 
+    scale_y_continuous(
+    
+    ## First axis
+    name = "1-S",
+    
+    ) + 
+    scale_x_log10(
+        breaks = scales::trans_breaks("log10", function(x) 10^x),
+        labels = scales::trans_format("log10", scales::math_format(10^.x))
+    ) +
+    annotation_logticks(sides="b", outside=TRUE)+
+    coord_cartesian(clip = "off")+
+    theme_light()+
+    theme(legend.position = "right")
+```
+
+```{r}
+pt2
+```
+
+# Plot C
+
+> (1-S) and C curves together
+
+```{r}
+
+## create data for plot
+y1      = S_wrapper(e=Emean, t=df$tau, n=Nv)
+y2      = dS_dlogt_wrapper(e=Emean, t=df$tau, n=Nv)
+not.nan = !is.nan(y2)
+y1      = y1[not.nan]
+y2      = y2[not.nan]
+t.set   = df$tau[not.nan]
+
+## build dataset
+df_c    = data.frame(t=t.set, s=y1, c=y2)
+
+```
+
+```{r}
+
+## prepare plot
+tmp.y2 = y2
+
+#cut.off=0.1#0.05
+cut.off=0.001 #y2[1]
+tmp.y2[tmp.y2<=cut.off]=cut.off
+
+b2        = range(tmp.y2)
+b3        = log(seq(b2[1],b2[2], length=4)) 
+b3        = exp(b3)
+b3        = signif(b3,2)
+y2.breaks = unique(c(0,b3))
+log.y2    = log(tmp.y2)
+
+a         = range(y1)
+b         = range(log.y2)
+dat       = data.frame(x=t.set, y1=y1, y2=log.y2)
+
+```
+
+```{r}
+
+## create plot
+pt3 <- ggplot(dat, aes(x))+
+     geom_line(aes(y=y1, color="1-S"), linewidth=1)+
+     geom_line(aes(y=(y2-b[1])/diff(b), color="C log(N)"),linewidth=1, alpha=.8)+    
+     #geom_line(aes(y=y2, color="C log(N)"),linewidth=1, alpha=.8)+    
+    scale_color_manual(values = c("1-S"   = "blue",
+                                "C log(N)" = "red"),
+                       breaks = c("1-S","C log(N)"),
+                       name = "")+ 
+     labs(x = "log(tau)")+
+     scale_x_log10()+
+     scale_y_continuous(
+         name = "1-S",
+         labels=~round(.,2),
+         breaks=seq(0,1,.25),
+         sec.axis=sec_axis(~.*b2[2],
+                           name = "C log(N)",
+                           #labels = scales::label_scientific(digits = 1),
+                           breaks = y2.breaks,
+                           labels = y2.breaks
+                           ))+
+    annotation_logticks(sides="b", outside=TRUE)+
+    coord_cartesian(clip = "off")+
+    theme_light()+
+    theme(legend.position = "right")
+  
+```
+
+```{r}
+pt3
+```
+
+# Plot dC/dt
+
+> Plot dC/dt (method 1)
+
+```{r}
+
+## Plot C
+pt4 = ggplot(df, aes(x=tau))+
+  geom_function(fun=dC_dt_test_wrapper, args=list(n=Nv,e=Emean),
+                  linewidth=1, aes(color="dC/dt"))+
+    geom_hline(yintercept=0, color="black", linetype="dashed", linewidth=1)+
+    labs(x = "log(tau)", y = "")+
+    scale_color_manual(values = c("dC/dt" = "red"),
+                       breaks = c("dC/dt"),
+                       name = "")+ 
+    scale_y_continuous(
+    name = "",##dC/dt",
+    ) + 
+     scale_x_log10(
+        breaks = scales::trans_breaks("log10", function(x) 10^x),
+        labels = scales::trans_format("log10", scales::math_format(10^.x))
+    ) +
+    annotation_logticks(sides="b", outside=TRUE)+
+    coord_cartesian(clip = "off")+
+    theme_light()+
+    theme(legend.position = "right")
+
+```
+
+```{r}
+pt4
+```
+
+# Stationary points
+
+> Where does dC/dt cross zero
+
+```{r}
+tt.steps = 1e-3
+tt      = tibble(tau=seq(1e-4,1e1, tt.steps))
+dc      = dC_dt_test_wrapper(n=Nv, t=tt$tau, e=Emean)
+dc.diff = diff(sign(dc))
+dc.indx = which(abs(dc.diff)==2)
+tau.x   = NA
+if( length(dc.indx) > 0 ){ tau.x   = tt$tau[dc.indx] }
+```
+
+```{r}
+print(tau.x)
+```
+
+# Turning points
+
+> Plot turning points of dC/dt:
+
+```{r}
+
+tps = turing.points(pt4, print=0)
+
+```
+
+```{r}
+plot(tps$pt)
+```
+
+
+# Powerlaw Fit to Eigenvalues
+
+## Basic Limits
+
+```{r}
+
+## Limits Eigenvalues
+tau_min = 1/Emean[1]
+tau_max = tau.x[1]
+
+## Approximate C0 from spectral Dimensions
+## C0 = sd/2 ~ -log(N)/log(fiedler_eigenvalue)
+sd = compute_spectral_dim(Emean)
+C0 = sd/2
+
+```
+
+# Fits 
+
+```{r}
+
+pl = fit_con_pl(Emean)
+
+points = tps$tp
+points = points[points$tp.x_axis>=tau_min & points$tp.x_axis<=tau_max,]
+
+
+lrg.fits = list()
+for( i in 1:nrow(points) ){
+  t = points$tp.x_axis[i]
+  lrg.fits[[i]] = eigen_loss(t=t, gg=gg, L=L, 
+                             e=Emean, v=Evec, vinv=Evinv, 
+                             complex=FALSE,
+                             method="eigen",
+                             expm_method="Higham08.b",
+                             loss_test="js_dist",
+                             mle=0,
+                             tol=1e-5,
+                             order=1,
+                             plots=1)
+}
+
+```
+
+# (alpha+1) Heuristic
+
+```{r}
+
+## Need to investigate these heuristics further
+taus <- rep(NA,2)
+
+taus[1] = df_c[which.min(df_c$c <= (pl$alpha+1)/log(Nv)),1]
+taus[2] = df_c[which.min(df_c$c <= (pl$alpha+1)/log(Nv)^2),1]
+
+lrg.fits2 = list()
+
+for( i in 1:length(taus) ){
+lrg.fits2[[i]] = eigen_loss(t=taus[i], gg=gg, L=L, 
+                            e=Emean, v=Evec, vinv=Evinv, 
+                            complex=FALSE,
+                            method="eigen",
+                            expm_method="Higham08.b",
+                            loss_test="js_dist",
+                            mle=0,
+                            tol=1e-5,
+                            order=1,
+                            plots=1)
+}
+```
+
+>
+> Estimate tau using C0 = alpha + 1
+> 1. Fit powerlaw to Eigenvalues to calculate alpha 
+> 2. Estimate tau from C0 = alpha + 1
+
+
+```{r}
+
+#c_cut = max(df_c$c[1],df_c$c[dim(df_c)[1]])
+c_cut = 10^-(2.5)
+t_cut = range(df_c$t[df_c$c>=c_cut])
+
+df2 = data.frame(tau=df$tau[df$tau >= t_cut[1] & df$tau < t_cut[2]])
+
+## Plot log(N)*C
+pt5 = ggplot(df2, aes(x=tau))+
+     geom_function(fun=dS_dlogt_wrapper, args=list(e=Emean, n=Nv), 
+                   linewidth=1, aes(color="log(N) C"))+
+    geom_vline(xintercept=tau_min, colour="red3")+
+    geom_vline(xintercept=taus[[1]], colour="blue")+
+    geom_vline(xintercept=taus[[2]], colour="blue")+
+    geom_vline(xintercept=points$tp.x_axis[1], colour="grey")+
+    geom_vline(xintercept=points$tp.x_axis[2], colour="grey")+
+    geom_vline(xintercept=points$tp.x_axis[3], colour="grey")+
+    geom_vline(xintercept=tau_max, colour="red3")+
+    geom_hline(yintercept=C0, color="orange2")+
+    labs(x = "log(tau)", y = "log(N) C")+
+    scale_color_manual(values = c("log(N) C" = "red"),
+                       breaks = c("log(N) C"),
+                       name = "")+ 
+   scale_y_log10(
+        expand = c(0, .1),
+        breaks = scales::trans_breaks("log10", function(x) 10^x),
+        labels = scales::trans_format("log10", scales::math_format(10^.x))
+    ) +
+    scale_x_log10(
+        expand = c(0, 0),
+        breaks = scales::trans_breaks("log10", function(x) 10^x),
+        labels = scales::trans_format("log10", scales::math_format(10^.x))
+    ) +
+    annotation_logticks(sides="b", outside=TRUE)+
+    coord_cartesian(clip = "off")+
+    theme_light()+
+    theme(legend.position = "right")
+
+```
+
+```{r}
+plot(pt5)
+```
+
+```{r}
+pt6 <- pt4+
+  geom_vline(xintercept=tau_min, colour="red3")+
+    geom_vline(xintercept=taus[[1]], colour="blue")+
+    geom_vline(xintercept=taus[[2]], colour="blue")+
+    geom_vline(xintercept=points$tp.x_axis[1], colour="grey")+
+    geom_vline(xintercept=points$tp.x_axis[2], colour="grey")+
+    geom_vline(xintercept=points$tp.x_axis[3], colour="grey")+
+    geom_vline(xintercept=tau_max, colour="red3")
+  
+```
+
+```{r}
+pt6
+```
+
+# Scan time
+
+```{r}
+
+## Faster Way Using Parallelisation
+t.lower = tau_min
+t.upper = tau_max
+
+## Create a cluster
+cl <- makeCluster(detectCores() - 1)
+
+test_t    <- seq(t.lower, t.upper, length.out=100)
+test_loss <- parallel_eigen_loss(t=test_t, gg=gg, L=L, 
+                                 e=Emean, v=Evec, vinv=Evinv, 
+                                 complex=FALSE,
+                                 method="eigen",
+                                 expm_method="Higham08.b",
+                                 loss_test="js_dist",
+                                 mle=0,
+                                 tol=1e-5,
+                                 order=1,
+                                 plots=0,
+                                 cl=cl)
+
+lrg.scan0 = data.frame(t=test_t, metric=test_loss)
+
+## Stop the cluster
+stopCluster(cl)
+```
+
+
+# Scan time plot
+
+```{r}
+metric="jsd"
+x = lrg.scan0$t #lrg.scan0$df$t
+y = lrg.scan0$metric #lrg.scan0$df[,metric]
+df.scan = data.frame(x=x, y=y)
+
+pt7 <- ggplot(df.scan, aes(x,y)) +
+  geom_line(size=.8) + 
+  ggtitle("Jensson-Shannon Distance between ecdf of network, \n and cdf of fitted lrg network")+
+  labs(x="time", y="JSD")+
+   geom_vline(xintercept=tau_min, colour="red3")+
+    geom_vline(xintercept=taus[[1]], colour="blue")+
+    geom_vline(xintercept=taus[[2]], colour="blue")+
+    geom_vline(xintercept=points$tp.x_axis[1], colour="grey")+
+    geom_vline(xintercept=points$tp.x_axis[2], colour="grey")+
+    geom_vline(xintercept=points$tp.x_axis[3], colour="grey")+
+    geom_vline(xintercept=tau_max, colour="red3")+
+  theme_light() 
+
+```
+
+```{r}
+pt7
+```
+
+# Scan Best time
+
+```{r}
+
+## Test Annealing algorithm
+indx.best = which.min(lrg.scan0$metric)# lrg.scan0$df$jsd)
+tau.best  = lrg.scan0$t[indx.best] #lrg.scan0$df$t[indx.best]
+
+## Annealing algorithm Best Solution
+scan.best  =   eigen_loss(t=tau.best, gg=gg, L=L, 
+                         e=Emean, v=Evec, vinv=Evinv, 
+                         complex=FALSE,
+                         method="eigen",
+                         expm_method="Higham08.b",
+                         loss_test="js_dist",
+                         mle=0,
+                         tol=1e-5,
+                         order=1,
+                         plots=1)
+
+```
+
+```{r}
+scan.best$plots[[1]]
+```
+
+```{r}
+scan.best$plots[[2]]
+```
+
+```{r}
+scan.best$plots[[3]]
+```
+
+# Annealing Algorithm
+
+```{r}
+
+## Define initial search range
+test.tau = points[points$tp.x_axis<=tau.best,]
+test_min = test.tau$tp.min.x_axis
+test_max = .83 #test.tau$tp.max.x_axis
+
+## Create a cluster
+cl <- makeCluster(detectCores() - 1)
+
+## Perform iterative optimization
+lrg.ann <- iterative_eigen_optimization(
+  t_lower = test_min, 
+  t_upper = test_max, 
+  gg = gg, 
+  L = L, 
+  e = Emean, 
+  v = Evec, 
+  vinv = Evinv, 
+  complex=FALSE,
+  method="eigen",
+  expm_method="Higham08.b",
+  loss_test="js_dist",
+  mle=0,
+  tol=1e-5,
+  order=1,
+  plots=0,
+  max_iter = 20, 
+  n_points = 10, 
+  cooling_rate=0.85,
+  dt=1,
+  refine_factor = 0.5,
+  cl=cl
+)
+
+## Print the result
+cat("Optimized t:", lrg.ann$best_t, "with loss:", lrg.ann$best_loss, "\n")
+
+## Stop the cluster
+stopCluster(cl)
+
+```
+
+
+# Annealing Best Solution 
+
+```{r}
+
+## Annealing algorithm Best Solution
+ann.best  =   eigen_loss(t=lrg.ann$best_t, gg=gg, L=L, 
+                         e=Emean, v=Evec, vinv=Evinv, 
+                         complex=FALSE,
+                         method="eigen",
+                         expm_method="Higham08.b",
+                         loss_test="js_dist",
+                         mle=0,
+                         tol=1e-5,
+                         order=1,
+                         plots=1)
+
+```
+
+```{r}
+ann.best$plots[[1]]
+```
+
+```{r}
+ann.best$plots[[2]]
+```
+
+```{r}
+ann.best$plots[[3]]
+```
+
+# Scan plot w. Annealing time
+
+```{r}
+metric="jsd"
+x = lrg.scan0$t
+y = lrg.scan0$metric
+df.scan = data.frame(x=x, y=y)
+
+pt8 <- ggplot(df.scan, aes(x,y)) +
+  geom_line() + 
+  ggtitle("Jensson-Shannon Distance between ecdf of network, \n and cdf of fitted lrg network")+
+  labs(x="time", y="JSD")+
+  geom_point(data=lrg.ann$df, aes(x=t_new,y=loss_new), color="red")+
+  geom_line(data=lrg.ann$df, aes(x=t_new,y=loss_new), color="red")+
+  theme_light() 
+
+##plot(df.scan, type="l", xlab("time"), ylab(metric))
+```
+
+```{r}
+pt8
+```
+
+# Particle Swarm Optimisation
+
+```{r}
+
+run_pso = 0
+
+if( run_pso ){
+
+## TEST
+t.upper = test.tau$tp.min.x_axis
+t.lower = .83
+
+## Create a cluster
+cl <- makeCluster(1) #detectCores() - 1)
+
+## Perform PSO optimization using the parallelized loss function
+result <- pso::psoptim(
+  par = NA, ##initial guess
+  fn = function(par) parallel_eigen_loss(t=par, gg=gg, L=L, 
+                                 e=Emean, v=Evec, vinv=Evinv, 
+                                 complex=FALSE,
+                                 method="eigen",
+                                 expm_method="Higham08.b",
+                                 loss_test="js_dist",
+                                 mle=0,
+                                 tol=1e-5,
+                                 order=1,
+                                 plots=0,
+                                 cl=cl),
+  lower = t.lower,  # Lower bounds for t
+  upper = t.upper,  # Upper bounds for t
+  control = list(maxit = 100, trace = 1, abstol = 1e-5, vectorize=TRUE,
+                 REPORT=1, trace.stats=TRUE, maxit.stagnate=5)  # PSO control options
+)
+
+
+## Print the result
+cat("Optimized t:", result$par, "with loss:", result$value, "\n")
+
+# Stop the cluster
+stopCluster(cl)
+
+}
+
+```
+
+# Best PSO time
+
+```{r}
+
+if( run_pso){
+  
+## Annealing algorithm Best Solution
+pso.best  =   eigen_loss(t=result$par, gg=gg, L=L, 
+                         e=Emean, v=Evec, vinv=Evinv, 
+                         complex=FALSE,
+                         method="eigen",
+                         expm_method="Higham08.b",
+                         loss_test="js_dist",
+                         mle=0,
+                         tol=1e-5,
+                         order=1,
+                         plots=1)
+
+  
+}
+
+```
+
+```{r}
+if(run_pso){pso.best$plots[[1]]}
+```
+
+```{r}
+if(run_pso){pso.best$plots[[2]]}
+```
+
+```{r}
+if(run_pso){pso.best$plots[[3]]}
+```
+
+# Best LRG time on specific heat plot
+
+```{r}
+
+## create plot
+pt9 <- ggplot(dat, aes(x))+
+     geom_line(aes(y=y1, color="1-S"), linewidth=1)+
+     geom_line(aes(y=(y2-b[1])/diff(b), color="C log(N)"),linewidth=1, alpha=.8)+    
+     ##geom_vline(xintercept=lrg.ann$best_t, linetype="dashed", color="black", linewidth=1)+
+    scale_color_manual(values = c("1-S"   = "blue",
+                                "C log(N)" = "red"),
+                       breaks = c("1-S","C log(N)"),
+                       name = "")+ 
+     labs(x = "log(tau)")+
+     annotate("rect", xmin=tau_min, xmax=tau_max,
+                     ymin=0, ymax=1, color="grey", alpha = .3)+
+     geom_vline(xintercept=tau.best, linetype="dashed", color="grey30", linewidth=1)+
+     geom_vline(xintercept=lrg.ann$best_t, linetype="dashed", color="black", linewidth=1)+
+     scale_x_log10()+
+     scale_y_continuous(
+         name = "1-S",
+         labels=~round(.,2),
+         breaks=seq(0,1,.25),
+         sec.axis=sec_axis(~.*b2[2],
+                           name   = "C log(N)",
+                          ##labels = scales::label_scientific(digits = 1),
+                           breaks = y2.breaks,
+                           labels = y2.breaks
+                           ))+
+    annotation_logticks(sides="b", outside=TRUE)+
+    coord_cartesian(clip = "off")+
+    theme_light()+
+    theme(legend.position = "right")
+  
+```
+
+```{r}
+pt9
+```
+
+
+# Supernodes at best tau
+
+
+```{r}
+
+R = real.LRG(e=Emean, v=Evec, vinv=Evinv, L=L, t=lrg.ann$best_t, gg=gg, method="eigen", order=1)
+table(R$supernodes)
+
+```
+
+# Plot Layer
+
+
+```{r, fig.width=12}
+
+## Expect one community after applying method one on pre-synaptic network
+indx = which(R$supernodes>1)
+
+names(indx) = seq(1,length(indx),1)
+
+## Set node colors if highlighting the one community found
+R$mapping %>% 
+    data.frame %>%
+    mutate(color = match(as.numeric(V2), indx)) %>%
+    mutate(color = ifelse(is.na(color),0,color)) %>%
+    select(color) -> node_color
+
+## Assign colors
+node_color$color_hex <- generate_colors(node_color$color)
+
+## Update Vertex attribute for plotting
+gg <- set_vertex_attr(gg, "cluster", V(gg), as.vector(node_color$color_hex))
+
+# Build plot
+pt9 <- ggnet2(gg, edge.color = "grey80", node.color = "cluster",
+              palette = unique(node_color$color_hex), size = 1)
+
+
+```
+
+```{r}
+pt9
+```
+
+

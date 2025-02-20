@@ -630,6 +630,11 @@ return(list(df=gg.dat, xmin=xmin, alpha=alpha))
 
 }
 
+fiedler_value <- function(x){
+  x = sort(x)
+  x[x>0][1]
+}
+
 compute_spectral_dim <- function(x){
 ## https://arxiv.org/pdf/2406.19104  
 ## lambda_f = N^(-2/sd)
@@ -638,8 +643,7 @@ compute_spectral_dim <- function(x){
 ## x == network eigenvalues
 N = length(x)
 x = as.numeric(x)
-x = sort(x)
-lambda_f = x[2]
+lambda_f = fiedler_value(x)
 -2*log(N)/log(lambda_f)
 }
 
@@ -653,7 +657,9 @@ C_tau <- function(alpha, ds) {
 }
 
 
-log.log_plot <- function(df.x, df.y, x.lab="K", y.lab="LRG.K"){
+log.log_plot <- function(df.x, df.y, 
+                         metric="K",
+                         x.lab="K", y.lab="LRG.K"){
 
 colours        = c("red","blue")
 names(colours) = c(x.lab, y.lab)
@@ -662,7 +668,8 @@ names(colours) = c(x.lab, y.lab)
 gp = ggplot()+
   geom_line(data=df.x, aes(log(x), log(y), color=x.lab), linewidth=1)+
   geom_line(data=df.y, aes(log(x), log(y), color=y.lab), linewidth=1)+
-  labs(x = "log(K)", y = "P(K)") +
+  labs(x = paste0("log(", metric, ")"), 
+       y = paste0("P(", metric, ")")) +
   ##scale_y_continuous(labels = scales::dollar) +
   scale_color_manual(values=colours, name="")+
   theme_light() +
@@ -832,6 +839,15 @@ data_cdf_probs <- function(x){
   p
 }
 
+ccdf_trunc_lognormal <- function(x, xmin, meanlog, sdlog) {
+  x      <- x[x>xmin]
+  x      <- sort(x)  ## Ensure x is sorted in ascending order
+  Fx     <- plnorm(x,    meanlog, sdlog)  ## Log-normal CDF at x
+  Fx_min <- plnorm(xmin, meanlog, sdlog)  ## Log-normal CDF at xmin
+  
+  (1 - Fx) / (1 - Fx_min)  ## Truncated CCDF formula
+}
+
 pareto_powerlaw <- function(x, xmin, alpha){
   ((alpha-1)/xmin) * (x/xmin)^(-alpha)
 }
@@ -874,26 +890,62 @@ cdf_powerlaw <- function(x, xmin, alpha, lower.tail = TRUE){
   cdf
 }
 
+qpareto <- function(p, xmin, alpha){xmin * ((1 / (1 - p))^(1 / alpha))}
 
-ks_dist <- function(x, xmin, alpha){
-  ## chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://www.stat.berkeley.edu/~aldous/Research/Ugrad/Willy_Lai.pdf
-  ## Distance between the empirical cdf of original network and fitted theoretical cdf
-  n       = length(x)
-  cdf_emp = n:1/n
-  cdf_fit = ccdf_powerlaw(x, xmin, alpha)
-  ks_dist = max(abs(cdf_emp-cdf_fit)) 
-  return(list(ks_dist=ks_dist, cdf_emp=cdf_emp, cdf_fit=cdf_fit))
+simulate_powerlaw <- function(x, xmin, alpha){
+  n     = length(x)
+  k     = sum(x<xmin)
+  xlow  = x[x<xmin]
+  y     = rep(NA,n)
+  
+  for( i in 1:n ){
+    p = runif(1)
+    if( p > k/n ){ y[i] = qpareto(p, xmin, alpha)}
+    else {         y[i] = sample(xlow, 1, p)}
+  }
+  
+  return(y)
+  
 }
 
-#ks_dist <- function(x, x2, xmin1, alpha1, xmin2, alpha2){
-#  cdf_emp = ccdf_powerlaw(x, xmin1, alpha1)
-#  cdf_fit = ccdf_powerlaw(x2, xmin2, alpha2)
-#  n.min   = min(length(cdf_emp), length(cdf_fit))
-#  cdf_emp = cdf_emp[1:n.min]
-#  cdf_fit = cdf_fit[1:n.min]
-#  ks_dist = max(abs(cdf_emp-cdf_fit)) 
-#  return(list(ks_dist=ks_dist, cdf_emp=cdf_emp, cdf_fit=cdf_fit))
-#}
+simulate_lnorm <- function(x, xmin, mu, sigma){
+  n     = length(x)
+  k     = sum(x<xmin)
+  xlow  = x[x<xmin]
+  y     = rep(NA,n)
+  
+  for( i in 1:n ){
+    p = runif(1)
+    if( p > k/n ){ y[i] = qlnorm(p, meanlog = mu, sdlog = sigma) }
+    else {         y[i] = sample(xlow, 1, p)}
+  }
+
+  return(y)
+
+}
+
+# ks_dist <- function(x, xmin, alpha){
+#   ## chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://www.stat.berkeley.edu/~aldous/Research/Ugrad/Willy_Lai.pdf
+#   ## Distance between the empirical cdf of original network and fitted theoretical cdf
+#   n       = length(x)
+#   cdf_emp = n:1/n
+#   cdf_fit = ccdf_powerlaw(x, xmin, alpha)
+#   ks_dist = max(abs(cdf_emp-cdf_fit)) 
+#   return(list(ks_dist=ks_dist, cdf_emp=cdf_emp, cdf_fit=cdf_fit))
+# }
+
+ks_dist <- function(x, xmin1, alpha1, xmin2, alpha2){
+ 
+## Fix xmin
+ xmin    = min(xmin1, xmin2)
+ 
+ ## Generate complementary cumulative distribution (ccdf)
+ cdf_emp = ccdf_powerlaw(x, xmin, alpha1)
+ cdf_fit = ccdf_powerlaw(x, xmin, alpha2)
+
+ ks_dist = max(abs(cdf_emp-cdf_fit))
+ return(list(ks_dist=ks_dist, cdf_emp=cdf_emp, cdf_fit=cdf_fit))
+}
 
 #ks_dist <- function(x, x2){
 #  cdf_emp = data_cdf_probs(x)
@@ -904,6 +956,64 @@ ks_dist <- function(x, xmin, alpha){
 #  ks_dist = max(abs(cdf_emp-cdf_fit)) 
 #  return(list(ks_dist=ks_dist, cdf_emp=cdf_emp, cdf_fit=cdf_fit))
 #}
+
+## Fit continuous log-norm distribution to x
+fit_con_lnorm <- function(x){ 
+  x.cut     <- x[x>0]
+  X         <- poweRlaw::conlnorm$new(x.cut)
+  x.est     <- poweRlaw::estimate_xmin(X)
+  xmin      <- x.est$xmin
+  zl        <- sort(X$internal$dat)
+  zl        <- zl[zl >= xmin]
+  mu        <- x.est$pars[[1]]
+  sigma     <- x.est$pars[[2]]
+
+  return(list(x=x, x.cut=x.cut, x.est=x.est, 
+              X=X, xmin=xmin, zl=zl, 
+              mu=mu, sigma=sigma))
+  }
+
+## Fit continuous power-law distribution to x
+fit_con_pl <- function(x){ 
+  x.cut     <- x[x>0]
+  X         <- poweRlaw::conpl$new(x.cut)
+  x.est     <- poweRlaw::estimate_xmin(X)
+  xmin      <- x.est$xmin
+  zl        <- sort(X$internal$dat)
+  zl        <- zl[zl >= xmin]
+  alpha     <- x.est$pars
+  alpha_fit <- alpha_mle(x=x, xmin=xmin)
+  return(list(x=x, x.cut=x.cut, x.est=x.est, xmin=xmin, 
+              X=X, zl=zl, alpha=alpha, mle=alpha_fit))
+}
+
+## Fit discrete log-norm distribution to x
+fit_dis_lnorm <- function(x){ 
+  x.cut     <- x[x>0]
+  X         <- poweRlaw::dislnorm$new(x.cut)
+  x.est     <- poweRlaw::estimate_xmin(X)
+  xmin      <- x.est$xmin
+  zl        <- sort(X$dat)
+  zl        <- zl[zl >= xmin]
+  mu        <- x.est$pars[[1]]
+  sigma     <- x.est$pars[[2]]
+  return(list(x=x, x.cut=x.cut, x.est=x.est, xmin=xmin, 
+              X=X, zl=zl, mu=mu, sigma=sigma))
+  }
+
+## Fit discrete power-law distribution to x
+fit_dis_pl <- function(x){ 
+  x.cut <- x[x>0]
+  X     <- poweRlaw::displ$new(x.cut)
+  X.est <- poweRlaw::estimate_xmin(X, seq(1, max(X), 1))
+  xmin  <- X.est$xmin
+  zl    <- sort(X$dat)
+  zl    <- zl[zl >= xmin]
+  alpha <- X.est$pars
+  return(list(x=x, x.cut=x.cut, x.est=x.est, xmin=xmin, 
+              X=X, zl=zl, alpha=alpha))
+}
+
 
 # Simulated Annealing with Scaling and Squaring
 anneal.time <- function(gg, e=NULL, v=NULL, vinv=NULL, L=NULL, t.lower, t.upper, complex=FALSE, 
@@ -1203,14 +1313,9 @@ eigen_loss <- function(t, gg, L, e, v, vinv, complex=FALSE,
     
     ## Eigenvalue distribution of the original network
     e.sd  <- compute_spectral_dim(e)
-    e.cut <- e[e>0]
-    X     <- poweRlaw::conpl$new(e.cut)
-    X.est <- poweRlaw::estimate_xmin(X)
-    xmin  <- X.est$xmin
-    zl    <- sort(X$internal$dat)
-    zl    <- zl[zl >= xmin]
-    alpha <- X.est$pars
-    alpha_fit <- alpha_mle(x=e, xmin=xmin)
+    
+    ## perform power-law to data
+    fit   <- fit_con_pl(e) 
     
     ## Degree distribution of the coarse-grain network
     loss <- tryCatch({
@@ -1218,23 +1323,15 @@ eigen_loss <- function(t, gg, L, e, v, vinv, complex=FALSE,
       lrg.Eig   <- get.eigen(lrg.L, only.values=TRUE)
       lrg.E     <- lrg.Eig[[1]]
       lrg.sd    <- compute_spectral_dim(lrg.E)
-      lrg.E.cut <- lrg.E[lrg.E>0]
-      lrg.X     <- poweRlaw::conpl$new(lrg.E.cut)
-      lrg.est   <- poweRlaw::estimate_xmin(lrg.X)
-      lrg.xmin  <- lrg.est$xmin
-      lrg.alpha <- lrg.est$pars
-      lrg.alpha_fit <- alpha_mle(x=lrg.E, xmin=lrg.xmin)
+      lrg.fit   <- fit_con_pl(lrg.E) 
       
-      lrg.zl = sort(lrg.X$internal$dat)
-      lrg.zl = lrg.zl[lrg.zl >= lrg.xmin]
-            
       ## set alpha & xmin values to use in study
       if( mle==1 ){
-        alpha_study     = alpha_fit[[1]]
-        lrg.alpha_study = lrg.alpha_fit[[1]]
+        alpha_study     = fit$mle$alpha 
+        lrg.alpha_study = lrg.fit$mle$alpha 
       } else {
-        alpha_study     = alpha
-        lrg.alpha_study = lrg.alpha
+        alpha_study     = fit$alpha
+        lrg.alpha_study = lrg.fit$alpha
       }
       
       ## Compute C0 from alpha      
@@ -1243,8 +1340,11 @@ eigen_loss <- function(t, gg, L, e, v, vinv, complex=FALSE,
       
       ## Calculate losses 
       #ks_result <- ks_dist(x=zl, x2=lrg.zl)
-      #ks_result <- ks_dist(x=zl, x2=lrg.zl, xmin1=xmin, alpha1=alpha_study, xmin2=lrg.xmin, alpha2=lrg.alpha_study)
-      ks_result <- ks_dist(x=zl, xmin=lrg.xmin, alpha=lrg.alpha_study)
+      ks_result <- ks_dist(x=fit$zl,
+                           xmin1=fit$xmin,     alpha1=alpha_study, 
+                           xmin2=lrg.fit$xmin, alpha2=lrg.alpha_study)
+      
+      #ks_result <- ks_dist(x=fit$zl, xmin=lrg.fit$xmin, alpha=lrg.alpha_study)
       kl_result <- kl.divergence(p=ks_result[[2]], q=ks_result[[3]])
       js_dist   <- js.distance(we = c(1/2, 1/2), x = cbind(p = ks_result[[2]], q = ks_result[[3]]))##[[4]]
       losses    <- list(ks_dist=ks_result[[1]], kl=kl_result, js_dist=js_dist)
@@ -1258,28 +1358,33 @@ eigen_loss <- function(t, gg, L, e, v, vinv, complex=FALSE,
       
       if( plots ){
         
-        data = data.frame(x=X$internal$dat, 
-                          y=data_cdf_probs(X$internal$dat))
+        data = data.frame(x=fit$X$internal$dat, 
+                          y=data_cdf_probs(fit$X$internal$dat))
         
-        #zl.min = length(ks_result[[2]])
-        #
-        #df.x = data.frame(x=zl[1:zl.min], y=ks_result[[2]])
-        #df.y = data.frame(x=lrg.zl[1:zl.min], y=ks_result[[3]])
+        df.x = data.frame(x=fit$zl, y=ks_result[[2]])
+        df.y = data.frame(x=fit$zl, y=ks_result[[3]])
         
-        df.x = data.frame(x=zl, y=ks_result[[2]])
-        df.y = data.frame(x=zl, y=ks_result[[3]])
-        
+        ## Power-law fit plot show original network and LRG network
         plts[[1]] = log.log_plot(df.x=df.x, df.y=df.y, 
+                                 metric="E",
                                  x.lab="E(emp.)", y.lab="LRG.E(fit)")
-        
-        plts[[2]] = lambda_fit_plot2(df=data, 
-                                     xmin1=xmin,     alpha1=alpha_study, 
-                                     xmin2=lrg.xmin, alpha2=lrg.alpha_study)
 
-        params = list(x.fit=X.est, lrg.fit=lrg.est, 
+        ## Eigenvalue density plot showing original network and LRG network
+        plts[[2]] = log.log_plot(df.x=eigen_density(e), 
+                                 df.y=eigen_density(lrg.E), 
+                                 metric="E",
+                                 x.lab="E(emp.)", y.lab="LRG.E(fit)")
+                
+        ## Power-law fits superimposed on original eigenvalues
+        plts[[3]] = lambda_fit_plot2(df=data, 
+                                     xmin1=fit$xmin,     alpha1=alpha_study, 
+                                     xmin2=lrg.fit$xmin, alpha2=lrg.alpha_study)
+        
+
+        params = list(x.fit=fit$X.est, lrg.fit=lrg.fit$X.est, 
                       spec_dim=e.sd, spec_dim_lrg=lrg.sd,
-                      C0=C0, lrg.C0=lrg.C0, mle_flag=mle,
-                      alpha_fit=alpha_fit, lrg.alpha_fit=lrg.alpha_fit)
+                      xmin=fit$xmin, lrg.xmin=lrg.fit$xmin, mle_flag=mle,
+                      alpha_fit=fit$alpha, lrg.alpha_fit=lrg.fit$alpha)
       }
     
       return(list(loss=loss, plots=plts, params=params, df.x=df.x, df.y=df.y,
@@ -1316,17 +1421,20 @@ parallel_eigen_loss <- function(t, gg, L, e, v, vinv, complex=FALSE,
     library(igraph)
     library(expm)
     library(pracma)
+    library(dplyr)
   })
   
   clusterExport(cl, list("real.LRG", "ks_dist", "js.distance", "js.divergence",
                          "H", "cal.rho.approx", "taylor.approx", "kl.divergence", 
                          "cal.rho.eigen", "cal.rho.balanced", "log.ab",
-                         "cal.rho.square","meta.graph", "meta.binary",                                  "meta.edge", "get.supernodes", 
-                         "coarse.grain.graph", "ccdf_powerlaw",
+                         "cal.rho.square","meta.graph", "meta.binary",
+                         "meta.edge", "get.supernodes", "fit_con_pl",
+                         "coarse.grain.graph", "ccdf_powerlaw", "fiedler_value",
                          "cdf_powerlaw", "pdf_powerlaw", "data_cdf_probs",
                          "get.L", "get.eigen", "compute_spectral_dim", "loss_test",
                          "t", "gg", "L", "e", "v", "vinv", "mle", "alpha_mle",
                          "complex", "method", "expm_method", "tol", "plots",
+                         "log.log_plot", "lambda_fit_plot2", "compute_fit_values",
                          "order", "eigen_loss"), envir = environment())
   
   # Define the computation for each particle's position
@@ -1350,8 +1458,8 @@ iterative_eigen_optimization <- function(t_lower, t_upper,
                                          order=1, cl, max_iter=10, n_points=10, 
                                          dt=1, cooling_rate=0.99,
                                          refine_factor=0.5, mle=0,
-                                         print=1, plots=0) {
-  method <- match.arg(method)
+                                         print=1, plots=0, max_trys=20) {
+  #method <- match.arg(method)
   best_t <- NULL
   best_loss <- Inf  # Start with a very large loss value
   res    <- list()
@@ -1363,35 +1471,44 @@ iterative_eigen_optimization <- function(t_lower, t_upper,
     library(igraph)
     library(expm)
     library(pracma)
+    library(dplyr)
   })
   
   clusterExport(cl, list("real.LRG", "ks_dist", "js.distance", "js.divergence",
-                         "H", "cal.rho.approx", "taylor.approx", "kl.divergence",
+                         "H", "cal.rho.approx", "taylor.approx", "kl.divergence", 
                          "cal.rho.eigen", "cal.rho.balanced", "log.ab",
-                         "cal.rho.square","meta.graph", "meta.binary",                                  "meta.edge", "get.supernodes", 
-                         "coarse.grain.graph", "ccdf_powerlaw",
+                         "cal.rho.square","meta.graph", "meta.binary",
+                         "meta.edge", "get.supernodes", "fit_con_pl",
+                         "coarse.grain.graph", "ccdf_powerlaw", "fiedler_value",
                          "cdf_powerlaw", "pdf_powerlaw", "data_cdf_probs",
                          "get.L", "get.eigen", "compute_spectral_dim", "loss_test",
                          "t", "gg", "L", "e", "v", "vinv", "mle", "alpha_mle",
-                         "complex", "method", "expm_method", "tol", "plots", 
+                         "complex", "method", "expm_method", "tol", "plots",
+                         "log.log_plot", "lambda_fit_plot2", "compute_fit_values",
                          "order", "eigen_loss"), envir = environment())
   
-  
+  # Define the computation for each particle's position
   compute_loss <- function(x) {
     eigen_loss(t=x, gg=gg, L=L, e=e, v=v, vinv=vinv, 
                complex=complex, method=method, loss_test=loss_test, mle=mle,
                expm_method=expm_method, tol=tol, order=order, plots=plots)[[1]]
   }
   
+
   ## Generate current state
   n_states = n_points + floor(n_points*0.5)
   t        = t_lower + runif(n_states)*(t_upper - t_lower)
   cont     = FALSE 
+  trys     = 0
   
-  while ( !cont ){
+  while ( !cont && trys < max_trys ){
+    
+    if( print ){ cat("t:", t,"\n") }
     
     ## Compute losses in parallel
     losses <- parSapply(cl, t, compute_loss)
+    
+    if( print ){ cat("losses:", losses,"\n") }
     
     ## Remove NA values
     valid_losses <- losses[!is.na(losses)]
@@ -1406,7 +1523,12 @@ iterative_eigen_optimization <- function(t_lower, t_upper,
     } else {
       t    = t_lower + runif(n_states)*(t_upper - t_lower)
     }
-    
+    trys = trys+1
+  }
+  
+  if(trys == max_trys){
+    if( print ){ cat("Reached maximum trys. \n") }
+    return(list(best_t = NULL, best_loss = NULL, df=NULL))
   }
   
   ## Find the best `t` in this iteration
@@ -1458,7 +1580,8 @@ iterative_eigen_optimization <- function(t_lower, t_upper,
     # Update the global best `t` and loss if the current iteration is better
     if (iter_best_loss < best_loss) {
       
-      res[[k]]  <- c("Iter"=iter, "t_old"=best_t, "t_new"=iter_best_t, 
+      res[[k]]  <- c("Iter"=iter, "t_old"=best_t, 
+                     "t_new"=ifelse(is.infinite(iter_best_t), best_t, iter_best_t), 
                      "loss_old"=best_loss, "loss_new"=iter_best_loss,
                      "t_lower"=t_lower, "t_upper"=t_upper)
       
@@ -1501,7 +1624,7 @@ iterative_eigen_optimization <- function(t_lower, t_upper,
   df = data.frame(do.call(rbind, lapply(res, unlist)))
   
   # Return the best `t` and loss
-  list(best_t = best_t, best_loss = best_loss, df=df)
+  return(list(best_t = best_t, best_loss = best_loss, df=df))
 }
 
 
@@ -1509,45 +1632,119 @@ iterative_eigen_optimization <- function(t_lower, t_upper,
 ## General Degree loss function
 degree_loss <- function(t, gg, L, e, v, vinv, complex=FALSE, 
                      method=c("eigen", "balanced", "square"),
-                     expm_method=c("Higham08.b"), tol=1e-5, order=1) {
+                     loss_test=c("ks_dist", "kl_div", "js_dist"),
+                     expm_method=c("Higham08.b"), tol=1e-5, order=1, plots=0) {
   
-  method <- match.arg(method)
-    
+  method    <- match.arg(method)
+  loss_test <- match.arg(loss_test)
+  plts      <- NULL
+  data      <- NULL
+  params    <- NULL
+  ks_result <- NULL
+  losses    <- NULL
+  df.x      <- NULL
+  df.y      <- NULL
+  
   tryCatch({
+    
+    N = dim(L)[1]
+    
     ## Perform coarse graining at time: new_t
     lrg   = real.LRG(e=e, v=v, vinv=vinv, L=L, t=t, gg=gg, 
                      complex=complex, method=method, expm_method=expm_method, 
                      tol=tol, order=order)
     
+    clusters = as.numeric(names(table(lrg$supernodes)))
+    if( sum(!clusters %in% c(1,N)) == 0 ) break;
+    
     # Degree distribution of the original network
     d     <- as.numeric(igraph::degree(gg))
-    X     <- poweRlaw::displ$new(d)
-    X.est <- poweRlaw::estimate_xmin(X, seq(1, max(d), 1))
-    xmin  <- X.est$xmin
-    zl    <- sort(X$dat)
-    zl    <- zl[zl >= xmin]
-    alpha <- X.est$pars
+    fit   <- fit_dis_pl(d) 
+    #X     <- poweRlaw::displ$new(d)
+    #X.est <- poweRlaw::estimate_xmin(X, seq(1, max(d), 1))
+    #xmin  <- X.est$xmin
+    #zl    <- sort(X$dat)
+    #zl    <- zl[zl >= xmin]
+    #alpha <- X.est$pars
     
     ## Degree distribution of the coarse-grain network
-    lrg.d     <- as.numeric(igraph::degree(lrg$gg))
-    lrg.X     <- poweRlaw::displ$new(lrg.d)
-    lrg.est   <- poweRlaw::estimate_xmin(lrg.X, seq(1, max(lrg.d), 1))
-    lrg.xmin  <- lrg.est$xmin
-    lrg.alpha <- lrg.est$pars
+    loss <- tryCatch({
+      lrg.d     <- as.numeric(igraph::degree(lrg$gg))
+      lrg.fit   <- fit_dis_pl(lrg.d)
+    #lrg.X     <- poweRlaw::displ$new(lrg.d)
+    #lrg.est   <- poweRlaw::estimate_xmin(lrg.X, seq(1, max(lrg.d), 1))
+    #lrg.xmin  <- lrg.est$xmin
+    #lrg.alpha <- lrg.est$pars
     
     ## Calculate Jensen-Shannon distance
-    ks_result <- ks_dist(x = zl, xmin = lrg.xmin, alpha = lrg.alpha)
-    loss      <- js.distance(we = c(1/2, 1/2), x = cbind(p = ks_result[[2]], q = ks_result[[3]]))[[4]]
+    ks_result <- ks_dist(x = fit$zl, xmin = lrg.fit$xmin, alpha = lrg.fit$alpha)
+    kl_result <- kl.divergence(p=ks_result[[2]], q=ks_result[[3]])
+    js_dist   <- js.distance(we = c(1/2, 1/2), x = cbind(p = ks_result[[2]], q = ks_result[[3]]))[[4]]
+    losses    <- list(ks_dist=ks_result[[1]], kl=kl_result, js_dist=js_dist)
+    
+    ## Select loss 
+    loss      <- switch(loss_test,
+                        "ks_dist"= ks_result[[1]],
+                        "kl_div" = kl_result[[1]],
+                        "js_dist"= js_dist[[4]],
+                        Inf)
+    
+    if( plots ){
+      
+      data = data.frame(x=fit$X$internal$dat, 
+                        y=data_cdf_probs(fit$X$internal$dat))
+      
+      #zl.min = length(ks_result[[2]])
+      #
+      #df.x = data.frame(x=zl[1:zl.min], y=ks_result[[2]])
+      #df.y = data.frame(x=lrg.zl[1:zl.min], y=ks_result[[3]])
+      
+      df.x = data.frame(x=fit$zl, y=ks_result[[2]])
+      df.y = data.frame(x=fit$zl, y=ks_result[[3]])
+      
+      plts[[1]] = log.log_plot(df.x=df.x, df.y=df.y, 
+                               x.lab="K(emp.)", y.lab="LRG.K(fit)")
+      
+      plts[[2]] = lambda_fit_plot2(df=data, 
+                                   xmin1=xmin,     alpha1=alpha_study, 
+                                   xmin2=lrg.xmin, alpha2=lrg.alpha_study)
+      
+      params = list(x.fit=fit$X.est, lrg.fit=lrg.fit$lrg.est, 
+                    spec_dim=e.sd, spec_dim_lrg=lrg.sd,
+                    C0=C0, lrg.C0=lrg.C0, mle_flag=mle,
+                    alpha_fit=alpha_fit, lrg.alpha_fit=lrg.alpha_fit)
+    }
+    
+    return(list(loss=loss, plots=plts, params=params, df.x=df.x, df.y=df.y,
+                ks_result=ks_result, data=data, losses=losses))
+  }, 
+    
+  error = function(e){
+    Inf
+  }
+    )
     
     if (is.na(loss) || is.nan(loss)) loss <- Inf
-    return(loss)
+    return(list(loss=loss, plots=plts, params=params, df.x=df.x, df.y=df.y,
+                ks_result=ks_result, data=data, losses=losses))
     
   }, error = function(e) {
     # Return NA or a default value on error
     warning(paste("Error in compute_loss at t =", t, ":", e$message))
-    return(Inf)
+    return(list(loss=Inf, plots=plts, params=params, df.x=df.x, df.y=df.y,
+                ks_result=ks_result, data=data, losses=losses))
   })
-  }
+}
+
+  #   if (is.na(loss) || is.nan(loss)) loss <- Inf
+  #   return(loss)
+  #   
+  # }, error = function(e) {
+  #   # Return NA or a default value on error
+  #   warning(paste("Error in compute_loss at t =", t, ":", e$message))
+  #   return(Inf)
+  # })
+  # }
 
 # Define a wrapper for parallel evaluation of the loss function
 parallel_degree_loss <- function(t, gg, L, e, v, vinv, complex=FALSE, 
@@ -1570,7 +1767,7 @@ parallel_degree_loss <- function(t, gg, L, e, v, vinv, complex=FALSE,
                         "cdf_powerlaw", "pdf_powerlaw", "t",
                         "gg", "L", "e", "v", "vinv",
                         "complex", "method", "expm_method", "tol",
-                        "order", "pso_loss"), envir = environment())
+                        "order", "degree_loss"), envir = environment())
   
   # Define the computation for each particle's position
   compute_loss <- function(x) {
@@ -1844,23 +2041,34 @@ smooth.bin.eigen <- function(df, method="box", bandwidth=7){
 
 ## x = vector of eigenvalues of Laplacian
 ## return plot of log(P(x)) Versus log(x)
-lambda_plot <- function(df, steps=0.05, bandwidth=7){
+lambda_plot <- function(df, steps=0.05, bandwidth=7, ribbon.color="blue", 
+                        xlab=TeX("$\\lambda$"), ylab=TeX("P($\\lambda$)")){
 
-  #df  = bin.eigen(x,steps=steps)  
-  #fit = smooth.bin.eigen(df, bandwidth=bandwidth)
   
-  #fit1 <- with(df, ksmooth(x, y, kernel = "box", bandwidth = bandwidth))
-  #fit2 <- with(df, ksmooth(x, y, kernel = "normal", bandwidth = bandwidth))
+  ## Check if the data frame has 'sd' column for ribbon plot
+  has_sd <- "sd" %in% colnames(df)
+  
+  if( has_sd ){
+    df <- df %>% 
+          mutate(x_min = x-sd) %>%
+          mutate(x_max = x+sd) %>%
+          mutate(y_min = data_cdf_probs(x_min)) %>%
+          mutate(y_max = data_cdf_probs(x_max))
+  }
   
   pt = ggplot(df, aes(x,y))+
     geom_point(color="red")+
     geom_line(linewidth=1, color="red")+
+    # Add ribbon if standard deviation column is present
+    {if (has_sd) geom_ribbon(aes(
+      ymin = y_min,  
+      ymax = y_max), fill=ribbon.color, alpha = 0.2) }+
     scale_x_log10(
-      name = TeX("$\\lambda$"),
+      name   = xlab,##TeX("$\\lambda$"),
       breaks = scales::trans_breaks("log10", function(x) 10^x),
       labels = scales::trans_format("log10", scales::math_format(10^.x)))+
     scale_y_log10(
-      name = TeX("P($\\lambda$)"),
+      name   = ylab,##TeX("P($\\lambda$)"),
       breaks = scales::trans_breaks("log10", function(x) 10^x),
       labels = scales::trans_format("log10", scales::math_format(10^.x)))+
     annotation_logticks(sides="b", outside=TRUE)+
@@ -1887,14 +2095,14 @@ compute_fit_values <- function(df, xmin, alpha){
 
 }
 
-lambda_fit_plot <- function(df, xmin, alpha, fit.color="blue"){
+lambda_fit_plot <- function(df, xmin, alpha, fit.color="red"){
   
   ## Calculate the straight line values for all x >= xmin
   fit_line = compute_fit_values(df, xmin, alpha)
   
   pt = ggplot(df, aes(x,y))+
-    geom_point(color="red")+
-    geom_line(linewidth=1, color="red")+
+    geom_point(color="black")+
+    geom_line(linewidth=1, color="black")+
     geom_line(data = fit_line, aes(x, y_line), color = fit.color, linewidth = 1) +
     scale_x_log10(
       name = TeX("$\\lambda$"),
@@ -2305,5 +2513,188 @@ template_pa <- function(m=1, gg, prior=NULL){##, directed=FALSE, prior=NULL){
   
 }
 
+compute_ba_net <- function(i, n, m, p, directed, only.values, inv.vec){
+
+  #set.seed(i)
+  
+  ##node names
+  gn = seq(1,n,1)
+  
+  ## Barabasi Graph
+  gg=sample_pa(n=n, m=m, p=p, directed=directed)
+
+  ## Set node names
+  V(gg)$name = gn
+
+  L = get.L(gg)
+  D = degree(gg)
+  E = get.eigen(L, only.values=only.values, inv.vec=inv.vec)
+
+  return(list("e"=E[[1]], "v"=E[[2]], "vinv"=E[[3]], "d"=D))
+  
+}
+  
+## Define a wrapper for parallel BA network generator
+parallel_ba_gen <- function(i, n, m, p, nruns=10, directed, only.values, inv.vec, cl, small=1e-18) {
+  
+  ## to make this reproducible
+  clusterSetRNGStream(cl, 123)
+  
+  ## Initialize containers for sum and sum of squares
+  e_sum      <- rep(0, n)
+  e_sumsq    <- rep(0, n)
+  v_sum      <- matrix(0, n, n)
+  v_sumsq    <- matrix(0, n, n)
+  vinv_sum   <- matrix(0, n, n)
+  vinv_sumsq <- matrix(0, n, n)
+  
+  d_sum      <- rep(0,n)
+  d_sumsq    <- rep(0,n)
+  
+  ## Initial value for the .combine operation
+  x <- list(e = e_sum, v = v_sum, vinv = vinv_sum,
+            e_sumsq = e_sumsq, v_sumsq = v_sumsq, vinv_sumsq = vinv_sumsq,
+            d = d_sum, d_sumsq = d_sumsq)
+  
+  ## Custom combine function for compute_ba_net's eigenvalue comutation
+  combine_lists <- function(x, ...) {
+    
+    for( r in list(...) ){
+      x$e          = x$e + r$e
+      x$v          = x$v + r$v
+      x$vinv       = x$vinv + r$vinv
+      x$e_sumsq    = x$e_sumsq + r$e^2
+      x$v_sumsq    = x$v_sumsq + r$v^2
+      x$vinv_sumsq = x$vinv_sumsq + r$vinv^2
+      x$d          = x$d + r$d
+      x$d_sumsq    = x$d_sumsq + r$d^2
+    }
+    return(list(e=x$e, v=x$v, vinv=x$vinv,
+                e_sumsq=x$e_sumsq, v_sumsq=x$v_sumsq, vinv_sumsq=x$vinv_sumsq,
+                d = x$d, d_sumsq = x$d_sumsq))
+  }
+  
+  ## Parallel computation
+  results <- foreach(i = 1:nruns, 
+                     .combine = 'combine_lists',
+                     .multicombine=TRUE,
+                     .init = x,##initial_value,   
+                     .packages = c("igraph")) %dopar%{ 
+
+          compute_ba_net(i = i,
+                         n = n,
+                         m = m,
+                         p = p,
+                         directed = directed,
+                         only.values = only.values,
+                         inv.vec = inv.vec)
+                       
+                       
+  }
+  
+  ## Compute the mean and standard deviation
+  e_mean    <- results$e / nruns
+  v_mean    <- results$v / nruns
+  vinv_mean <- results$vinv / nruns
+  d_mean    <- results$d / nruns
+  
+  e_sd      <- (results$e_sumsq / nruns - e_mean^2)
+  v_sd      <- (results$v_sumsq / nruns - v_mean^2)
+  vinv_sd   <- (results$vinv_sumsq / nruns - vinv_mean^2)
+  d_sd      <- (results$d_sumsq / nruns - d_mean^2)
+   
+  ## handle small numbers
+  #small     <- 1e-18
+  e_sd      <- abs(min(e_sd))+e_sd+small
+  v_sd      <- abs(min(v_sd))+v_sd+small
+  vinv_sd   <- abs(min(vinv_sd))+vinv_sd+small
+  d_sd      <- abs(min(d_sd))+d_sd+small
+  
+  ## take sqrt
+  e_sd      <- sqrt(e_sd)
+  v_sd      <- sqrt(v_sd)
+  vinv_sd   <- sqrt(vinv_sd)
+  d_sd      <- sqrt(d_sd)
+  
+  ## Return the mean and standard deviation
+  return(list(
+        "e"    = list(mean = e_mean, sd = e_sd),
+        "v"    = list(mean = v_mean, sd = v_sd),
+        "vinv" = list(mean = vinv_mean, sd = vinv_sd),
+        "d"    = list(mean = d_mean, sd = d_sd)
+        ##,"raw"  = results 
+   ))
+
+}
 
 
+
+## Define a function to generate blue shades while keeping 0 as grey
+generate_colors <- function(color_values, blues = c("lightblue", "blue", "navy") ){ 
+  
+  # Define blue shades
+  max_val <- max(color_values, na.rm = TRUE)  # Get max color index
+  
+  # Create gradient function
+  color_func <- gradient_n_pal(blues, c(0, 1))
+  
+  # Apply colors, keeping 0 as grey
+  colors <- sapply(color_values, function(x) {
+    if (x == 0) return("grey") else return(color_func(x / max_val))
+  })
+  
+  return(colors)
+}
+
+eigen_density <- function(x){
+  ## Prepare eigenvalue data
+  x    = x[x>0]
+  indx = order(x, decreasing=FALSE)
+  x    = x[indx]
+  
+  ## store node probability distribution for original network
+  df  = data.frame(x=x,
+                   y=data_cdf_probs(x)) 
+}
+
+## x = vector of eigenvalues of Laplacian
+eigen_density_plot <- function(x, ribbon.color="blue", 
+                        xlab=TeX("$\\lambda$"), ylab=TeX("P($\\lambda$)")){
+  
+  ## Prepare eigenvalue data
+  df = eigen_density(x)
+  
+  ## Check if the data frame has 'sd' column for ribbon plot
+  has_sd <- "sd" %in% colnames(df)
+  
+  if( has_sd ){
+    df <- df %>% 
+      mutate(x_min = x-sd) %>%
+      mutate(x_max = x+sd) %>%
+      mutate(y_min = data_cdf_probs(x_min)) %>%
+      mutate(y_max = data_cdf_probs(x_max))
+  }
+  
+  pt = ggplot(df, aes(x,y))+
+    geom_point(color="red")+
+    geom_line(linewidth=1, color="red")+
+    # Add ribbon if standard deviation column is present
+    {if (has_sd) geom_ribbon(aes(
+      ymin = y_min,  
+      ymax = y_max), fill=ribbon.color, alpha = 0.2) }+
+    scale_x_log10(
+      name   = xlab,##TeX("$\\lambda$"),
+      breaks = scales::trans_breaks("log10", function(x) 10^x),
+      labels = scales::trans_format("log10", scales::math_format(10^.x)))+
+    scale_y_log10(
+      name   = ylab,##TeX("P($\\lambda$)"),
+      breaks = scales::trans_breaks("log10", function(x) 10^x),
+      labels = scales::trans_format("log10", scales::math_format(10^.x)))+
+    annotation_logticks(sides="b", outside=TRUE)+
+    coord_cartesian(clip = "off")+
+    theme_light()+
+    theme(legend.position = "right")
+  
+  return(pt)
+  
+}
