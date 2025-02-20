@@ -947,15 +947,6 @@ ks_dist <- function(x, xmin1, alpha1, xmin2, alpha2){
  return(list(ks_dist=ks_dist, cdf_emp=cdf_emp, cdf_fit=cdf_fit))
 }
 
-#ks_dist <- function(x, x2){
-#  cdf_emp = data_cdf_probs(x)
-#  cdf_fit = data_cdf_probs(x2)
-#  n.min   = min(length(cdf_emp), length(cdf_fit))
-# cdf_emp = cdf_emp[1:n.min]
-#  cdf_fit = cdf_fit[1:n.min]
-#  ks_dist = max(abs(cdf_emp-cdf_fit)) 
-#  return(list(ks_dist=ks_dist, cdf_emp=cdf_emp, cdf_fit=cdf_fit))
-#}
 
 ## Fit continuous log-norm distribution to x
 fit_con_lnorm <- function(x){ 
@@ -1014,274 +1005,274 @@ fit_dis_pl <- function(x){
               X=X, zl=zl, alpha=alpha))
 }
 
-
-# Simulated Annealing with Scaling and Squaring
-anneal.time <- function(gg, e=NULL, v=NULL, vinv=NULL, L=NULL, t.lower, t.upper, complex=FALSE, 
-                        n.steps=10, method=c("eigen", "balanced", "square"), length.out=150,
-                        expm_method=c("Higham08.b"), tol=1e-5, order=1, print=1,
-                        max_iter=100, dt=1, restarts=25, cooling_rate=0.99, seed=NULL) {
-  
-  method <- match.arg(method)
-  res    <- list()
-  plots  <- list()
-  plots2 <- list()
-  k      <- 1
-  
-  ## set random number seed if provided
-  if( !is.null(seed) ){ set.seed(seed); }
-
-    ## degree distribution of network
-    d = as.numeric(degree(gg))
-
-    ## find alpha & xmin for d using poweRlaw's MLE
-    ## create new discrete power-law distribution
-    X=poweRlaw::displ$new(d)
-
-    ## network's degree values    
-    x.range = X$internal$values
-    
-    ## estimate best xmin and alpha from sequence of xmin values
-    X.est    = estimate_xmin(X, seq(1,max(d),1))
-    xmin     = X.est$xmin
-    zl       = sort(X$dat)
-    zl       = zl[zl>=xmin]
-    alpha    = X.est$pars
-    
-    ## store node probability distribution for original network
-    gg.dat  = data.frame(x=X$internal$values,
-                         y=data_cdf_probs(X$internal$values))  
-    
-    ## generate an initial time 
-    t     = t.lower[1] + runif(1) * (t.upper - t.lower)
-   
-    cont = FALSE 
-    
-    while ( !cont ){
-    
-    ## Perform coarse graining at time: t
-    lrg   = real.LRG(e=e, v=v, vinv=vinv, L=L, t=t, gg=gg, 
-                     complex=complex, method=method, expm_method=expm_method, 
-                     tol=tol, order=order)
-    
-    
-    ## degree distribution of coarse-grain network
-    lrg.d = as.numeric(degree(lrg$gg))
-    
-    ## Try to find alpha & xmin for d using poweRlaw's MLE
-    output <- tryCatch(
-      {
-        ## create new discrete power-law distribution
-        ## This is the code that might fail
-        lrg.X = poweRlaw::displ$new(lrg.d)
-        ## If successful, return TRUE
-        TRUE
-      },
-      error = function(e) {
-        ## If there's an error, return FALSE
-        FALSE
-      }
-    )
-    
-    ## If error occurred, generate a new time t and try again
-    if( !output && restarts > 0 ){
-      t        = t.lower[1] + runif(1) * (t.upper - t.lower)
-      restarts = restarts - 1
-    } else {
-      ## If no error, exit the loop
-      cont = TRUE
-    }
-}
-    
-    ## save time
-    times = t
-    
-    if( cont && restarts >= 0 ){
-    
-    ## estimate best xmin and alpha from sequence of xmin values
-    lrg.est    = estimate_xmin(lrg.X, seq(1,max(lrg.d),1))
-    lrg.xmin   = lrg.est$xmin
-    lrg.alpha  = lrg.est$pars
-    
-    ## store node probability distribution for coarse-grain network
-    lrg.dat  = data.frame(x=lrg.X$internal$values,
-                          y=data_cdf_probs(lrg.X$internal$values)) 
-    
-    if( dim(gg.dat)[1]  > 1 & 
-        dim(lrg.dat)[1] > 1 ){
-
-      ## preform powerlaw extrapolation of the two degree distributions
-      gg_pdf  = pareto_powerlaw(x.range, xmin, alpha)
-      lrg_pdf = pareto_powerlaw(x.range, lrg.xmin, lrg.alpha)
-    
-      gg_cdf  = cdf_powerlaw(x.range, xmin, alpha)
-      lrg_cdf = cdf_powerlaw(x.range, lrg.xmin, lrg.alpha)
-    
-      ks_dist = ks_dist(x=zl, xmin=lrg.xmin, alpha=lrg.alpha)
-    
-      loss  = js.distance(we=c(1/2,1/2), x=cbind(p=ks_dist[[2]], q=ks_dist[[3]]))[[4]]
-    #old_loss    = js.distance(we=c(1/2,1/2), x=cbind(gg_pdf, lrg_pdf))[[4]]
-    #old_loss = as.vector(ks.test(gg_cdf, lrg_cdf)[[1]])
-    #old_loss    = cross.entropy.loss(gg.dat$y, lrg.dat$y)
-    #old_loss    = cross.entropy.loss(gg_pdf, lrg_pdf)
-    #loss        = old_loss
-      curr_t      = t
-      curr_loss   = loss
-      deltaL      = NA
-      
-    res[[k]]    = c("Iter"=1, "Loss(old)"=NA, "Loss(new)"=loss, 
-                    #"Loss(delta)"=NA, "Prob:"=NA, 
-                    "alpha_gg"=alpha, "alpha_lrg"=lrg.alpha, 
-                    "xmin_gg"=xmin, "xmin_lrg"=lrg.xmin,
-                    "t"=NA, "new_t"=t)#, "dt"=dt)
-    
-    plots[[k]]  = log.log_plot(df.x=gg.dat, 
-                               df.y=lrg.dat, 
-                               x.lab="K", y.lab="LRG.K")
-    
-    plots2[[k]] = log.log_plot(df.x=data.frame(x=x.range,
-                                               y=gg_pdf), 
-                               df.y=data.frame(x=x.range,
-                                               y=lrg_pdf), 
-                               x.lab="K", y.lab="LRG.K")
-    
-    k = k + 1
-    
-  }
-
- ## Print progress
- if(print){cat(sprintf("Iteration: %d, Loss(old): %f, Loss(new): %f, Loss(delta): %f, Prob: %f, t: %f, t(new): %f, dt: %f\n", 
-                        0, NA, loss, NA, NA, NA, t, dt))}
-    
-    
-  
-  for (iter in 1:max_iter) {
-    
-    ## Generate a new candidate state
-    new_t = curr_t + rnorm(n=1, mean=dt)
-    while( new_t < 0 ){
-      new_t = curr_t + rnorm(n=1, mean=dt)
-    }
-    
-    ## add time to set of times
-    times = append(times, new_t)
-    
-    ## Perform coarse graining at time: new_t
-    lrg   = real.LRG(e=e, v=v, vinv=vinv, L=L, t=new_t, gg=gg, 
-                     complex=complex, method=method, expm_method=expm_method, 
-                     tol=tol, order=order)
-    
-    lrg.sn.sz.min = 1
-    lrg.sn.sz.max = igraph::vcount(lrg$gg)
-    lrg.sn        = table(lrg$supernodes)
-    lrg.sn.sz     = as.numeric(names(lrg.sn))
-    lrg.sn.sz     = lrg.sn.sz[-c(lrg.sn.sz.min, lrg.sn.sz.max)]
-    lrg.d         = as.numeric(degree(lrg$gg))
-    
-    if( length(lrg.sn.sz) >= 1 && sum(lrg.d!=1) > 1 ){
-
-      ## find alpha & xmin for d using poweRlaw's MLE
-      ## create new discrete power-law distribution
-      rm(lrg.X,lrg.est)
-      lrg.X=poweRlaw::displ$new(lrg.d)
-      
-      ## estimate best xmin and alpha from sequence of xmin values
-      lrg.est    = estimate_xmin(lrg.X, seq(1,max(lrg.d),1))
-      lrg.xmin   = lrg.est$xmin
-      lrg.alpha  = lrg.est$pars
-            
-      ## store node probability distribution for coarse-grain network
-      lrg.dat  = data.frame(x=lrg.X$internal$values,
-                            y=data_cdf_probs(lrg.X$internal$values)) 
-      
-      
-      if( dim(gg.dat)[1]  > 1 & 
-          dim(lrg.dat)[1] > 1 ){
-          
-        
-        ## preform powerlaw extrapolation of the two degree distributions
-        gg_pdf  = pareto_powerlaw(x.range, xmin, alpha)
-        lrg_pdf = pareto_powerlaw(x.range, lrg.xmin, lrg.alpha)
-        
-        gg_cdf  = cdf_powerlaw(x.range, xmin, alpha)
-        lrg_cdf = cdf_powerlaw(x.range, lrg.xmin, lrg.alpha)
-        
-        ks_dist = ks_dist(x=zl, xmin=lrg.xmin, alpha=lrg.alpha)
-        
-        
-        ## Calculate cross-entropy loss
-        #loss     = old_loss
-        #new_loss = test_dist(x=zl, xmin=lrg.xmin, alpha=lrg.alpha)[[1]]
-        #new_loss = min(abs(log(gg_pdf+1e-8)-log(lrg_pdf+1e-8)))
-        new_loss    = js.distance(we=c(1/2,1/2), x=cbind(p=ks_dist[[2]], q=ks_dist[[3]]))[[4]]
-        #new_loss = js.distance(we=c(1/2,1/2), x=cbind(gg_pdf, lrg_pdf))[[4]]
-        #new_loss = as.vector(ks.test(gg_cdf, lrg_cdf)[[1]])
-        #new_loss = cross.entropy.loss(gg.dat$y, lrg.dat$y)
-        #new_loss = cross.entropy.loss(gg_pdf, lrg_pdf)
-      
-        if( new_loss < loss ){
-          ## store best results
-          res[[k]]    = c("Iter"=iter, "Loss(old)"=loss, "Loss(new)"=new_loss, 
-                          #"Loss(delta)"=deltaL, 
-                          #"Prob:"=acceptance_prob, 
-                          "alpha_gg"=alpha, "alpha_lrg"=lrg.alpha, 
-                          "xmin_gg"=xmin, "xmin_lrg"=lrg.xmin,
-                          "t"=t, "new_t"=new_t)#, "dt"=dt)
-          
-          plots[[k]]  = log.log_plot(df.x=gg.dat, 
-                                     df.y=lrg.dat, 
-                                     x.lab="K", y.lab="LRG.K")
-          
-          plots2[[k]] = log.log_plot(df.x=data.frame(x=x.range,
-                                                     y=gg_pdf), 
-                                     df.y=data.frame(x=x.range,
-                                                     y=lrg_pdf), 
-                                     x.lab="K", y.lab="LRG.K")
-          ## store best time
-          loss = new_loss; 
-          t    = new_t;
-          k    = k + 1
-        }
-        
-        ## difference between new and old losses
-        deltaL = (new_loss-curr_loss)
-      
-        ## Cooling schedule: Update t
-        dt = dt * cooling_rate
-        
-        ## Calculate the acceptance probability
-        acceptance_prob <- exp(-abs(deltaL)/dt)
-      
-      ## Accept the new state with a certain probability
-      if ( (deltaL < 0) || (runif(1) < acceptance_prob)) {
-        
-        ## update current time and loss
-        curr_t = new_t; curr_loss = new_loss;
-       
-      }
-      
-      ## Print progress
-      if(print){cat(sprintf("Iteration: %d, Loss(old): %f, Loss(new): %f, Loss(delta): %f, Prob: %f, t: %f, t(new): %f, dt: %f\n", 
-                            iter, curr_loss, new_loss, deltaL, acceptance_prob, curr_t, new_t, dt))}
-      
-      }
-    } else {
-      ## Print progress
-      #if(print){
-      #  cat(sprintf("Iteration: %d, Loss(old): %f, Loss(new): %f, Loss(delta): %f, Prob: %f, t: %f, t(new): %f, dt: %f\n", 
-      #              iter, curr_loss, NA, NA, NA, curr_t, new_t, dt))}
-    }
-  }
-}
-    
-  if( !isempty(res) ){  
-    df = data.frame(do.call(rbind, lapply(res, unlist)))
-    colnames(df) = c("Iter", "Loss.old", "Loss.new",
-                     "alpha_gg", "alpha_lrg", "xmin_gg", "xmin_lrg", "t", "new_t")##, "dt")  
-  }
-    
-  return(list(df=df, times=times, plots=plots, plots2=plots2, restarts=restarts))
-  
-}
+# 
+# # Simulated Annealing with Scaling and Squaring
+# anneal.time <- function(gg, e=NULL, v=NULL, vinv=NULL, L=NULL, t.lower, t.upper, complex=FALSE, 
+#                         n.steps=10, method=c("eigen", "balanced", "square"), length.out=150,
+#                         expm_method=c("Higham08.b"), tol=1e-5, order=1, print=1,
+#                         max_iter=100, dt=1, restarts=25, cooling_rate=0.99, seed=NULL) {
+#   
+#   method <- match.arg(method)
+#   res    <- list()
+#   plots  <- list()
+#   plots2 <- list()
+#   k      <- 1
+#   
+#   ## set random number seed if provided
+#   if( !is.null(seed) ){ set.seed(seed); }
+# 
+#     ## degree distribution of network
+#     d = as.numeric(degree(gg))
+# 
+#     ## find alpha & xmin for d using poweRlaw's MLE
+#     ## create new discrete power-law distribution
+#     X=poweRlaw::displ$new(d)
+# 
+#     ## network's degree values    
+#     x.range = X$internal$values
+#     
+#     ## estimate best xmin and alpha from sequence of xmin values
+#     X.est    = estimate_xmin(X, seq(1,max(d),1))
+#     xmin     = X.est$xmin
+#     zl       = sort(X$dat)
+#     zl       = zl[zl>=xmin]
+#     alpha    = X.est$pars
+#     
+#     ## store node probability distribution for original network
+#     gg.dat  = data.frame(x=X$internal$values,
+#                          y=data_cdf_probs(X$internal$values))  
+#     
+#     ## generate an initial time 
+#     t     = t.lower[1] + runif(1) * (t.upper - t.lower)
+#    
+#     cont = FALSE 
+#     
+#     while ( !cont ){
+#     
+#     ## Perform coarse graining at time: t
+#     lrg   = real.LRG(e=e, v=v, vinv=vinv, L=L, t=t, gg=gg, 
+#                      complex=complex, method=method, expm_method=expm_method, 
+#                      tol=tol, order=order)
+#     
+#     
+#     ## degree distribution of coarse-grain network
+#     lrg.d = as.numeric(degree(lrg$gg))
+#     
+#     ## Try to find alpha & xmin for d using poweRlaw's MLE
+#     output <- tryCatch(
+#       {
+#         ## create new discrete power-law distribution
+#         ## This is the code that might fail
+#         lrg.X = poweRlaw::displ$new(lrg.d)
+#         ## If successful, return TRUE
+#         TRUE
+#       },
+#       error = function(e) {
+#         ## If there's an error, return FALSE
+#         FALSE
+#       }
+#     )
+#     
+#     ## If error occurred, generate a new time t and try again
+#     if( !output && restarts > 0 ){
+#       t        = t.lower[1] + runif(1) * (t.upper - t.lower)
+#       restarts = restarts - 1
+#     } else {
+#       ## If no error, exit the loop
+#       cont = TRUE
+#     }
+# }
+#     
+#     ## save time
+#     times = t
+#     
+#     if( cont && restarts >= 0 ){
+#     
+#     ## estimate best xmin and alpha from sequence of xmin values
+#     lrg.est    = estimate_xmin(lrg.X, seq(1,max(lrg.d),1))
+#     lrg.xmin   = lrg.est$xmin
+#     lrg.alpha  = lrg.est$pars
+#     
+#     ## store node probability distribution for coarse-grain network
+#     lrg.dat  = data.frame(x=lrg.X$internal$values,
+#                           y=data_cdf_probs(lrg.X$internal$values)) 
+#     
+#     if( dim(gg.dat)[1]  > 1 & 
+#         dim(lrg.dat)[1] > 1 ){
+# 
+#       ## preform powerlaw extrapolation of the two degree distributions
+#       gg_pdf  = pareto_powerlaw(x.range, xmin, alpha)
+#       lrg_pdf = pareto_powerlaw(x.range, lrg.xmin, lrg.alpha)
+#     
+#       gg_cdf  = cdf_powerlaw(x.range, xmin, alpha)
+#       lrg_cdf = cdf_powerlaw(x.range, lrg.xmin, lrg.alpha)
+#     
+#       ks_dist = ks_dist(x=zl, xmin=lrg.xmin, alpha=lrg.alpha)
+#     
+#       loss  = js.distance(we=c(1/2,1/2), x=cbind(p=ks_dist[[2]], q=ks_dist[[3]]))[[4]]
+#     #old_loss    = js.distance(we=c(1/2,1/2), x=cbind(gg_pdf, lrg_pdf))[[4]]
+#     #old_loss = as.vector(ks.test(gg_cdf, lrg_cdf)[[1]])
+#     #old_loss    = cross.entropy.loss(gg.dat$y, lrg.dat$y)
+#     #old_loss    = cross.entropy.loss(gg_pdf, lrg_pdf)
+#     #loss        = old_loss
+#       curr_t      = t
+#       curr_loss   = loss
+#       deltaL      = NA
+#       
+#     res[[k]]    = c("Iter"=1, "Loss(old)"=NA, "Loss(new)"=loss, 
+#                     #"Loss(delta)"=NA, "Prob:"=NA, 
+#                     "alpha_gg"=alpha, "alpha_lrg"=lrg.alpha, 
+#                     "xmin_gg"=xmin, "xmin_lrg"=lrg.xmin,
+#                     "t"=NA, "new_t"=t)#, "dt"=dt)
+#     
+#     plots[[k]]  = log.log_plot(df.x=gg.dat, 
+#                                df.y=lrg.dat, 
+#                                x.lab="K", y.lab="LRG.K")
+#     
+#     plots2[[k]] = log.log_plot(df.x=data.frame(x=x.range,
+#                                                y=gg_pdf), 
+#                                df.y=data.frame(x=x.range,
+#                                                y=lrg_pdf), 
+#                                x.lab="K", y.lab="LRG.K")
+#     
+#     k = k + 1
+#     
+#   }
+# 
+#  ## Print progress
+#  if(print){cat(sprintf("Iteration: %d, Loss(old): %f, Loss(new): %f, Loss(delta): %f, Prob: %f, t: %f, t(new): %f, dt: %f\n", 
+#                         0, NA, loss, NA, NA, NA, t, dt))}
+#     
+#     
+#   
+#   for (iter in 1:max_iter) {
+#     
+#     ## Generate a new candidate state
+#     new_t = curr_t + rnorm(n=1, mean=dt)
+#     while( new_t < 0 ){
+#       new_t = curr_t + rnorm(n=1, mean=dt)
+#     }
+#     
+#     ## add time to set of times
+#     times = append(times, new_t)
+#     
+#     ## Perform coarse graining at time: new_t
+#     lrg   = real.LRG(e=e, v=v, vinv=vinv, L=L, t=new_t, gg=gg, 
+#                      complex=complex, method=method, expm_method=expm_method, 
+#                      tol=tol, order=order)
+#     
+#     lrg.sn.sz.min = 1
+#     lrg.sn.sz.max = igraph::vcount(lrg$gg)
+#     lrg.sn        = table(lrg$supernodes)
+#     lrg.sn.sz     = as.numeric(names(lrg.sn))
+#     lrg.sn.sz     = lrg.sn.sz[-c(lrg.sn.sz.min, lrg.sn.sz.max)]
+#     lrg.d         = as.numeric(degree(lrg$gg))
+#     
+#     if( length(lrg.sn.sz) >= 1 && sum(lrg.d!=1) > 1 ){
+# 
+#       ## find alpha & xmin for d using poweRlaw's MLE
+#       ## create new discrete power-law distribution
+#       rm(lrg.X,lrg.est)
+#       lrg.X=poweRlaw::displ$new(lrg.d)
+#       
+#       ## estimate best xmin and alpha from sequence of xmin values
+#       lrg.est    = estimate_xmin(lrg.X, seq(1,max(lrg.d),1))
+#       lrg.xmin   = lrg.est$xmin
+#       lrg.alpha  = lrg.est$pars
+#             
+#       ## store node probability distribution for coarse-grain network
+#       lrg.dat  = data.frame(x=lrg.X$internal$values,
+#                             y=data_cdf_probs(lrg.X$internal$values)) 
+#       
+#       
+#       if( dim(gg.dat)[1]  > 1 & 
+#           dim(lrg.dat)[1] > 1 ){
+#           
+#         
+#         ## preform powerlaw extrapolation of the two degree distributions
+#         gg_pdf  = pareto_powerlaw(x.range, xmin, alpha)
+#         lrg_pdf = pareto_powerlaw(x.range, lrg.xmin, lrg.alpha)
+#         
+#         gg_cdf  = cdf_powerlaw(x.range, xmin, alpha)
+#         lrg_cdf = cdf_powerlaw(x.range, lrg.xmin, lrg.alpha)
+#         
+#         ks_dist = ks_dist(x=zl, xmin=lrg.xmin, alpha=lrg.alpha)
+#         
+#         
+#         ## Calculate cross-entropy loss
+#         #loss     = old_loss
+#         #new_loss = test_dist(x=zl, xmin=lrg.xmin, alpha=lrg.alpha)[[1]]
+#         #new_loss = min(abs(log(gg_pdf+1e-8)-log(lrg_pdf+1e-8)))
+#         new_loss    = js.distance(we=c(1/2,1/2), x=cbind(p=ks_dist[[2]], q=ks_dist[[3]]))[[4]]
+#         #new_loss = js.distance(we=c(1/2,1/2), x=cbind(gg_pdf, lrg_pdf))[[4]]
+#         #new_loss = as.vector(ks.test(gg_cdf, lrg_cdf)[[1]])
+#         #new_loss = cross.entropy.loss(gg.dat$y, lrg.dat$y)
+#         #new_loss = cross.entropy.loss(gg_pdf, lrg_pdf)
+#       
+#         if( new_loss < loss ){
+#           ## store best results
+#           res[[k]]    = c("Iter"=iter, "Loss(old)"=loss, "Loss(new)"=new_loss, 
+#                           #"Loss(delta)"=deltaL, 
+#                           #"Prob:"=acceptance_prob, 
+#                           "alpha_gg"=alpha, "alpha_lrg"=lrg.alpha, 
+#                           "xmin_gg"=xmin, "xmin_lrg"=lrg.xmin,
+#                           "t"=t, "new_t"=new_t)#, "dt"=dt)
+#           
+#           plots[[k]]  = log.log_plot(df.x=gg.dat, 
+#                                      df.y=lrg.dat, 
+#                                      x.lab="K", y.lab="LRG.K")
+#           
+#           plots2[[k]] = log.log_plot(df.x=data.frame(x=x.range,
+#                                                      y=gg_pdf), 
+#                                      df.y=data.frame(x=x.range,
+#                                                      y=lrg_pdf), 
+#                                      x.lab="K", y.lab="LRG.K")
+#           ## store best time
+#           loss = new_loss; 
+#           t    = new_t;
+#           k    = k + 1
+#         }
+#         
+#         ## difference between new and old losses
+#         deltaL = (new_loss-curr_loss)
+#       
+#         ## Cooling schedule: Update t
+#         dt = dt * cooling_rate
+#         
+#         ## Calculate the acceptance probability
+#         acceptance_prob <- exp(-abs(deltaL)/dt)
+#       
+#       ## Accept the new state with a certain probability
+#       if ( (deltaL < 0) || (runif(1) < acceptance_prob)) {
+#         
+#         ## update current time and loss
+#         curr_t = new_t; curr_loss = new_loss;
+#        
+#       }
+#       
+#       ## Print progress
+#       if(print){cat(sprintf("Iteration: %d, Loss(old): %f, Loss(new): %f, Loss(delta): %f, Prob: %f, t: %f, t(new): %f, dt: %f\n", 
+#                             iter, curr_loss, new_loss, deltaL, acceptance_prob, curr_t, new_t, dt))}
+#       
+#       }
+#     } else {
+#       ## Print progress
+#       #if(print){
+#       #  cat(sprintf("Iteration: %d, Loss(old): %f, Loss(new): %f, Loss(delta): %f, Prob: %f, t: %f, t(new): %f, dt: %f\n", 
+#       #              iter, curr_loss, NA, NA, NA, curr_t, new_t, dt))}
+#     }
+#   }
+# }
+#     
+#   if( !isempty(res) ){  
+#     df = data.frame(do.call(rbind, lapply(res, unlist)))
+#     colnames(df) = c("Iter", "Loss.old", "Loss.new",
+#                      "alpha_gg", "alpha_lrg", "xmin_gg", "xmin_lrg", "t", "new_t")##, "dt")  
+#   }
+#     
+#   return(list(df=df, times=times, plots=plots, plots2=plots2, restarts=restarts))
+#   
+# }
 
 
 eigen_loss <- function(t, gg, L, e, v, vinv, complex=FALSE, 
@@ -1343,8 +1334,7 @@ eigen_loss <- function(t, gg, L, e, v, vinv, complex=FALSE,
       ks_result <- ks_dist(x=fit$zl,
                            xmin1=fit$xmin,     alpha1=alpha_study, 
                            xmin2=lrg.fit$xmin, alpha2=lrg.alpha_study)
-      
-      #ks_result <- ks_dist(x=fit$zl, xmin=lrg.fit$xmin, alpha=lrg.alpha_study)
+   
       kl_result <- kl.divergence(p=ks_result[[2]], q=ks_result[[3]])
       js_dist   <- js.distance(we = c(1/2, 1/2), x = cbind(p = ks_result[[2]], q = ks_result[[3]]))##[[4]]
       losses    <- list(ks_dist=ks_result[[1]], kl=kl_result, js_dist=js_dist)
@@ -1736,15 +1726,6 @@ degree_loss <- function(t, gg, L, e, v, vinv, complex=FALSE,
   })
 }
 
-  #   if (is.na(loss) || is.nan(loss)) loss <- Inf
-  #   return(loss)
-  #   
-  # }, error = function(e) {
-  #   # Return NA or a default value on error
-  #   warning(paste("Error in compute_loss at t =", t, ":", e$message))
-  #   return(Inf)
-  # })
-  # }
 
 # Define a wrapper for parallel evaluation of the loss function
 parallel_degree_loss <- function(t, gg, L, e, v, vinv, complex=FALSE, 
