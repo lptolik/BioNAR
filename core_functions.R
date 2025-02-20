@@ -679,154 +679,154 @@ gp = ggplot()+
 }
 
 
-scan.time <- function(gg, e=NULL, v=NULL, vinv=NULL, L=NULL, t.lower, t.upper, nsim=500, complex=FALSE, 
-                      n.steps=10, method=c("eigen", "balanced", "square"), 
-                      expm_method=c("Higham08.b"), tol=1e-5, order=1, print=1){
-  
-  method <- match.arg(method)
-  
-  ## define time
-  ##n.steps = 10
-  gap     = t.upper - t.lower 
-  steps   = gap/n.steps
-  time    = seq(t.lower, t.upper, steps)
-  res     = list()
-  k       = 1
-
-  ## get the degree distribution for the network
-  d = as.numeric(degree(gg))
-  
-  ## find alpha & xmin for d using poweRlaw's MLE
-  ## create new discrete power-law distribution
-  X=poweRlaw::displ$new(d)
-  
-  ## the degree values    
-  x.range = X$internal$values
-  
-  ## estimate best xmin and alpha from sequence of xmin values
-  X.est    = estimate_xmin(X, seq(1,max(d),1))
-  xmin     = X.est$xmin
-  zl       = sort(X$dat)
-  zl       = zl[zl>=xmin]
-  alpha    = X.est$pars
-  #X$setXmin(xmin)
-  #X$setPars(alpha)
-  
-  ## store node probability distribution for original network
-  gg.dat  = data.frame(x=X$internal$values,
-                       y=data_cdf_probs(X$internal$values))  
-  
-  plots  = list()
-  plots2 = list()
-  
-  
-  for( t in 1:length(time) ){
-    
-    ## Perform coarse graining at time: t
-    lrg   = real.LRG(e=e, v=v, vinv=vinv, L=L, t=time[t], gg=gg, 
-                     complex=complex, method=method, expm_method=expm_method, 
-                     tol=tol, order=order)
-
-    ## degree distribution of coarse-grained network    
-    lrg.d = as.numeric(degree(lrg$gg))
-        
-    if( length(lrg.d) > 1 ){
-    
-    ## find alpha & xmin for d using poweRlaw's MLE
-    ## create new discrete power-law distribution
-    cont = tryCatch({
-            lrg.X=poweRlaw::displ$new(lrg.d)
-            ## If successful, return TRUE
-            TRUE
-    },
-    error = function(e) {
-      ## If there's an error, return FALSE
-      FALSE
-    }
-    )
-
-    if( cont ){
-    
-    ## estimate best xmin and alpha from sequence of xmin values
-    lrg.est    = estimate_xmin(lrg.X, seq(1,max(lrg.d),1))
-    lrg.xmin   = lrg.est$xmin
-    lrg.alpha  = lrg.est$pars
-    #lrg.X$setXmin(lrg.xmin)
-    #lrg.X$setPars(lrg.alpha)
-    
-    
-    ## store node probability distribution for coarse-grain network
-    lrg.dat  = data.frame(x=lrg.X$internal$values,
-                          y=data_cdf_probs(lrg.X$internal$values)) 
-    
-    
-    #Cn      = table(as.numeric(lrg$mapping[,2]))
-    #Cn.gt1  = sum(as.numeric(names(Cn))>1) ##length(Cn[Cn>1])
-    lrg.sn.sz.min = 1
-    lrg.sn.sz.max = igraph::vcount(lrg$gg)
-    lrg.sn        = table(lrg$supernodes)
-    lrg.sn.sz     = as.numeric(names(lrg.sn))
-    lrg.sn.sz     = lrg.sn.sz[-c(lrg.sn.sz.min, lrg.sn.sz.max)]
-    lrg.d         = as.numeric(degree(lrg$gg))
-    
-    if( length(lrg.sn.sz) >= 1 && sum(lrg.d!=1) > 1 ){
-      
-      gg_pdf  = pareto_powerlaw(x.range, xmin, alpha)
-      lrg_pdf = pareto_powerlaw(x.range, lrg.xmin, lrg.alpha)
-      
-      ks_dist = ks_dist(x=zl, xmin=lrg.xmin, alpha=lrg.alpha)
-     
-      ## calculate KL divergence
-      kl_pq = kl.divergence (ks_dist[[2]],ks_dist[[3]])
-      kl_qp = kl.divergence (ks_dist[[3]],ks_dist[[2]])
-      
-      #p = gg.dat$y
-      #q = pdf_powerlaw(x=gg.dat$x, lrg.xmin, lrg.alpha)
-      #js= js.distance(x=cbind(p,q),we=rep(0.5,2))
-      
-      ## calculate JS divergence
-      js    = js.distance(x=cbind(ks_dist[[2]],ks_dist[[3]]),we=rep(0.5,2))
-      
-      ## cross-entropy loss
-      loss = cross.entropy.loss(ks_dist[[2]],ks_dist[[3]])
-      
-      res[[k]]    = c("Iter"=t, 
-                      "ks_dist"=ks_dist[[1]], "kl_pq"=kl_pq, "kl_qp"=kl_qp,
-                      "js.div"=js$js.div, "jsd"=js$jsd, "js.norm"=js$js.norm,
-                      "loss"=loss, "lrg.sn"=length(lrg.sn),
-                      "alpha_gg"=alpha, "alpha_lrg"=lrg.alpha, 
-                      "xmin_gg"=xmin, "xmin_lrg"=lrg.xmin,
-                      "t"=time[t])
-      
-      k=k+1
-      
-      ## Print progress
-      if(print){cat(sprintf("Iteration: %d, ks_dist: %f, jsd: %f, loss: %f, lrg.sn: %d, alpha: %f, alpha.lrg: %f, xmin: %d, xmin.lrg: %d, t: %f\n", 
-                            t, ks_dist[[1]], js$jsd, loss, length(lrg.sn), alpha, lrg.alpha, xmin, lrg.xmin, time[t]))}
-      
-      
-      ## Log-Log plot of original and coarse-grain graph's degree distributions
-      plots[[t]] = log.log_plot(df.x=gg.dat, 
-                                df.y=lrg.dat, 
-                                x.lab="K", y.lab="LRG.K")
-      
-      
-      ## Log-Log plot of original and coarse-grain graph's degree distributions
-      plots2[[t]] = log.log_plot(df.x=data.frame(x=x.range,
-                                                 y=gg_pdf), 
-                                 df.y=data.frame(x=x.range,
-                                                 y=lrg_pdf), 
-                                 x.lab="K", y.lab="LRG.K")
-      }
-    }
-  }
-}
-
-  df = data.frame(do.call(rbind, lapply(res, unlist)))
-    
-  return(list(df=df,plots=plots, plots2=plots2))
-  
-}
+# scan.time <- function(gg, e=NULL, v=NULL, vinv=NULL, L=NULL, t.lower, t.upper, nsim=500, complex=FALSE, 
+#                       n.steps=10, method=c("eigen", "balanced", "square"), 
+#                       expm_method=c("Higham08.b"), tol=1e-5, order=1, print=1){
+#   
+#   method <- match.arg(method)
+#   
+#   ## define time
+#   ##n.steps = 10
+#   gap     = t.upper - t.lower 
+#   steps   = gap/n.steps
+#   time    = seq(t.lower, t.upper, steps)
+#   res     = list()
+#   k       = 1
+# 
+#   ## get the degree distribution for the network
+#   d = as.numeric(degree(gg))
+#   
+#   ## find alpha & xmin for d using poweRlaw's MLE
+#   ## create new discrete power-law distribution
+#   X=poweRlaw::displ$new(d)
+#   
+#   ## the degree values    
+#   x.range = X$internal$values
+#   
+#   ## estimate best xmin and alpha from sequence of xmin values
+#   X.est    = estimate_xmin(X, seq(1,max(d),1))
+#   xmin     = X.est$xmin
+#   zl       = sort(X$dat)
+#   zl       = zl[zl>=xmin]
+#   alpha    = X.est$pars
+#   #X$setXmin(xmin)
+#   #X$setPars(alpha)
+#   
+#   ## store node probability distribution for original network
+#   gg.dat  = data.frame(x=X$internal$values,
+#                        y=data_cdf_probs(X$internal$values))  
+#   
+#   plots  = list()
+#   plots2 = list()
+#   
+#   
+#   for( t in 1:length(time) ){
+#     
+#     ## Perform coarse graining at time: t
+#     lrg   = real.LRG(e=e, v=v, vinv=vinv, L=L, t=time[t], gg=gg, 
+#                      complex=complex, method=method, expm_method=expm_method, 
+#                      tol=tol, order=order)
+# 
+#     ## degree distribution of coarse-grained network    
+#     lrg.d = as.numeric(degree(lrg$gg))
+#         
+#     if( length(lrg.d) > 1 ){
+#     
+#     ## find alpha & xmin for d using poweRlaw's MLE
+#     ## create new discrete power-law distribution
+#     cont = tryCatch({
+#             lrg.X=poweRlaw::displ$new(lrg.d)
+#             ## If successful, return TRUE
+#             TRUE
+#     },
+#     error = function(e) {
+#       ## If there's an error, return FALSE
+#       FALSE
+#     }
+#     )
+# 
+#     if( cont ){
+#     
+#     ## estimate best xmin and alpha from sequence of xmin values
+#     lrg.est    = estimate_xmin(lrg.X, seq(1,max(lrg.d),1))
+#     lrg.xmin   = lrg.est$xmin
+#     lrg.alpha  = lrg.est$pars
+#     #lrg.X$setXmin(lrg.xmin)
+#     #lrg.X$setPars(lrg.alpha)
+#     
+#     
+#     ## store node probability distribution for coarse-grain network
+#     lrg.dat  = data.frame(x=lrg.X$internal$values,
+#                           y=data_cdf_probs(lrg.X$internal$values)) 
+#     
+#     
+#     #Cn      = table(as.numeric(lrg$mapping[,2]))
+#     #Cn.gt1  = sum(as.numeric(names(Cn))>1) ##length(Cn[Cn>1])
+#     lrg.sn.sz.min = 1
+#     lrg.sn.sz.max = igraph::vcount(lrg$gg)
+#     lrg.sn        = table(lrg$supernodes)
+#     lrg.sn.sz     = as.numeric(names(lrg.sn))
+#     lrg.sn.sz     = lrg.sn.sz[-c(lrg.sn.sz.min, lrg.sn.sz.max)]
+#     lrg.d         = as.numeric(degree(lrg$gg))
+#     
+#     if( length(lrg.sn.sz) >= 1 && sum(lrg.d!=1) > 1 ){
+#       
+#       gg_pdf  = pareto_powerlaw(x.range, xmin, alpha)
+#       lrg_pdf = pareto_powerlaw(x.range, lrg.xmin, lrg.alpha)
+#       
+#       ks_dist = ks_dist(x=zl, xmin=lrg.xmin, alpha=lrg.alpha)
+#      
+#       ## calculate KL divergence
+#       kl_pq = kl.divergence (ks_dist[[2]],ks_dist[[3]])
+#       kl_qp = kl.divergence (ks_dist[[3]],ks_dist[[2]])
+#       
+#       #p = gg.dat$y
+#       #q = pdf_powerlaw(x=gg.dat$x, lrg.xmin, lrg.alpha)
+#       #js= js.distance(x=cbind(p,q),we=rep(0.5,2))
+#       
+#       ## calculate JS divergence
+#       js    = js.distance(x=cbind(ks_dist[[2]],ks_dist[[3]]),we=rep(0.5,2))
+#       
+#       ## cross-entropy loss
+#       loss = cross.entropy.loss(ks_dist[[2]],ks_dist[[3]])
+#       
+#       res[[k]]    = c("Iter"=t, 
+#                       "ks_dist"=ks_dist[[1]], "kl_pq"=kl_pq, "kl_qp"=kl_qp,
+#                       "js.div"=js$js.div, "jsd"=js$jsd, "js.norm"=js$js.norm,
+#                       "loss"=loss, "lrg.sn"=length(lrg.sn),
+#                       "alpha_gg"=alpha, "alpha_lrg"=lrg.alpha, 
+#                       "xmin_gg"=xmin, "xmin_lrg"=lrg.xmin,
+#                       "t"=time[t])
+#       
+#       k=k+1
+#       
+#       ## Print progress
+#       if(print){cat(sprintf("Iteration: %d, ks_dist: %f, jsd: %f, loss: %f, lrg.sn: %d, alpha: %f, alpha.lrg: %f, xmin: %d, xmin.lrg: %d, t: %f\n", 
+#                             t, ks_dist[[1]], js$jsd, loss, length(lrg.sn), alpha, lrg.alpha, xmin, lrg.xmin, time[t]))}
+#       
+#       
+#       ## Log-Log plot of original and coarse-grain graph's degree distributions
+#       plots[[t]] = log.log_plot(df.x=gg.dat, 
+#                                 df.y=lrg.dat, 
+#                                 x.lab="K", y.lab="LRG.K")
+#       
+#       
+#       ## Log-Log plot of original and coarse-grain graph's degree distributions
+#       plots2[[t]] = log.log_plot(df.x=data.frame(x=x.range,
+#                                                  y=gg_pdf), 
+#                                  df.y=data.frame(x=x.range,
+#                                                  y=lrg_pdf), 
+#                                  x.lab="K", y.lab="LRG.K")
+#       }
+#     }
+#   }
+# }
+# 
+#   df = data.frame(do.call(rbind, lapply(res, unlist)))
+#     
+#   return(list(df=df,plots=plots, plots2=plots2))
+#   
+# }
 
 
 data_cdf_probs <- function(x){
