@@ -1370,8 +1370,8 @@ eigen_loss <- function(t, gg, L, e, v, vinv, complex=FALSE,
                                  x.lab="E(emp.)", y.lab="LRG.E(fit)")
 
         ## Eigenvalue density plot showing original network and LRG network
-        plts[[2]] = log.log_plot(df.x=eigen_density(e), 
-                                 df.y=eigen_density(lrg.E), 
+        plts[[2]] = log.log_plot(df.x=metric_density(e), 
+                                 df.y=metric_density(lrg.E), 
                                  metric="E",
                                  x.lab="E(emp.)", y.lab="LRG.E(fit)")
                 
@@ -1660,27 +1660,21 @@ degree_loss <- function(t, gg, L, e, v, vinv, complex=FALSE,
     # Degree distribution of the original network
     d     <- as.numeric(igraph::degree(gg))
     fit   <- fit_dis_pl(d) 
-    #X     <- poweRlaw::displ$new(d)
-    #X.est <- poweRlaw::estimate_xmin(X, seq(1, max(d), 1))
-    #xmin  <- X.est$xmin
-    #zl    <- sort(X$dat)
-    #zl    <- zl[zl >= xmin]
-    #alpha <- X.est$pars
-    
+   
     ## Degree distribution of the coarse-grain network
     loss <- tryCatch({
       lrg.d     <- as.numeric(igraph::degree(lrg$gg))
       lrg.fit   <- fit_dis_pl(lrg.d)
-    #lrg.X     <- poweRlaw::displ$new(lrg.d)
-    #lrg.est   <- poweRlaw::estimate_xmin(lrg.X, seq(1, max(lrg.d), 1))
-    #lrg.xmin  <- lrg.est$xmin
-    #lrg.alpha <- lrg.est$pars
     
-    ## Calculate Jensen-Shannon distance
-    ks_result <- ks_dist(x = fit$zl, xmin = lrg.fit$xmin, alpha = lrg.fit$alpha)
-    kl_result <- kl.divergence(p=ks_result[[2]], q=ks_result[[3]])
-    js_dist   <- js.distance(we = c(1/2, 1/2), x = cbind(p = ks_result[[2]], q = ks_result[[3]]))[[4]]
-    losses    <- list(ks_dist=ks_result[[1]], kl=kl_result, js_dist=js_dist)
+      ## Calculate losses 
+      #ks_result <- ks_dist(x=zl, x2=lrg.zl)
+      ks_result <- ks_dist(x=fit$zl,
+                           xmin1=fit$xmin,     alpha1=fit$alpha, 
+                           xmin2=lrg.fit$xmin, alpha2=lrg.fit$.alpha)
+
+      kl_result <- kl.divergence(p=ks_result[[2]], q=ks_result[[3]])
+      js_dist   <- js.distance(we = c(1/2, 1/2), x = cbind(p = ks_result[[2]], q = ks_result[[3]]))
+      losses    <- list(ks_dist=ks_result[[1]], kl=kl_result, js_dist=js_dist)
     
     ## Select loss 
     loss      <- switch(loss_test,
@@ -1694,25 +1688,31 @@ degree_loss <- function(t, gg, L, e, v, vinv, complex=FALSE,
       data = data.frame(x=fit$X$internal$dat, 
                         y=data_cdf_probs(fit$X$internal$dat))
       
-      #zl.min = length(ks_result[[2]])
-      #
-      #df.x = data.frame(x=zl[1:zl.min], y=ks_result[[2]])
-      #df.y = data.frame(x=lrg.zl[1:zl.min], y=ks_result[[3]])
-      
       df.x = data.frame(x=fit$zl, y=ks_result[[2]])
       df.y = data.frame(x=fit$zl, y=ks_result[[3]])
       
+      ## Power-law fit plot show original network and LRG network
       plts[[1]] = log.log_plot(df.x=df.x, df.y=df.y, 
+                               metric="K",
                                x.lab="K(emp.)", y.lab="LRG.K(fit)")
       
+      ## Degree density plot showing original network and LRG network
+      plts[[2]] = log.log_plot(df.x=metric_density(deg), 
+                               df.y=metric_density(lrg.d), 
+                               metric="K",
+                               x.lab="K(emp.)", y.lab="LRG.K(fit)")
+      
+      ## Power-law fits superimposed on original degree
       plts[[2]] = lambda_fit_plot2(df=data, 
-                                   xmin1=xmin,     alpha1=alpha_study, 
-                                   xmin2=lrg.xmin, alpha2=lrg.alpha_study)
+                                   xmin1=fit$xmin,     alpha1=fit$alpha, 
+                                   xmin2=lrg.fit$xmin, alpha2=lrg.fit$alpha)
+      
       
       params = list(x.fit=fit$X.est, lrg.fit=lrg.fit$lrg.est, 
-                    spec_dim=e.sd, spec_dim_lrg=lrg.sd,
-                    C0=C0, lrg.C0=lrg.C0, mle_flag=mle,
-                    alpha_fit=alpha_fit, lrg.alpha_fit=lrg.alpha_fit)
+                    #spec_dim=e.sd, spec_dim_lrg=lrg.sd,
+                    #C0=C0, lrg.C0=lrg.C0,
+                    xmin=fit$xmin, lrg.xmin=lrg.fit$xmin,
+                    alpha_fit=fit$alpha, lrg.alpha_fit=lrg.fit$alpha)
     }
     
     return(list(loss=loss, plots=plts, params=params, df.x=df.x, df.y=df.y,
@@ -1748,8 +1748,11 @@ degree_loss <- function(t, gg, L, e, v, vinv, complex=FALSE,
 
 # Define a wrapper for parallel evaluation of the loss function
 parallel_degree_loss <- function(t, gg, L, e, v, vinv, complex=FALSE, 
-                                 method=c("eigen", "balanced", "square"), expm_method="Higham08.b", 
-                                 tol=1e-5, order=1, cl) {
+                                 method=c("eigen", "balanced", "square"), 
+                                 loss_test=c("ks_dist", "kl_div", "js_dist"),
+                                 expm_method="Higham08.b",
+                                 tol=1e-5, order=1, plots=0, cl) {
+  
   
   ## Load packages on each worker
   clusterEvalQ(cl, {
@@ -1757,25 +1760,30 @@ parallel_degree_loss <- function(t, gg, L, e, v, vinv, complex=FALSE,
     library(igraph)
     library(expm)
     library(pracma)
+    library(dplyr)
   })
   
   clusterExport(cl, list("real.LRG", "ks_dist", "js.distance", "js.divergence",
-                        "H", "cal.rho.approx", "taylor.approx", 
-                        "cal.rho.eigen", "cal.rho.balanced", 
-                        "cal.rho.square","meta.graph", "meta.binary",                                  "meta.edge", "get.supernodes", 
-                        "coarse.grain.graph", "ccdf_powerlaw",
-                        "cdf_powerlaw", "pdf_powerlaw", "t",
-                        "gg", "L", "e", "v", "vinv",
-                        "complex", "method", "expm_method", "tol",
-                        "order", "degree_loss"), envir = environment())
+                         "H", "cal.rho.approx", "taylor.approx", "kl.divergence", 
+                         "cal.rho.eigen", "cal.rho.balanced", "log.ab",
+                         "cal.rho.square","meta.graph", "meta.binary",
+                         "meta.edge", "get.supernodes", "fit_dis_pl",
+                         "coarse.grain.graph", "ccdf_powerlaw", "fiedler_value",
+                         "cdf_powerlaw", "pdf_powerlaw", "data_cdf_probs",
+                         "get.L", "get.eigen", "compute_spectral_dim", "loss_test",
+                         "t", "gg", "L", "e", "v", "vinv", "alpha_mle",
+                         "complex", "method", "expm_method", "tol", "plots",
+                         "log.log_plot", "lambda_fit_plot2", "compute_fit_values",
+                         "order", "degree_loss"), envir = environment())
+  
   
   # Define the computation for each particle's position
   compute_loss <- function(x) {
     degree_loss(t=x, gg=gg, L=L, e=e, v=v, vinv=vinv, 
-                complex=complex, method=method, 
-                expm_method=expm_method, tol=tol, order=order)
+                complex=complex, method=method, loss_test=loss_test,
+                expm_method=expm_method, tol=tol, order=order, plots=plots)[[1]]
   }
-  
+   
   # Parallel computation of the loss for `t`
   losses <- parSapply(cl, t, compute_loss)
   return(losses)
@@ -1783,13 +1791,15 @@ parallel_degree_loss <- function(t, gg, L, e, v, vinv, complex=FALSE,
 
 
 iterative_degree_optimization <- function(t_lower, t_upper, 
-                                          gg, L, e, v, vinv, 
-                                          complex=FALSE, method=c("eigen", "balanced", "square"),
-                                          expm_method="Higham08.b", tol=1e-5, 
-                                          order=1, cl, max_iter=10, n_points=10, 
-                                          dt=1, cooling_rate=0.99,
-                                          refine_factor=0.5) {
-  method <- match.arg(method)
+                                         gg, L, e, v, vinv, 
+                                         complex=FALSE, method=c("eigen", "balanced", "square"),
+                                         loss_test=c("ks_dist", "kl_div", "js_dist"),
+                                         expm_method="Higham08.b", tol=1e-5, 
+                                         order=1, cl, max_iter=10, n_points=10, 
+                                         dt=1, cooling_rate=0.99,
+                                         refine_factor=0.5,
+                                         print=1, plots=0, max_trys=20) {
+  #method <- match.arg(method)
   best_t <- NULL
   best_loss <- Inf  # Start with a very large loss value
   res    <- list()
@@ -1801,34 +1811,44 @@ iterative_degree_optimization <- function(t_lower, t_upper,
     library(igraph)
     library(expm)
     library(pracma)
+    library(dplyr)
   })
   
   clusterExport(cl, list("real.LRG", "ks_dist", "js.distance", "js.divergence",
-                         "H", "cal.rho.approx", "taylor.approx", 
-                         "cal.rho.eigen", "cal.rho.balanced", 
-                         "cal.rho.square","meta.graph", "meta.binary",                                  "meta.edge", "get.supernodes", 
-                         "coarse.grain.graph", "ccdf_powerlaw",
-                         "cdf_powerlaw", "pdf_powerlaw", "t",
-                         "gg", "L", "e", "v", "vinv",
-                         "complex", "method", "expm_method", "tol",
-                         "order", "pso_loss"), envir = environment())
+                         "H", "cal.rho.approx", "taylor.approx", "kl.divergence", 
+                         "cal.rho.eigen", "cal.rho.balanced", "log.ab",
+                         "cal.rho.square","meta.graph", "meta.binary",
+                         "meta.edge", "get.supernodes", "fit_dis_pl",
+                         "coarse.grain.graph", "ccdf_powerlaw", "fiedler_value",
+                         "cdf_powerlaw", "pdf_powerlaw", "data_cdf_probs",
+                         "get.L", "get.eigen", "compute_spectral_dim", "loss_test",
+                         "t", "gg", "L", "e", "v", "vinv", "alpha_mle",
+                         "complex", "method", "expm_method", "tol", "plots",
+                         "log.log_plot", "lambda_fit_plot2", "compute_fit_values",
+                         "order", "degree_loss"), envir = environment())
   
-  
+  # Define the computation for each particle's position
   compute_loss <- function(x) {
     degree_loss(t=x, gg=gg, L=L, e=e, v=v, vinv=vinv, 
-                complex=complex, method=method, 
-                expm_method=expm_method, tol=tol, order=order)
+               complex=complex, method=method, loss_test=loss_test,
+               expm_method=expm_method, tol=tol, order=order, plots=plots)[[1]]
   }
+  
   
   ## Generate current state
   n_states = n_points + floor(n_points*0.5)
-  t    = t_lower + runif(n_states)*(t_upper - t_lower)
-  cont = FALSE 
+  t        = t_lower + runif(n_states)*(t_upper - t_lower)
+  cont     = FALSE 
+  trys     = 0
   
-  while ( !cont ){
-  
+  while ( !cont && trys < max_trys ){
+    
+    if( print ){ cat("t:", t,"\n") }
+    
     ## Compute losses in parallel
     losses <- parSapply(cl, t, compute_loss)
+    
+    if( print ){ cat("losses:", losses,"\n") }
     
     ## Remove NA values
     valid_losses <- losses[!is.na(losses)]
@@ -1843,19 +1863,24 @@ iterative_degree_optimization <- function(t_lower, t_upper,
     } else {
       t    = t_lower + runif(n_states)*(t_upper - t_lower)
     }
-
+    trys = trys+1
   }
-        
+  
+  if(trys == max_trys){
+    if( print ){ cat("Reached maximum trys. \n") }
+    return(list(best_t = NULL, best_loss = NULL, df=NULL))
+  }
+  
   ## Find the best `t` in this iteration
   curr_t    <- valid_t[which.min(valid_losses)]
   curr_loss <- min(valid_losses)
   deltaL    <- NA
   rm(losses, valid_losses, valid_t)
   
-  cat("Starting t:", curr_t, ", and loss", curr_loss,"\n")
+  if( print ){ cat("Starting t:", curr_t, ", and loss", curr_loss,"\n") }
   
   for (iter in seq_len(max_iter)) {
-    cat("Iteration:", iter, "\n")
+    if( print ){ cat("Iteration:", iter, "\n") }
     
     # Generate a vector of `t` values within the current range
     ##t     = t.lower[1] + runif(1) * (t.upper - t.lower)
@@ -1863,15 +1888,15 @@ iterative_degree_optimization <- function(t_lower, t_upper,
     for( i in 1:n_points ){
       while( new_t[i] < t_lower | new_t[i] > t_upper ){ 
         new_t[i] = t_lower + rnorm(n=1, sd=curr_t) * dt 
-        }
+      }
     }
     
-    cat("new_t:", new_t, "\n")
+    if( print ){ cat("new_t:", new_t, "\n") }
     
     # Compute losses in parallel
     losses <- parSapply(cl, new_t, compute_loss)
-  
-    cat("losses:", losses, "\n")
+    
+    if( print ){ cat("losses:", losses, "\n") }
     
     ## Remove NA values
     valid_losses <- losses[!is.na(losses)]
@@ -1882,7 +1907,7 @@ iterative_degree_optimization <- function(t_lower, t_upper,
     valid_t      <- valid_t[!is.infinite(valid_losses)]
     
     if (length(valid_losses) == 0) {
-      cat("No valid losses found in iteration", iter, "\n")
+      if( print ){ cat("No valid losses found in iteration", iter, "\n") }
       break
     }
     
@@ -1890,14 +1915,15 @@ iterative_degree_optimization <- function(t_lower, t_upper,
     iter_best_loss <- min(valid_losses)
     iter_best_t    <- valid_t[which.min(valid_losses)]
     
-    cat("Best t in this iteration:", iter_best_t, "with loss:", iter_best_loss, "\n")
+    if( print ){ cat("Best t in this iteration:", iter_best_t, "with loss:", iter_best_loss, "\n") }
     
     # Update the global best `t` and loss if the current iteration is better
     if (iter_best_loss < best_loss) {
       
-      res[[k]]  <- c("Iter"=iter, "t(old)"=best_t, "t(new)"=iter_best_t, 
-                      "loss(old)"=best_loss, "loss(new)"=iter_best_loss,
-                      "t_lower"=t_lower, "t_upper"=t_upper)
+      res[[k]]  <- c("Iter"=iter, "t_old"=best_t, 
+                     "t_new"=ifelse(is.infinite(iter_best_t), best_t, iter_best_t), 
+                     "loss_old"=best_loss, "loss_new"=iter_best_loss,
+                     "t_lower"=t_lower, "t_upper"=t_upper)
       
       best_loss <- iter_best_loss
       best_t    <- iter_best_t
@@ -1923,14 +1949,10 @@ iterative_degree_optimization <- function(t_lower, t_upper,
       
     }
     
-    # Refine the search range
-    #range_width <- (t_upper - t_lower) * refine_factor
-    #t_lower <- max(t_lower, iter_best_t - range_width / 2)
-    #t_upper <- min(t_upper, iter_best_t + range_width / 2)
     
     # Check for convergence (range too small)
     if ( abs(deltaL) < tol) {
-      cat("Converged with deltaL", deltaL, "\n")#range [", t_lower, ",", t_upper, "]\n")
+      if( print ){ cat("Converged with deltaL", deltaL, "\n") }#range [", t_lower, ",", t_upper, "]\n")
       break
     }
   }
@@ -1938,7 +1960,7 @@ iterative_degree_optimization <- function(t_lower, t_upper,
   df = data.frame(do.call(rbind, lapply(res, unlist)))
   
   # Return the best `t` and loss
-  list(best_t = best_t, best_loss = best_loss, df=df)
+  return(list(best_t = best_t, best_loss = best_loss, df=df))
 }
 
 
@@ -2646,8 +2668,8 @@ generate_colors <- function(color_values, blues = c("lightblue", "blue", "navy")
   return(colors)
 }
 
-eigen_density <- function(x){
-  ## Prepare eigenvalue data
+metric_density <- function(x){
+  ## Prepare data
   x    = x[x>0]
   indx = order(x, decreasing=FALSE)
   x    = x[indx]
