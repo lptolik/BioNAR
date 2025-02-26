@@ -15,11 +15,14 @@ clusteringSummary(
 \item{att}{vector of attribute names that contains membership data}
 }
 \value{
-matrix of clustering characteristics
+\code{data.frame} of clustering characteristics
 }
 \description{
 Function to calculate basic summary statistics after apply clustering
-algorithm:
+algorithm.
+}
+\details{
+The following statistics are calculated and returned as \code{data.frame}:
 \itemize{
 \item N -- number of vertices in the graph \code{\link[igraph]{vcount}}
 \item mod -- clustering modularity \code{\link[igraph]{modularity}}, the ratio

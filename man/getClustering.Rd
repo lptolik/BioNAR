@@ -29,7 +29,12 @@ for the \code{spectral} clustering.}
 }
 \description{
 Wrapper function for calculation of clustering for predefined set of ten
-algorithms:
+algorithms, some imported from \code{\link{igraph}}, other implemented in
+the package.
+}
+\details{
+The following set of algorithms used and stored in the graph nodes
+attributes:
 \itemize{
 \item lec -- leading eigenvector community (version of
 \code{\link[igraph]{cluster_leading_eigen}}),
@@ -52,8 +57,7 @@ directed graph will be converted to undirected by
 \item spectral -- spectral modularity clustering
 \code{\link[rSpectral]{spectral_igraph_communities}};
 }
-}
-\details{
+
 graph suppose to be undirected. If algorithm failed warning will be issued
 and function returned NULL.
 

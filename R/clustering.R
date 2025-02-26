@@ -256,7 +256,11 @@ calcClustering <- function(gg, alg,weights = NULL) {
 #' Get clustering results for the graph.
 #'
 #' Wrapper function for calculation of clustering for predefined set of ten
-#' algorithms:
+#' algorithms, some imported from \code{\link{igraph}}, other implemented in
+#' the package.
+#'
+#' The following set of algorithms used and stored in the graph nodes
+#' attributes:
 #' * lec -- leading eigenvector community (version of
 #' \code{\link[igraph]{cluster_leading_eigen}}),
 #' directed graph will be converted to undirected by
@@ -374,7 +378,9 @@ getClustering <- function(gg,
 #' Matrix of cluster characteristics
 #'
 #' Function to calculate basic summary statistics after apply clustering
-#' algorithm:
+#' algorithm.
+#'
+#' The following statistics are calculated and returned as \code{data.frame}:
 #' * N -- number of vertices in the graph \code{\link[igraph]{vcount}}
 #' * mod -- clustering modularity \code{\link[igraph]{modularity}}, the ratio
 #' of edges found within communities to the number of edges found between
@@ -394,7 +400,7 @@ getClustering <- function(gg,
 #' @param gg graph to analyse
 #' @param att vector of attribute names that contains membership data
 #'
-#' @return matrix of clustering characteristics
+#' @return \code{data.frame} of clustering characteristics
 #' @export
 #' @md
 #'
