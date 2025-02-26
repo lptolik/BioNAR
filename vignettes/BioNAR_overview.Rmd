@@ -407,7 +407,7 @@ algorithm could produce slightly different community structures:
 ```{r cluster.mem2}
 mem2 <- calcMembership(gg, alg)
 idx<-match(mem$names,mem2$names)
-idnx<-which(mem$membership!=mem2$membership[idx])
+idnx<-which(as.character(mem$membership)!=as.character(mem2$membership[idx]))
 pander(head(cbind(mem[idnx,],mem2[idx[idnx],])))
 ```
 
@@ -429,7 +429,7 @@ summary(gg)
 Comminity membership data could be obtained from the graph vertex attribute:
 
 ```{r get.attr}
-mem.df<-data.frame(names=V(gg)$name,membership=as.numeric(V(gg)$louvain))
+mem.df<-data.frame(names=V(gg)$name,membership=factor(V(gg)$louvain))
 ```
 
 To compare different clustering algorithms,a summary matrix can be calculated 
@@ -553,8 +553,8 @@ ggplot(dt,aes(x=cons,y=cdf))+geom_line()+
         legend.title=element_text(face="bold",size=rel(1.5)),
         legend.text=element_text(face="bold",size=rel(1.5)),
         legend.key=element_blank())+
-    theme(panel.grid.major = element_line(colour="grey40",size=0.2),
-            panel.grid.minor = element_line(colour="grey40",size=0.1),
+    theme(panel.grid.major = element_line(colour="grey40",linewidth=0.2),
+            panel.grid.minor = element_line(colour="grey40",linewidth=0.1),
             panel.background = element_rect(fill="white"),
             panel.border = element_rect(linetype="solid",fill=NA))
 ```
