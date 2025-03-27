@@ -49,9 +49,9 @@ gg<- calcEntropy(gg)
 \seealso{
 \code{\link[=getEntropy]{getEntropy()}}
 
-Other {Entropy Functions}: 
+Other Entropy Functions: 
 \code{\link{getEntropy}()},
 \code{\link{getEntropyRate}()},
 \code{\link{plotEntropy}()}
 }
-\concept{{Entropy Functions}}
+\concept{Entropy Functions}

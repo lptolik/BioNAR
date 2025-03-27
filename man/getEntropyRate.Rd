@@ -38,9 +38,9 @@ V(karate)$name<-c(LETTERS,letters)[1:vcount(karate)]
 ent <- getEntropyRate(karate)
 }
 \seealso{
-Other {Entropy Functions}: 
+Other Entropy Functions: 
 \code{\link{calcEntropy}()},
 \code{\link{getEntropy}()},
 \code{\link{plotEntropy}()}
 }
-\concept{{Entropy Functions}}
+\concept{Entropy Functions}

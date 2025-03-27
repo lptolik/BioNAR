@@ -103,7 +103,7 @@ matrixDiv <- function(x, y) {
 #'
 #' @return consensus matrix of Nvert X Nvert
 #' @export
-#' @family {Robustness functions}
+#' @family Robustness Functions
 #' @examples
 #' karate <- make_graph("Zachary")
 #' # We need vertex ID in the 'name' attribute of the vertex

@@ -31,7 +31,7 @@ fitDegree(
 
 \item{HEIGHT}{heigth of the plot in ptx}
 
-\item{legpos}{position of the legend @seealso{legend}}
+\item{legpos}{position of the legend @seealso \code{\link[=legend]{legend()}}}
 
 \item{showErr}{logical, do you want error on the plot legend}
 }

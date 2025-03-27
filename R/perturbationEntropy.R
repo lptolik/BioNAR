@@ -41,7 +41,7 @@ maxLSi <- function(XX, BASE = 0) {
 #' @return list with values of maxSr and SRo
 #' @export
 #' @import RSpectra
-#' @family {Entropy Functions}
+#' @family Entropy Functions
 #' @examples
 #' karate <- make_graph("Zachary")
 #' # We need vertex ID in the 'name' attribute of the vertex
@@ -106,7 +106,7 @@ getEntropyRate <- function(gg) {
 #' entropy values with over- or under-expressing each vertex.
 #' @export
 #' @seealso [getEntropy()]
-#' @family {Entropy Functions}
+#' @family Entropy Functions
 #' @examples
 #' file <- system.file("extdata", "PPI_Presynaptic.csv", package = "BioNAR")
 #' tbl <- read.csv(file, sep="\t")
@@ -163,7 +163,7 @@ calcEntropy <- function(gg, maxSr = NULL, exVal = NULL) {
 #' * UP -- Graph Entropy values when gene is expressed up,
 #' * DOWN -- Graph Entropy values when gene is expressed down.
 #' @export
-#' @family {Entropy Functions}
+#' @family Entropy Functions
 #' @examples
 #' file <- system.file("extdata", "PPI_Presynaptic.csv", package = "BioNAR")
 #' tbl <- read.csv(file, sep="\t")
@@ -328,7 +328,7 @@ getEntropyOverExpressed <- function(SRprime, perc = 1) {
 #' @export
 #' @import ggplot2
 #' @seealso [getEntropy()]
-#' @family {Entropy Functions}
+#' @family Entropy Functions
 #' @examples
 #' file <- system.file("extdata", "PPI_Presynaptic.csv", package = "BioNAR")
 #' tbl <- read.csv(file, sep="\t")

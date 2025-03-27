@@ -13,4 +13,7 @@
 "_PACKAGE"
 
 # Update this function call
-utils::globalVariables(c('ONTOLOGY','EVIDENCE'))
+utils::globalVariables(c('ONTOLOGY', 'EVIDENCE', 'CIw', 'Cn', 'FL', 'Fc', 'Fe',
+                         'Fn', 'Mu', 'N', 'OR', 'overlap', 'overlapGenes', 'padj',
+                         'palt', 'pathway', 'pval', 'size', 'yiR1', 'yiR2', 'yiR3',
+                         'yiR4', 'yiR5'))

@@ -54,9 +54,9 @@ plotEntropy(SRprime, subTIT = "Entropy", SRo = ent$SRo, maxSr = ent$maxSr)
 \seealso{
 \code{\link[=getEntropy]{getEntropy()}}
 
-Other {Entropy Functions}: 
+Other Entropy Functions: 
 \code{\link{calcEntropy}()},
 \code{\link{getEntropy}()},
 \code{\link{getEntropyRate}()}
 }
-\concept{{Entropy Functions}}
+\concept{Entropy Functions}

@@ -63,9 +63,9 @@ paste(V(gg)$GeneName[idx], 'GRPEL1')
 e<- getEntropy(gg)
 }
 \seealso{
-Other {Entropy Functions}: 
+Other Entropy Functions: 
 \code{\link{calcEntropy}()},
 \code{\link{getEntropyRate}()},
 \code{\link{plotEntropy}()}
 }
-\concept{{Entropy Functions}}
+\concept{Entropy Functions}

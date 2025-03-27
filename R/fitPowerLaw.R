@@ -65,7 +65,7 @@ changeSciNotation <- function(n) {
 #' @param HEIGHT heigth of the plot in ptx
 #' @param plot logical, do you want plot to be drawn
 #' @param threads number of parallel computational threads
-#' @param legpos position of the legend @seealso{legend}
+#' @param legpos position of the legend @seealso [legend()]
 #' @param showErr logical, do you want error on the plot legend
 #'
 #' @return an object of class \code{\link{law-class}} with results of fitting

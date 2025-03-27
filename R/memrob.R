@@ -24,7 +24,7 @@
 #' * robustness scaled to range between 0 and 1 (\code{CrobScaled}).
 #'
 #' @export
-#' @family {Robustness functions}
+#' @family Robustness Functions
 #'
 #' @examples
 #' karate <- make_graph("Zachary")

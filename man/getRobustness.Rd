@@ -46,7 +46,7 @@ clrob<-getRobustness(gg, alg = alg, conmat)
 clrob
 }
 \seealso{
-Other {Robustness functions}: 
+Other Robustness Functions: 
 \code{\link{makeConsensusMatrix}()}
 }
-\concept{{Robustness functions}}
+\concept{Robustness Functions}

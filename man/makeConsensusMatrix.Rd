@@ -66,7 +66,7 @@ conmat<-makeConsensusMatrix(gg, N=100, mask = 10, alg = alg, type = 2)
 dim(conmat)
 }
 \seealso{
-Other {Robustness functions}: 
+Other Robustness Functions: 
 \code{\link{getRobustness}()}
 }
-\concept{{Robustness functions}}
+\concept{Robustness Functions}

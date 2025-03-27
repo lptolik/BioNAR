@@ -30,4 +30,9 @@ Authors:
   \item J. Douglas Armstrong \email{Douglas.Armstrong@ed.ac.uk} [funder]
 }
 
+Other contributors:
+\itemize{
+  \item T. Ian Simpson \email{Ian.Simpson@ed.ac.uk} [contributor, funder]
+}
+
 }
