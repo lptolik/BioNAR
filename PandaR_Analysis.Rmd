@@ -1,0 +1,574 @@
+---
+title: | 
+       | Early Onset CRC
+       | PandaR Study
+pagetitle: "html_booklet"
+author: "Colin Mclean"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    css: css/cruk.css
+    number_sections: true
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  pdf_document:
+    toc: yes
+    toc_depth: '3'
+  word_document:
+    toc: yes
+    toc_depth: '4'
+---
+
+
+```{r setup, include=FALSE}
+
+## load libraries
+library(NanoStringNCTools)
+library(ggplot2)
+library(ggridges)
+library(here)
+library(ggthemes)
+library(ggiraph)
+library(MASS)
+library(stringr)
+library(dplyr)
+library(purrr)
+library(matrixStats)
+library(patchwork)
+library(ggfortify)
+library(gridExtra)
+library(grid)
+library(data.table)
+library(tinytex)
+library(latex2exp)
+library(igraph)
+library(Deriv)
+library(readr)
+library(tidyr)
+
+
+## set directory names
+data.dir = here::here("../datasets")
+
+knitr::opts_chunk$set(cache=TRUE, echo=TRUE, warning=FALSE)
+                      #root.dir=root.dir,
+                      #project.dir=project.dir)
+
+## In order to knit a Word doc, using kableExtra library for generating tables,
+## 1) clear cache,
+## 2) make sure this option is set before loading kableExtra in the Setup.R script.
+options(kableExtra.auto_format=TRUE)
+
+## Global options for displaying tables via DT::datatable
+#options(DT.options=list(class='cell-border stripe',scrollx=TRUE))
+
+options(DT.fillcontainer=TRUE, 
+        DT.options=list(class='cell-border stripe',scrolly="400px", scrollx=TRUE))
+
+## run Setup.R to load libraries globally - by specifying parameter local=knit_global()
+#source(, local=knitr::knit_global())
+```
+
+
+```{r get_document_type, warning=FALSE, echo=FALSE, cache=TRUE}
+doc.type=NULL 
+output <- rmarkdown:::parse_yaml_front_matter(readLines(knitr::current_input()))$output
+if( is.list(output) ){
+   doc.type=names(output)[1]
+   } else {
+     doc.type=output[1]
+   }
+```
+
+```{r, add_header_logo, warning=FALSE, echo=FALSE, cache=FALSE}
+css.file=NULL
+if(doc.type=="html_document"){
+  ## get leading css file used
+  css.file = rmarkdown:::parse_yaml_front_matter(readLines(knitr::current_input()))$output$html_document$css[1]
+}
+
+if( css.file=="css/cruk.css" ){
+  htmltools::img(src =    knitr::image_uri(here::here("css/images/CRUK_SCOTLAND_C_Pos_RGB.png")),
+               alt = "CRUK Scotland Centre logo",
+               style = "position:absolute; top:0; right:0; padding:10px; height:80px; width:360px;")
+}
+
+if( css.file=="css/nhs.css" ){
+htmltools::img(src = knitr::image_uri(here::here("css/images/NHS_Lothian.jpg")),
+               alt = "NHS Lothian logo",
+               style = "position:absolute; top:0; right:0; padding:10px; height:90px; width:90px;")
+}
+
+```
+
+
+```{r}
+
+## load function required to perform LRG on a network
+source(here("nanostring_RUV_functions.R"))
+source("core_functions.R")
+source("panda_ppi.R")
+
+```
+
+# Load Test Data
+
+```{r}
+
+## Read in normalised expression data 
+x=readRDS(here("pandaR_study.RDS"))
+
+raw_data  = x$expr_dat
+pat_anno  = x$pat_anno
+gene_anno = x$gene_anno
+ppi       = x$ppi_dat
+tf_motif  = x$tf_dat
+df        = x$df
+
+```
+
+# Network Reconstruction Approach
+
+>
+> 1. Use nSolver Normalised Data. 
+>
+> 2. Use Stage 3 and 4 patients to build aggregate / population 
+>    networks.
+>
+> 3. Use PANDA regulatory network construction algorithm 
+> 
+> 4. The PANDA algorithm requires three input networks:
+> 
+>  4.1. Gene-Transcript network (Broad Institute's dataset). 
+>       Need to ask Susanti which transcrition factors (TFs) from her gene set 
+>       are expected to influence genes, and which TFs from her gene set are not.
+>
+>
+>  4.2. PCC co-expression network for genes
+> 
+>  4.3. A PPI reference network (HumanNet-XN v2 network (https://www.inetbio.org/humannetv2/))
+>
+> Gene Sets
+>
+> 1. https://github.com/mahmoodlab/MCAT/blob/master/datasets_csv_sig/signatures.csv
+>
+> 2. https://www.xiejjlab.bio/MTFAP/browse
+>
+> 3. https://github.com/lawrenson-lab/CaCTS/tree/master
+
+
+# PPI Network
+
+```{r}
+
+## Get set of unique gene entrez IDs
+gn_ids = gene_anno %>%
+         separate_rows(entrez, sep=";") %>%
+         dplyr::select(entrez) %>%
+         distinct() %>%
+         filter(!is.na(entrez)) %>%
+         unlist() %>%
+         as.vector()
+
+## Get set of unique gene names
+gn_name     = gene_anno %>%
+              separate_rows(gene_name, sep=";") %>%
+              dplyr::select(gene_name) %>%
+              distinct() %>%
+              filter(!is.na(gene_name)) %>%
+              unlist() %>%
+              as.vector()
+
+## Get set of unique gene entrez IDs
+tf_ids = gene_anno %>%
+         separate_rows(entrez, sep=";") %>%     
+         filter(tf_inData) %>%
+         dplyr::select(entrez) %>%
+         filter(!is.na(entrez)) %>%
+         distinct() %>%
+         unlist() %>%
+        as.vector()
+
+## Get set of unique gene names
+tf_name     = gene_anno %>%
+              separate_rows(gene_name, sep=";") %>%
+              filter(tf_inData) %>%
+              dplyr::select(gene_name) %>%
+              distinct() %>%
+              filter(!is.na(gene_name)) %>%
+              unlist() %>%
+              as.vector()
+
+```
+
+
+```{r, eval=FALSE}
+
+## Load PPIs
+ppi   = read.csv(here("PPI/HumanNet-PI.tsv"), sep="\t", header=FALSE, skip=1)
+
+```
+
+```{r}
+
+edges = ppi[(ppi$V1 %in% gn_ids & ppi$V2 %in% gn_ids),1:2]
+
+edges[] <- lapply(edges, as.character)
+
+edge_names <- cbind(apply(edges, 2, function(x) 
+                                     gn_name[match(x,gn_ids)]))
+
+gg    = igraph::graph_from_edgelist(as.matrix(edge_names), directed=FALSE)
+gg2   = lcc(gg)
+
+d      = sort(degree(gg2)) 
+df_deg = data.frame(x=d,y=data_cdf_probs(d))
+
+gene_anno$degree = df_deg[match(rownames(gene_anno), rownames(df_deg)),"x"]
+
+pt15 <- lambda_plot(df_deg)
+
+## Extract edges from 
+crc_ppi = as_edgelist(gg2) %>%
+          data.frame() %>%
+          mutate(value = 1)
+
+```
+
+```{r}
+plot(pt15)
+```
+
+# TF PPI Net
+
+```{r}
+
+edges = ppi[(ppi$V1 %in% tf_ids & ppi$V2 %in% tf_ids),1:2]
+
+edges[]    <- lapply(edges, as.character)
+edge_names <- cbind(apply(edges, 2, function(x) 
+                                     tf_name[match(x,tf_ids)]))
+
+gg.tf = igraph::graph_from_edgelist(as.matrix(edge_names), directed=FALSE)
+gg3   = lcc(gg.tf)
+
+d      = sort(degree(gg3)) 
+df_deg = data.frame(x=d,y=data_cdf_probs(d))
+ 
+gene_anno$TFdegree = df_deg[match(rownames(gene_anno), rownames(df_deg)),"x"]
+ 
+pt16 <- lambda_plot(df_deg)
+
+## Extract edges from 
+tf_ppi = as_edgelist(gg3) %>%
+          data.frame() %>%
+          mutate(value = 1)
+
+```
+
+```{r}
+plot(pt16)
+```
+
+# TF motif
+
+```{r, eval=FALSE}
+
+# ## Check number of unique detection methods
+# unique_methods <- tf_motif %>%
+#     separate_rows(Detection.method, sep = ";") %>%  # Split rows by ";"
+#     distinct(Detection.method) %>%  # Remove duplicates
+#     arrange(Detection.method)  # Sort alphabetically
+
+
+# Filter TF_motif data based on most reliable methods
+method_set = c("chromatin immunoprecipitation assay", "DNase I footprinting", "electrophoretic mobility shift assay")
+
+tf_motif <- read.delim2(here("PPI/TFLink_Homo_sapiens_interactions_All_simpleFormat_v1.0.tsv"), 
+                        sep="\t", header=TRUE,
+                        stringsAsFactors=FALSE) %>%
+    as_tibble() %>%
+    mutate(n_pubs    = str_count(PubmedID, ";")) %>%
+    mutate(n_targets = str_count(Name.Target, ";")) %>%
+    separate_rows(Detection.method, sep = ";") %>%  # Split multiple methods into separate rows
+    filter(Detection.method %in% method_set)  %>% # Keep only rows that match method_set
+    filter(n_pubs > 1) %>%
+    separate_rows(Name.Target, sep = ";") #%>%  # Split targets into separate rows
+
+```
+
+```{r}
+
+## Filter for TFs in signature dataset
+tf_motif_sub  <- tf_motif %>%
+                 filter(Name.TF %in% tf_name) %>%
+                 filter(Name.Target %in% gn_name)
+
+
+tf_priors = tf_motif_sub %>% 
+            group_by(Name.TF, Name.Target) %>%
+            mutate(dup_count = n()) %>% 
+            filter(dup_count==1) %>%
+            ungroup() %>%
+            dplyr::select(Name.TF, Name.Target) %>%
+            mutate(value = 1) %>%
+            data.frame()
+
+
+tf_ppi_sub = tf_ppi[tf_ppi[,2] %in% union(tf_ppi[,1], tf_priors[,1]),]
+
+```
+
+# pandaR
+
+```{r}
+
+fData           = raw_data@featureData@data
+expr_genes_indx = !fData$CodeClass %in% c("Positive", "Negative")
+expr_genes      = fData$GeneName[expr_genes_indx]
+
+# Function to split gene names correctly
+split_gene_names <- function(gene) {
+  if(grepl("/", gene)){
+    parts <- unlist(strsplit(gene, "/"))  # Split at '/'
+    ## First gene is the original first part
+    gene1   <- parts[1]
+    postfix <- parts[2]
+    N <- str_length(gene1)
+    n <- str_length(postfix)
+    ## Second gene keeps the prefix but replaces the number
+    gene2 <- paste0(str_sub(gene1, 1, (N-n)), postfix)  # Reconstruct second gene
+
+  return(paste0(c(gene1, gene2), collapse=";"))
+  }
+  return(gene)
+}
+
+```
+
+```{r}
+
+## Normalise using nSolver method
+raw_data <- NanoStringNCTools::normalize(raw_data, type="nSolver", fromELT = "exprs", toELT = "exprs_norm")
+
+## Extract log normalised data
+x        <- Biobase::assayDataElement(raw_data, elt = "exprs_norm")
+
+## Rename Samples and 
+colnames(x)=df$id
+rownames(x)=fData$GeneName
+
+## remove positive/negative controls
+x = x[expr_genes_indx,]
+
+## How to deal with isoform's like "CCL3/L1". Approach here is 
+## is to duplicate the isoform expression row to create two rows for 
+## "CCL3" and "CCL1"
+x <- x %>%
+     data.frame() %>%
+     tibble::rownames_to_column("Gene") %>%   # Convert row names to a column
+     dplyr::mutate(Gene = sapply(Gene, function(x) split_gene_names(x)[[1]])) %>%
+     tidyr::separate_rows(Gene, sep = ";") %>%  # Split and expand rows
+     tibble::column_to_rownames("Gene")  # Restore row names
+
+group  = c("early", "late")
+strata = c("severe"=list(c(3,4)), "moderate"=list(c(1,2)))
+
+cohorts = list() 
+
+for( i in group ){
+  for( j in 1:length(strata) ){
+    cohort_name = sprintf("%s_%s", i, names(strata)[j])
+    cohorts[[cohort_name]] = data.frame(x[,(grepl(i,df$group) & df$stage >= strata[[j]])])
+  }
+  
+}
+
+```
+
+
+```{r}
+
+gene.reg.net = list()
+
+## run pandas
+for( i in 1:length(cohorts)){
+  gene.reg.net[[i]]=pandaR::panda(motif=tf_priors, 
+                                  expr=cohorts[[i]], 
+                                  ppi=tf_ppi_sub)#, progress=TRUE)
+  names(gene.reg.net)[i] = names(cohorts)[i]
+}
+
+```
+
+
+```{r}
+
+dims = dim(gene.reg.net[[1]]@regNet)
+df1  = matrix(0, dims[1], dims[2])
+rownames(df1) = rownames(gene.reg.net[[1]]@regNet)
+
+for( i in 1:dims[1] ){
+  df1[i,] = gene.reg.net[[1]]@regNet[i,] - gene.reg.net[[3]]@regNet[i,]
+}
+
+pt17 <- df1 %>%
+        reshape2::melt(.) %>%
+        arrange(Var1) %>%
+        ggplot(., aes(x=value, y=Var1, fill=Var1))+
+        geom_density_ridges(scale = 1.2, alpha = 0.7)+
+        theme_minimal()+
+        xlim(c(-0.5,0.5))+
+        labs(title = "",
+        x = "ealry(extreme) - late(extreme)",
+        y = "Transcription Factor") +
+        theme(legend.position = "none") # Remove legend for clarity
+
+
+dims = dim(gene.reg.net[[1]]@regNet)
+df2  = matrix(0, dims[1], dims[2])
+rownames(df2) = rownames(gene.reg.net[[1]]@regNet)
+
+for( i in 1:dims[1] ){
+  df2[i,] = gene.reg.net[[2]]@regNet[i,] - gene.reg.net[[4]]@regNet[i,]
+}
+
+pt18 <- df2 %>%
+        reshape2::melt(.) %>%
+        arrange(Var1) %>%
+        ggplot(., aes(x=value, y=Var1, fill=Var1))+
+        geom_density_ridges(scale = 1.2, alpha = 0.7)+
+        theme_minimal()+
+        xlim(c(-0.5,0.5))+
+        labs(title = "",
+        x = "ealry(moderate) - late(moderate)",
+        y = "Transcription Factor") +
+        theme(legend.position = "none") # Remove legend for clarity
+
+
+```
+
+```{r, fig.width=10, fig.height=10}
+## Use patchwork package to display all plots 
+(pt17 | pt18) 
+```
+
+```{r}
+
+dims = dim(gene.reg.net[[1]]@regNet)
+df   = matrix(0, dims[1], dims[2])
+rownames(df) = rownames(gene.reg.net[[1]]@regNet)
+
+for( i in 1:dims[1] ){
+  df[i,] = gene.reg.net[[1]]@regNet[i,] - gene.reg.net[[2]]@regNet[i,]
+}
+
+pt19 <- df %>%
+        reshape2::melt(.) %>%
+        arrange(Var1) %>%
+        ggplot(., aes(x=value, y=Var1, fill=Var1))+
+        geom_density_ridges(scale = 1.2, alpha = 0.7)+
+        theme_minimal()+
+        xlim(c(-0.5,0.5))+
+        labs(title = "",
+        x = "ealry(extreme) - early(moderate)",
+        y = "Transcription Factor") +
+        theme(legend.position = "none") # Remove legend for clarity
+
+
+dims = dim(gene.reg.net[[1]]@regNet)
+df2  = matrix(0, dims[1], dims[2])
+rownames(df2) = rownames(gene.reg.net[[1]]@regNet)
+
+for( i in 1:dims[1] ){
+  df2[i,] = gene.reg.net[[3]]@regNet[i,] - gene.reg.net[[4]]@regNet[i,]
+}
+
+pt20 <- df2 %>%
+        reshape2::melt(.) %>%
+        arrange(Var1) %>%
+        ggplot(., aes(x=value, y=Var1, fill=Var1))+
+        geom_density_ridges(scale = 1.2, alpha = 0.7)+
+        theme_minimal()+
+        xlim(c(-0.5,0.5))+
+        labs(title = "",
+        x = "late(severe) - late(moderate)",
+        y = "Transcription Factor") +
+        theme(legend.position = "none") # Remove legend for clarity
+
+
+```
+
+```{r, fig.width=10, fig.height=10}
+## Use patchwork package to display all plots 
+(pt19 | pt20) 
+```
+
+# Panda for PPI
+
+>
+> Study to use panda algorithm to iteratively predict an early and late onset 
+> ppi network given expression data, tf-gene interaction data   
+>
+
+```{r}
+
+## Network for Early Onset Extreme using Panda
+eo_extreme = panda_ppi(motif=tf_priors, 
+                       expr=cohorts[[1]], 
+                       ppi=crc_ppi)
+
+eo_exteme_net = eo_extreme$PPINet %>%
+                melt() %>%
+                filter(value>0.5)
+
+gg_eo = graph_from_data_frame(eo_exteme_net) %>%
+        lcc()
+
+d      = sort(degree(gg_eo)) 
+df_deg = data.frame(x=d,y=data_cdf_probs(d))
+
+pt1 <- lambda_plot(df_deg)
+
+
+
+## Network for Late Onset Extreme using Panda
+lo_extreme = panda_ppi(motif=tf_priors, 
+                       expr=cohorts[[3]], 
+                       ppi=crc_ppi)
+
+lo_exteme_net = lo_extreme$PPINet %>%
+                melt() %>%
+                filter(value>0.5)
+
+
+gg_lo = graph_from_data_frame(lo_exteme_net) %>%
+        lcc()
+
+d      = sort(degree(gg_lo)) 
+df_deg = data.frame(x=d,y=data_cdf_probs(d))
+
+pt2 <- lambda_plot(df_deg)
+
+```
+
+# Early Onset Network
+
+```{r}
+summary(gg_eo)
+```
+
+```{r}
+pt1
+```
+
+# Late Onset Network
+
+```{r}
+summary(gg_lo)
+```
+
+```{r}
+pt2
+```
