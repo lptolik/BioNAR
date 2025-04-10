@@ -3,7 +3,7 @@
 * Basic clustering is component wise now. That means that before clustering
   algorithm application graph split into weak components, to which clustering
   algorithms applied independently. If algorithm fails on some component, whole
-  component considered as a cluster an 
+  component considered as a cluster. 
 
 # BioNAR 1.7
 
