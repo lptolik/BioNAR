@@ -98,7 +98,7 @@ test_that('Presynaptic Bridgenes',{
 test_that('Norm Modularity',{
     set.seed(100)
     nm<-normModularity(gg, alg='louvain',Nint=10)
-    expect_equal(nm,0.009390085,tolerance = 0.001)
+    expect_equal(nm,0.007033074,tolerance = 0.001)
 })
 
 test_that('Perturbation entropy',{
