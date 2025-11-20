@@ -91,7 +91,7 @@ calcMembership <- function(gg,
             mdf<-compMembership(sg,alg,compnum = .x,weights = weights)})
         memL[[length(memL)+1]]<-singldf
         mem<-do.call(rbind,memL)
-        idx<-match(mem$names,V(gg)$name)
+        idx<-match(V(gg)$name,mem$names)
         mem<-mem[idx,]
     }
     mem$membership<-factor(mem$membership)
@@ -191,14 +191,19 @@ calcAllClustering <- function(gg,weights = NULL) {
         an <- cnames[ai]
         cm <- calcMembership(gg, an,weights=weights)
         if (dim(cm)[1] > 0) {
-            l[[an]] <- as.character(cm$membership)
-            mod <- modularity(gg, as.numeric(cm$membership))
+            #l[[an]] <- as.character(cm$membership)
+            #mod <- modularity(gg, as.numeric(cm$membership))
+            m      <- as.matrix(cm)
+            colnames(m) <- c('ID', an)
+            gg <- applpMatrixToGraph(gg , m)
+            cmem <- factor(vertex_attr(gg, an))
+            mod <- modularity(gg, as.numeric(cmem))
             gg <- set_graph_attr(gg, an, mod)
         }
     }
-    m <- do.call(cbind, l)
-    ggm <- applpMatrixToGraph(gg , m)
-    return(ggm)
+#    m <- do.call(cbind, l)
+#    ggm <- applpMatrixToGraph(gg , m)
+    return(gg)
 }
 
 #' Calculate community membership for given clustering algorithm and store the
@@ -248,7 +253,9 @@ calcClustering <- function(gg, alg,weights = NULL) {
     m      <- as.matrix(cm)
     colnames(m) <- c('ID', alg)
     ggm <- applpMatrixToGraph(gg , m)
-    mod <- modularity(ggm, as.numeric(cm$membership))
+    cmem <- factor(vertex_attr(ggm, alg))
+    mod <- modularity(ggm, as.numeric(cmem))
+    #mod <- modularity(ggm, as.numeric(cm$membership))
     ggm <- set_graph_attr(ggm, alg, mod)
     return(ggm)
 }
