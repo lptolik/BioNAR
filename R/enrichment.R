@@ -79,7 +79,8 @@ clusterORA <- function(g,
                        alpha = 1.0,
                        col = COLLAPSE) {
     anL <- getAnnotationVertexList(g, name)
-    cl <- make_clusters(g, membership=as.numeric(factor(vertex_attr(g, alg))),
+    cmem <- factor(vertex_attr(g, alg))
+    cl <- make_clusters(g, membership=as.numeric(cmem),
                         algorithm = alg)
     vcnt <- vcount(g)
     forafun <- function(.i) {
@@ -91,7 +92,7 @@ clusterORA <- function(g,
         )
         cn<-length(gids)
         den<-cn/vcnt
-        res <- fres[,list(cl=.i,FL=pathway,N=vcnt,Fn=size,Cn=cn,
+        res <- fres[,list(cl=levels(cmem)[.i],FL=pathway,N=vcnt,Fn=size,Cn=cn,
                     Mu=overlap,
                     OR=log(overlap*(vcnt-size+overlap-cn)/
                               ((cn-overlap)*(size-overlap))),
