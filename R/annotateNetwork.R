@@ -657,6 +657,9 @@ annotateGOont <- function(gg, orgDB = org.Hs.eg.db, keytype = "ENTREZID",
     }
     #ids <- V(gg)$name
     ids <- getIDs(gg,idatt)
+    if(is.numeric(ids)){
+        ids <- as.character(ids)
+    }
     on <- suppressMessages(AnnotationDbi::select(orgDB,
                                 ids,
                                 columns = c("GO", 'ONTOLOGY'),
