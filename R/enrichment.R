@@ -78,7 +78,7 @@ clusterORA <- function(g,
                        vid = 'name',
                        alpha = 1.0,
                        col = COLLAPSE) {
-    anL <- getAnnotationVertexList(g, name)
+    anL <- getAnnotationVertexList(g, name,vid = vid, col = COLLAPSE)
     cmem <- factor(vertex_attr(g, alg))
     cl <- make_clusters(g, membership=as.numeric(cmem),
                         algorithm = alg)
